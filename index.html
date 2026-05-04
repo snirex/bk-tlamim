@@ -1862,12 +1862,12 @@
 
                         <!-- Balance -->
                         <div class="member-balance-badge" :class="getMemberBalance(selectedMember?.memberUniqueId) < 0 
-                ? 'balance-debt-badge' 
-                : 'balance-credit-badge'">
+                ? 'balance-credit-badge' 
+                : 'balance-debt-badge'">
 
                             <span x-text="getMemberBalance(selectedMember?.memberUniqueId) < 0 
-                ? 'חובה: ' 
-                : 'זכות: '"></span>
+                ? 'זכות: ' 
+                : 'חובה: '"></span>
 
                             <span x-text="'₪' + Math.abs(
                 getMemberBalance(selectedMember?.memberUniqueId)
