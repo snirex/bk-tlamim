@@ -3257,7 +3257,7 @@
                             (m.memberUniqueId && m.memberUniqueId.toString().includes(this.memberSearch))
                         )
                         .slice()
-                        .sort((a, b) => (a.nickname || a.name).localeCompare(b.nickname || b.name, 'he'));
+                        .sort((a, b) => (a.name).localeCompare(b.name, 'he'));
                 },
 
                 getMemberBalance(memberId) {
