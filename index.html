@@ -17,6 +17,7 @@
 תעשה את כל השינויים עם מינימום שינוי בקוד קיים, כך שאוכל בקלות לבחון גרסה חדשה מול גרסה ישנה עם תוכנת beyond compare.
     -->
     <!--https://claude.ai/chat/532f6481-eac3-42b4-8876-0759d0a42c8a-->
+    <!--https://claude.ai/chat/3c8b3aed-4541-43a0-9935-18476a1064a9-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">ניהול קהילה PRO</title>
@@ -3257,7 +3258,8 @@
                             (m.memberUniqueId && m.memberUniqueId.toString().includes(this.memberSearch))
                         )
                         .slice()
-                        .sort((a, b) => (a.name).localeCompare(b.name, 'he'));
+                        //.sort((a, b) => (a.nickname || a.name).localeCompare(b.nickname || b.name, 'he')); //v1.0
+                        .sort((a, b) => (a.name).localeCompare(b.name, 'he'));//v1.01
                 },
 
                 getMemberBalance(memberId) {
@@ -3585,13 +3587,40 @@
                     localStorage.setItem('synagogue_transactions', JSON.stringify(this.transactions));
                     this._saveToFirestore('transactions', { list: this.transactions });
                 },
-                async _saveToFirestore(collection, data) {
-                    if (!window.db || !window.fsMethods || !window.auth || !window.auth.currentUser) return;
-                    try {
-                        const uid = window.auth.currentUser.uid;
-                        await window.fsMethods.setDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', collection), data);
-                    } catch (e) {
-                        console.warn('Firestore save error:', e);
+                // async _saveToFirestore(collection, data) { //v1.0
+                //     if (!window.db || !window.fsMethods || !window.auth || !window.auth.currentUser) return;
+                //     try {
+                //         const uid = window.auth.currentUser.uid;
+                //         await window.fsMethods.setDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', collection), data);
+                //     } catch (e) {
+                //         console.warn('Firestore save error:', e);
+                //     }
+                // },
+                async _saveToFirestore(collection, data) { //v1.01
+                    // Wait for auth if not ready yet
+                    if (!window.db || !window.fsMethods) return;
+
+                    const doSave = async (user) => {
+                        if (!user) return;
+                        try {
+                            const uid = user.uid;
+                            await window.fsMethods.setDoc(
+                                window.fsMethods.doc(window.db, 'users', uid, 'data', collection),
+                                data
+                            );
+                        } catch (e) {
+                            console.warn('Firestore save error:', e);
+                        }
+                    };
+
+                    if (window.auth && window.auth.currentUser) {
+                        await doSave(window.auth.currentUser);
+                    } else if (window.auth) {
+                        // Wait for auth state to resolve
+                        const unsubscribe = window.fsMethods.onAuthStateChanged(window.auth, async (user) => {
+                            unsubscribe();
+                            await doSave(user);
+                        });
                     }
                 },
                 async _loadFromFirestore() {
