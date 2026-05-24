@@ -1579,7 +1579,7 @@
                 <button @click="navigate('importexport'); mobileMenuOpen = false" class="sidebar-btn"
                     data-tooltip="גיבוי/שחזור"
                     :style="view === 'importexport' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
-                    <i class="fas fa-exchange-alt"></i> <span>גיבוי/שחזור</span>
+                    <i class="fas fa-exchange-alt"></i> <span>גיבוי ושחזור</span>
                 </button>
                 <button @click="navigate('management'); mobileMenuOpen = false" class="sidebar-btn"
                     data-tooltip="הגדרות"
@@ -1618,7 +1618,7 @@
             <div x-show="view === 'home'" x-cloak>
                 <div class="page-header">
                     <h1 class="page-title mb-0">
-                        <i class="fas fa-home"></i> דף הבית — תנועות אחרונות
+                        <i class="fas fa-home"></i> דף הבית
                     </h1>
                 </div>
 
@@ -1838,7 +1838,8 @@
                 </div>
 
                 <div class="content-card no-print">
-                    <div class="section-header" @click="ui.debtorsCollapsed = !ui.debtorsCollapsed">
+                    <div class="section-header"
+                        @click="ui.debtorsCollapsed = !ui.debtorsCollapsed; if (!ui.debtorsCollapsed) $nextTick(() => renderDebtorsTable())">
                         <h6 class="fw-bold mb-0" style="color: #dc3545;">
                             <i class="fas fa-exclamation-circle me-1"></i> מתפללים ביתרת חובה
                         </h6>
@@ -1846,9 +1847,9 @@
                             style="color: var(--text-secondary);"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.debtorsCollapsed ? 'max-height: 0; opacity: 0;' : 'max-height: 400px; opacity: 1;'">
+                        :style="ui.debtorsCollapsed ? 'max-height: 0; opacity: 0; overflow: hidden;' : 'max-height: 600px; opacity: 1; overflow: visible;'">
                         <!-- טבלת מתפללים ביתרת חובה -->
-                        <div class="table-toolbar no-print" x-show="!ui.debtorsCollapsed">
+                        <div class="table-toolbar no-print">
                             <button class="table-scroll-btn" @click="openFullPageTable('debtors')">
                                 <i class="fas fa-expand"></i> מסך מלא
                             </button>
@@ -1872,7 +1873,7 @@
                         </div>
 
                         <h6 class="fw-bold mb-2 mt-4" style="color: #dc3545; display:none;"></h6>
-                        <div x-show="!ui.debtorsCollapsed">
+                        <div>
                             <input type="text" x-model="debtorsSearch" @input="renderDebtorsTable()"
                                 class="form-control form-control-sm mb-2 no-print" placeholder="🔍 חיפוש מתפלל...">
                             <div id="debtorsTable" class="content-card p-0" style="overflow: hidden;"></div>
@@ -1882,15 +1883,16 @@
 
                 <div class="content-card no-print">
                     <!-- תנועות אחרונות -->
-                    <div class="section-header no-print" @click="ui.homeCollapsed = !ui.homeCollapsed">
+                    <div class="section-header no-print"
+                        @click="ui.homeCollapsed = !ui.homeCollapsed; if (!ui.homeCollapsed) $nextTick(() => renderHomePage())">
                         <h6 class="fw-bold mb-0" style="color: var(--primary-color);"><i
                                 class="fas fa-history me-1"></i> תנועות אחרונות</h6>
                         <i class="fas" :class="ui.homeCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"
                             style="color: var(--text-secondary);"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.homeCollapsed ? 'max-height: 0; opacity: 0;' : 'max-height: 400px; opacity: 1;'">
-                        <div class="table-toolbar no-print" x-show="!ui.homeCollapsed">
+                        :style="ui.homeCollapsed ? 'max-height: 0; opacity: 0; overflow: hidden;' : 'max-height: 600px; opacity: 1; overflow: visible;'">
+                        <div class="table-toolbar no-print">
                             <button class="table-scroll-btn" @click="openFullPageTable('home')">
                                 <i class="fas fa-expand"></i> מסך מלא
                             </button>
@@ -1910,8 +1912,6 @@
                                 <i class="fas fa-print"></i>
                             </button>
                         </div>
-                    </div>
-                    <div x-show="!ui.homeCollapsed">
                         <input type="text" x-model="homeSearch" @input="renderHomePage()"
                             class="form-control form-control-sm mb-2 no-print" placeholder="🔍 חיפוש מתפלל / מטרה...">
                         <div id="homeTable" class="content-card p-0" style="overflow: hidden;"></div>
@@ -2148,22 +2148,28 @@
                                 <i class="fas fa-chart-bar me-1"></i> הפק דוח
                             </button>
                         </div>
-                        <div class="col-md-12">
-                            <div class="section-header" @click="ui.reportsParamsCollapsed = !ui.reportsParamsCollapsed"
-                                style="padding: 0.25rem 0;">
-                                <label class="small fw-bold mb-0" style="cursor:pointer;">בחר מתפללים (ריק =
-                                    הכל):</label>
-                                <i class="fas" :class="ui.reportsParamsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"
-                                    style="color: var(--text-secondary); font-size:0.8rem;"></i>
-                            </div>
-                            <div x-show="!ui.reportsParamsCollapsed" class="d-flex gap-2 flex-wrap mt-1">
-                                <template x-for="m in members" :key="m.memberUniqueId">
-                                    <label class="btn btn-sm btn-outline-primary">
-                                        <input type="checkbox" :value="m.memberUniqueId"
-                                            x-model="reportParams.selectedMembers" class="me-1">
-                                        <span x-text="m.name"></span>
-                                    </label>
-                                </template>
+                        <div class="col-md-12 p-0">
+                            <div class="content-card mb-0" style="padding: 0.5rem;">
+                                <div class="section-header"
+                                    @click="ui.reportsParamsCollapsed = !ui.reportsParamsCollapsed">
+                                    <h6 class="fw-bold mb-0" style="color: var(--primary-color);">
+                                        <i class="fas fa-users me-1"></i> בחר מתפללים <small class="fw-normal" style="color: var(--text-secondary);">(ריק = הכל)</small>
+                                    </h6>
+                                    <i class="fas" :class="ui.reportsParamsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"
+                                        style="color: var(--text-secondary);"></i>
+                                </div>
+                                <div class="section-body"
+                                    :style="ui.reportsParamsCollapsed ? 'max-height: 0; opacity: 0; overflow: hidden;' : 'max-height: 600px; opacity: 1; overflow: visible;'">
+                                    <div class="d-flex gap-2 flex-wrap mt-2">
+                                        <template x-for="m in members" :key="m.memberUniqueId">
+                                            <label class="btn btn-sm btn-outline-primary">
+                                                <input type="checkbox" :value="m.memberUniqueId"
+                                                    x-model="reportParams.selectedMembers" class="me-1">
+                                                <span x-text="m.name"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-12 border-top pt-3" style="border-color: var(--border-color) !important;">
@@ -2247,7 +2253,8 @@
             <div x-show="view === 'management'" x-cloak>
                 <div class="page-header">
                     <h1 class="page-title mb-0"><i class="fas fa-cog"></i> הגדרות מערכת</h1>
-                    <button @click="resetAllData()" class="btn btn-sm btn-outline-danger no-print">
+                    <button @click="resetAllData()" class="btn btn-sm btn-outline-danger no-print"
+                        style="display: none;">
                         <i class="fas fa-trash me-1"></i> איפוס כל הנתונים
                     </button>
                 </div>
@@ -2604,7 +2611,7 @@
             <!-- ══════════════════════════ ייצוא / ייבוא ══════════════════════════ -->
             <div x-show="view === 'importexport'" x-cloak>
                 <div class="page-header">
-                    <h1 class="page-title mb-0"><i class="fas fa-exchange-alt"></i> ייצוא / ייבוא נתונים</h1>
+                    <h1 class="page-title mb-0"><i class="fas fa-exchange-alt"></i>גיבוי ושחזור</h1>
                 </div>
 
                 <!-- גיבוי מלא -->
@@ -2940,7 +2947,7 @@
                     restoreOpen: false,
                     filteredExportOpen: false,
                     importOpen: false,
-                    reportsParamsCollapsed: false,
+                    reportsParamsCollapsed: true,
                 },
                 // Search strings for tables
                 debtorsSearch: '',
@@ -3579,7 +3586,7 @@
                     // בניית טרנזקציה רק עם שדות הטאב הנוכחי (ללא undefined)
                     const homeEntryFields = {};
                     cols2.forEach(c => { const v = this.homeEntry[c.field]; homeEntryFields[c.field] = (v === undefined ? '' : v); });
-                    const transaction = { transactionId: Date.now(), memberId: this.homeEntry.memberId, transactionType: this.homeActiveTab, ...homeEntryFields };
+                    const transaction = this.sanitize({ transactionId: Date.now(), memberId: this.homeEntry.memberId, transactionType: this.homeActiveTab, ...homeEntryFields });
                     this.transactions.unshift(transaction);
                     this.saveTransactionsData();
                     this.resetHomeEntry();
@@ -3658,7 +3665,7 @@
                         const v = this.newEntry[c.field];
                         entryFields[c.field] = (v === undefined ? '' : v);
                     });
-                    const transaction = { transactionId: Date.now(), memberId: this.selectedMember.memberUniqueId, transactionType: this.activeTab, ...entryFields };
+                    const transaction = this.sanitize({ transactionId: Date.now(), memberId: this.selectedMember.memberUniqueId, transactionType: this.activeTab, ...entryFields });
                     this.transactions.unshift(transaction);
                     this.saveTransactionsData();
                     this.resetEntry();
@@ -3754,64 +3761,55 @@
                     //localStorage.setItem('synagogue_transactions', JSON.stringify(this.transactions));
                     this._saveToFirestore('transactions', { list: this.transactions });
                 },
-                // async _saveToFirestore(collection, data) { //v1.0
-                //     if (!window.db || !window.fsMethods || !window.auth || !window.auth.currentUser) return;
-                //     try {
-                //         const uid = window.auth.currentUser.uid;
-                //         await window.fsMethods.setDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', collection), data);
-                //     } catch (e) {
-                //         console.warn('Firestore save error:', e);
-                //     }
-                // },
+                // Firestore rejects undefined values — recursively replace with ''
+                sanitize(val) {
+                    if (val === undefined || val === null) return '';
+                    if (Array.isArray(val)) return val.map(v => this.sanitize(v));
+                    if (typeof val === 'object') {
+                        const out = {};
+                        for (const k of Object.keys(val)) out[k] = this.sanitize(val[k]);
+                        return out;
+                    }
+                    return val;
+                },
+
+                _logDb(status, msg) {
+                    const now = new Date();
+                    const time = now.toLocaleDateString('he-IL') + ' ' + now.toLocaleTimeString('he-IL');
+                    this.dbLog.unshift({ time, status, msg });
+                    if (this.dbLog.length > 200) this.dbLog.pop();
+                    localStorage.setItem('synagogue_dblog', JSON.stringify(this.dbLog));
+                },
+
+                async _doSave(user, collection, safeData, data) {
+                    if (!user) return;
+                    try {
+                        const uid = user.uid;
+                        await window.fsMethods.setDoc(
+                            window.fsMethods.doc(window.db, 'users', uid, 'data', collection),
+                            safeData
+                        );
+                        this._logDb('ok', `שמירה: ${collection} (${Array.isArray(data.list) ? data.list.length + ' רשומות' : 'הגדרות'})`);
+                    } catch (e) {
+                        this._logDb('error', `שגיאת שמירה: ${collection} — ${e.message || e}`);
+                        console.warn('Firestore save error:', e);
+                    }
+                },
+
                 async _saveToFirestore(collection, data) { //v1.02
                     // Wait for auth if not ready yet
                     if (!window.db || !window.fsMethods)
                         return;
 
-                    // Firestore rejects undefined values — recursively replace with ''
-                    const sanitize = (val) => {
-                        if (val === undefined || val === null) return '';
-                        if (Array.isArray(val)) return val.map(sanitize);
-                        if (typeof val === 'object') {
-                            const out = {};
-                            for (const k of Object.keys(val)) out[k] = sanitize(val[k]);
-                            return out;
-                        }
-                        return val;
-                    };
-                    const safeData = sanitize(data);
-
-                    const _logDb = (status, msg) => {
-                        const now = new Date();
-                        const time = now.toLocaleDateString('he-IL') + ' ' + now.toLocaleTimeString('he-IL');
-                        this.dbLog.unshift({ time, status, msg });
-                        if (this.dbLog.length > 200) this.dbLog.pop();
-                        //save log db
-                        localStorage.setItem('synagogue_dblog', JSON.stringify(this.dbLog));
-                    };
-
-                    const doSave = async (user) => {
-                        if (!user) return;
-                        try {
-                            const uid = user.uid;
-                            await window.fsMethods.setDoc(
-                                window.fsMethods.doc(window.db, 'users', uid, 'data', collection),
-                                safeData
-                            );
-                            _logDb('ok', `שמירה: ${collection} (${Array.isArray(data.list) ? data.list.length + ' רשומות' : 'הגדרות'})`);
-                        } catch (e) {
-                            _logDb('error', `שגיאת שמירה: ${collection} — ${e.message || e}`);
-                            console.warn('Firestore save error:', e);
-                        }
-                    };
+                    const safeData = this.sanitize(data);
 
                     if (window.auth && window.auth.currentUser) {
-                        await doSave(window.auth.currentUser);
+                        await this._doSave(window.auth.currentUser, collection, safeData, data);
                     } else if (window.auth) {
                         // Wait for auth state to resolve
                         const unsubscribe = window.fsMethods.onAuthStateChanged(window.auth, async (user) => {
                             unsubscribe();
-                            await doSave(user);
+                            await this._doSave(user, collection, safeData, data);
                         });
                     }
                 },
@@ -3827,19 +3825,15 @@
                         if (membersSnap.exists()) this.members = membersSnap.data().list || [];
                         if (txSnap.exists()) this.transactions = txSnap.data().list || [];
                         if (configSnap.exists()) this.config = { ...this.config, ...configSnap.data() };
+                        
                         // Sync to localStorage
-                        localStorage.setItem('synagogue_members', JSON.stringify(this.members));
-                        localStorage.setItem('synagogue_transactions', JSON.stringify(this.transactions));
-                        localStorage.setItem('synagogue_config', JSON.stringify(this.config));
-                        const now = new Date();
-                        const time = now.toLocaleDateString('he-IL') + ' ' + now.toLocaleTimeString('he-IL');
-                        this.dbLog.unshift({ time, status: 'ok', msg: `טעינה מ-Firestore: ${this.members.length} מתפללים, ${this.transactions.length} תנועות` });
-                        localStorage.setItem('synagogue_dblog', JSON.stringify(this.dbLog));
+                        // localStorage.setItem('synagogue_members', JSON.stringify(this.members));
+                        // localStorage.setItem('synagogue_transactions', JSON.stringify(this.transactions));
+                        // localStorage.setItem('synagogue_config', JSON.stringify(this.config));
+                        
+                        this._logDb('ok', `טעינה מ-Firestore: ${this.members.length} מתפללים, ${this.transactions.length} תנועות`);
                     } catch (e) {
-                        const now = new Date();
-                        const time = now.toLocaleDateString('he-IL') + ' ' + now.toLocaleTimeString('he-IL');
-                        this.dbLog.unshift({ time, status: 'error', msg: `שגיאת טעינה מ-Firestore — ${e.message || e}` });
-                        localStorage.setItem('synagogue_dblog', JSON.stringify(this.dbLog));
+                        this._logDb('error', `שגיאת טעינה מ-Firestore — ${e.message || e}`);
                         console.warn('Firestore load error:', e);
                     }
                 },
@@ -4403,7 +4397,7 @@
                         });
                         const amountField = this.batchTxType === 'commitments' ? 'commitmentAmount' : 'paymentAmount';
                         if (!transaction[amountField]) { errors.push(`שורה ${li + 1}: חסר סכום`); return; }
-                        this.transactions.unshift(transaction);
+                        this.transactions.unshift(this.sanitize(transaction));
                         addedCount++;
                     });
                     if (addedCount > 0) { this.saveTransactionsData(); this.filterHomeTransactions(); this.renderTable(); this.batchTxString = ''; this.ui.batchTxOpen = false; }
@@ -4433,8 +4427,8 @@
                     }));
 
                     if (!this.readOnlyMode) {
-                        cols.push({ title: 'עריכה', field: 'edit_btn', width: 60, headerSort: false, responsive: 0, formatter: () => '<span class="edit-btn" title="ערוך שורה">✎</span>', cellClick: (e, cell) => { this.toggleRowEdit(cell.getRow()); } });
-                        cols.push({ title: 'מחק', field: 'delete', width: 55, headerSort: false, responsive: 0, formatter: () => '<span class="delete-btn">×</span>', cellClick: (e, cell) => { this.deleteTransaction(cell.getRow().getData().transactionId); } });
+                        cols.push({ title: 'עריכה', field: 'edit_btn', width: 60, headerSort: false, responsive: 0, formatter: () => '<span class="edit-btn" title="ערוך שורה"><i class="fa fa-edit" aria-hidden="true"></i></span>', cellClick: (e, cell) => { this.toggleRowEdit(cell.getRow()); } });
+                        cols.push({ title: 'מחק', field: 'delete', width: 55, headerSort: false, responsive: 0, formatter: () => '<span class="delete-btn"><i class="fa fa-trash" aria-hidden="true"></i></span>', cellClick: (e, cell) => { this.deleteTransaction(cell.getRow().getData().transactionId); } });
                     }
 
                     let data = this.transactions.filter(t => t.memberId === this.selectedMember.memberUniqueId && t.transactionType === this.activeTab);
@@ -4666,21 +4660,17 @@
                     // Add action buttons for movements table
                     if (!this.readOnlyMode) {
                         cols.push({
-                            title: 'עריכה', field: 'mov_edit', width: 55, headerSort: false, responsive: 0,
-                            formatter: () => '<span class="edit-btn" title="ערוך">✎</span>',
-                            cellClick: (e, cell) => { this.toggleRowEdit(cell.getRow()); }
-                        });
-                        cols.push({
-                            title: 'מחק', field: 'mov_delete', width: 50, headerSort: false, responsive: 0,
-                            formatter: () => '<span class="delete-btn" title="מחק">×</span>',
+                            title: 'מחק', field: 'mov_delete', width: 65, headerSort: false, responsive: 0,
+                            formatter: () => '<span class="delete-btn" title="מחק"><i class="fa fa-trash" aria-hidden="true"></i></span>',
                             cellClick: (e, cell) => { this.deleteTransaction(cell.getRow().getData().transactionId); }
                         });
                         cols.push({
                             title: 'עבור אל', field: 'mov_goto', width: 65, headerSort: false, responsive: 0,
                             formatter: (cell) => {
                                 const type = cell.getRow().getData().transactionType;
-                                if (type === 'commitments') return '<span title="עבור להתחייבות" style="cursor:pointer;color:#2c5f7d;font-size:0.9rem;font-weight:600;">ח</span>';
-                                return '<span title="עבור לתשלום" style="cursor:pointer;color:#28a745;font-size:0.9rem;font-weight:600;">ת</span>';
+                                if (type === 'commitments')
+                                    return '<span title="עבור להתחייבות" style="cursor:pointer;color:#2c5f7d;font-size:0.9rem;font-weight:600;">חובה</span>';
+                                return '<span title="עבור לתשלום" style="cursor:pointer;color:#28a745;font-size:0.9rem;font-weight:600;">זיכוי</span>';
                             },
                             cellClick: (e, cell) => {
                                 const data = cell.getRow().getData();
@@ -4690,7 +4680,10 @@
                         });
                     }
 
-                    if (this.currentTable) { try { this.currentTable.destroy(); } catch (e) { } this.currentTable = null; }
+                    if (this.currentTable) {
+                        try { this.currentTable.destroy(); } catch (e) { }
+                        this.currentTable = null;
+                    }
                     this.currentTable = new Tabulator("#movementsTable", {
                         data: movementsData,
                         layout: this.getTableScroll("movements") ? "fitData" : "fitColumns",
@@ -4951,9 +4944,8 @@
                         { title: "סכום", field: "amount", formatter: "money", responsive: 0, width: 120 }
                     ];
                     if (!this.readOnlyMode) {
-                        columns.push({ title: 'עריכה', field: 'edit_btn', width: 60, headerSort: false, responsive: 0, formatter: () => '<span class="edit-btn" title="ערוך">✎</span>', cellClick: (e, cell) => { this.startEditHomeRow(cell); } });
                         columns.push({ title: 'עבור אל', field: 'goto', width: 70, headerSort: false, responsive: 0, formatter: () => '<span class="goto-btn" title="עבור לתנועה">➜</span>', cellClick: (e, cell) => { const data = cell.getRow().getData(); this.goToMemberTransaction(data.memberId, data.transactionId); } });
-                        columns.push({ title: 'מחק', field: 'delete', width: 55, headerSort: false, responsive: 0, formatter: () => '<span class="delete-btn" title="מחק">×</span>', cellClick: (e, cell) => { this.deleteTransaction(cell.getRow().getData().transactionId); } });
+                        columns.push({ title: 'מחק', field: 'delete', width: 65, headerSort: false, responsive: 0, formatter: () => '<span class="delete-btn" title="מחק"><i class="fa fa-trash" aria-hidden="true"></i></span>', cellClick: (e, cell) => { this.deleteTransaction(cell.getRow().getData().transactionId); } });
                     }
                     const container = document.getElementById('homeTable');
                     if (container) container.innerHTML = '';
