@@ -1847,7 +1847,7 @@
 
                             <div x-show="selectedMember?.phone">
                                 <i class="fa fa-phone"></i>
-                                <a :href="selectedMember ? 'tel:' + selectedMember.phone : '#'"
+                                <a :href="selectedMember ? formatWhatsappLink(selectedMember.phone) : '#'"
                                     style="color: white; text-decoration: none;">
                                     <span x-text="selectedMember?.phone" style="margin-right:.5rem;"></span>
                                 </a>
@@ -3177,7 +3177,18 @@
                     };
                     waitForFirebase();
                 },
+                formatWhatsappLink(phone) {
+                    if (!phone) return '#';
+                    // clear if not number
+                    let cleanPhone = phone.replace(/\D/g, '');
 
+                    // replace starting 0 with 972
+                    if (cleanPhone.startsWith('0')) {
+                        cleanPhone = '972' + cleanPhone.substring(1);
+                    }
+
+                    return `https://wa.me/${cleanPhone}`;
+                },
                 getMovementColumns() {
                     const allCols = [
                         ...this.config.commitmentColumns.map(c => ({ ...c, source: 'commitments' })),
