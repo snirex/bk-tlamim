@@ -3046,8 +3046,8 @@
                 },
 
                 // Data
-                members: [],//JSON.parse(localStorage.getItem('synagogue_members')) || [],
-                transactions: [],// JSON.parse(localStorage.getItem('synagogue_transactions')) || [],
+                members: JSON.parse(localStorage.getItem('synagogue_members')) || [],
+                transactions: JSON.parse(localStorage.getItem('synagogue_transactions')) || [],
                 newEntry: {},
                 currentTable: null,
 
