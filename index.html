@@ -2928,6 +2928,7 @@
                     fromDate: '',
                     toDate: ''
                 },
+                lastUsedDate: '', //Used to retrieve the latest date in use, to prevent the user from messing with it
                 filteredHomeTransactions: [],
                 highlightedRowId: null,
                 dbLog: JSON.parse(localStorage.getItem('synagogue_dblog')) || [],
@@ -3245,13 +3246,15 @@
                     setTimeout(() => this.renderTable(), 50);
                 },
 
-                setTab(t) {
-                    this.activeTab = t;
+                setTab(tab_name) {
+                    this.activeTab = tab_name;
                     this.updateURL();
                     setTimeout(() => {
                         this.renderTable();
-                        if (['commitments', 'payments'].includes(t)) {
-                            setTimeout(() => { this._attachNewEntryEnterNav(); }, 150);
+                        if (['commitments', 'payments'].includes(tab_name)) {
+                            setTimeout(() => {
+                                this.attachNewEntryEnterNav();
+                            }, 150);
                         }
                     }, 50);
                 },
@@ -3724,9 +3727,12 @@
                 resetEntry() {
                     const cols = this.activeTab === 'commitments' ? this.config.commitmentColumns : this.config.paymentColumns;
                     this.newEntry = {};
-                    cols.forEach(c => { this.newEntry[c.field] = (c.type === 'date' ? this.getTodayDate() : ''); });
+                    cols.forEach(c => {
+                        //load  last used date
+                        let date = this.lastUsedDate == '' ? this.getTodayDate() : this.lastUsedDate;
+                        this.newEntry[c.field] = (c.type === 'date' ? date : '');
+                    });
                 },
-
                 addNewEntry() {
                     const amountField = this.activeTab === 'commitments' ? 'commitmentAmount' : 'paymentAmount';
                     if (this.newEntry[amountField] === '' || this.newEntry[amountField] === null || this.newEntry[amountField] === undefined) { Swal.fire('שגיאה', 'נא להזין סכום', 'error'); return; }
@@ -3741,8 +3747,10 @@
                     // בניית טרנזקציה רק עם שדות הטאב הנוכחי (ללא undefined)
                     const entryFields = {};
                     cols.forEach(c => {
-                        const v = this.newEntry[c.field];
-                        entryFields[c.field] = (v === undefined ? '' : v);
+                        const val = this.newEntry[c.field];
+                        //save last used date
+                        this.lastUsedDate = (c.type === 'date' && val) ? val : this.lastUsedDate;
+                        entryFields[c.field] = (val === undefined ? '' : val);
                     });
                     const transaction = this.sanitize({ transactionId: Date.now(), memberId: this.selectedMember.memberUniqueId, transactionType: this.activeTab, ...entryFields });
                     this.transactions.unshift(transaction);
@@ -3750,10 +3758,10 @@
                     this.resetEntry();
                     this.renderTable();
                     // Return focus to first field
-                    setTimeout(() => { this._attachNewEntryEnterNav(); }, 120);
+                    setTimeout(() => { this.attachNewEntryEnterNav(); }, 120);
                 },
 
-                _attachNewEntryEnterNav() {
+                attachNewEntryEnterNav() {
                     const form = document.getElementById('newEntryForm');
                     if (!form) return;
                     const inputs = form.querySelectorAll('.new-entry-field');
@@ -4513,7 +4521,8 @@
 
                     const curCols = this.activeTab === 'commitments' ? this.config.commitmentColumns : this.config.paymentColumns;
                     let cols = curCols.map(c => ({
-                        title: c.title, field: c.field,
+                        title: c.title, 
+                        field: c.field,
                         editor: this.readOnlyMode ? false : (c.type === 'list' ? 'list' : c.type === 'date' ? 'input' : 'input'),
                         formatter: c.type === 'money' ? (this.activeTab === 'commitments' ? commitmentFmt : paymentFmt) : (c.type === 'date' ? (cell) => formatDate(cell.getValue()) : undefined),
                         editorParams: c.type === 'list' && c.options ? { values: c.options.split(',').map(o => ({ label: o.trim(), value: o.trim() })) } : {},
