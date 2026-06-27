@@ -4,8 +4,8 @@
 
 <head>
     <!--
-    demo mode
-    fix safety
+    refresh db
+    lastUsed date
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1453,7 +1453,7 @@
                 </button>
             </div>
 
-            <!-- Search + Add -->
+            <!-- Search + Add mitpalelim -->
             <div class="sidebar-section">
                 <div class="d-flex gap-2 mb-2">
                     <input type="text" id="memberSearch" x-model="memberSearch" class="search-input"
@@ -1502,11 +1502,17 @@
 
             <!-- Members List -->
             <div class="sidebar-section">
-                <div class="sidebar-section-title">
-                    <i class="fas fa-users"></i> רשימת מתפללים
-                    <span
-                        style="background: var(--primary-color); color: white; font-size: 0.7rem; padding: 1px 6px; border-radius: 10px; margin-right: auto;"
-                        x-text="members.length"></span>
+                <div class="sidebar-section-title d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="fas fa-users"></i> <span>רשימת מתפללים</span>
+                        <span
+                            style="background: var(--primary-color); color: white; font-size: 0.7rem; padding: 1px 6px; border-radius: 10px;"
+                            x-text="members.length"></span>
+                    </div>
+                    <button @click="refreshMembers()" class="btn btn-sm p-0 border-0"
+                        style="color: var(--text-secondary); margin-right: auto;" title="רענן נתונים">
+                        <i class="fas fa-sync-alt" :class="isRefreshing ? 'fa-spin' : ''"></i>
+                    </button>
                 </div>
                 <div class="worshippers-list" id="worshippersListBox">
                     <template x-for="(m, mIdx) in filteredMembers" :key="m.memberUniqueId">
@@ -1539,7 +1545,7 @@
                             </div>
                         </div>
                     </template>
-                    <div x-show="filteredMembers.length === 0" class="p-3 text-center"
+                    <div id="listOfWorshipper" x-show="filteredMembers.length === 0" class="p-3 text-center"
                         style="color: var(--text-secondary); font-size: 0.85rem;">
                         אין מתפללים
                     </div>
@@ -2716,9 +2722,14 @@
             <div x-show="view === 'dblog'" x-cloak>
                 <div class="page-header">
                     <h1 class="page-title mb-0"><i class="fas fa-database"></i> יומן פעולות Database</h1>
-                    <button @click="dbLog = []; localStorage.removeItem('synagogue_dblog')"
-                        class="btn btn-sm btn-outline-danger">
-                        <i class="fas fa-trash me-1"></i>נקה יומן</button>
+                    <div>
+                        <button @click="dbLog = []; localStorage.removeItem('synagogue_dblog')"
+                            class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash me-1"></i>נקה יומן</button>
+                        <p style="margin:10px 0;">
+                            <button @click="refreshMembers()" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-sync-alt me-1"></i>טען נתונים</button>
+                    </div>
                 </div>
                 <div class="content-card">
                     <template x-if="dbLog.length === 0">
@@ -2933,7 +2944,8 @@
                 highlightedRowId: null,
                 dbLog: JSON.parse(localStorage.getItem('synagogue_dblog')) || [],
                 debtorsTable: null,
-
+                //refresh from db - rotate icon
+                isRefreshing: false,
                 // Reports
                 reportParams: {
                     purpose: '',
@@ -3078,6 +3090,59 @@
                         --table-font: ${isDark ? this.config.theme.tableFontDark : this.config.theme.tableFont};
                     `;
                 },
+                //refresh mitpalelim from db
+                async refreshMembers() {
+                    if (window.IS_DEMO) {
+                        Swal.fire({ icon: 'info', title: 'מצב הדגמה', text: 'במצב דמו הנתונים נטענים מקומית', timer: 1500, showConfirmButton: false });
+                        return;
+                    }
+
+                    // if refreshMembers is already in progress, don't initiate it again
+                    if (this.isRefreshing) return;
+
+                    // 1. turn on the refresh animation (rotate icon) immediately
+                    this.isRefreshing = true;
+
+                    // show loading message
+                    Swal.fire({ icon: 'success', title: 'טוען נתונים...', toast: true, position: 'bottom-end', showConfirmButton: false, timer: 1500, didOpen: () => { Swal.showLoading(); } });
+
+                    let listTitleEl = document.getElementById('listOfWorshipper');
+                    if (listTitleEl)
+                        listTitleEl.textContent = "מרענן...";
+
+                    var tempMembers = [...this.members];
+                    try {
+                        // clear local list
+                        this.members = [];
+
+                        // load data from Firestore
+                        await this._loadFromFirestore();
+
+                        // עדכון הרכיבים והטבלאות במסך
+                        this.extractAvailablePurposes();
+                        this.renderTable();
+
+                        // refresh other tables if the user is currentl watching them
+                        if (this.view === 'home') this.renderHomePage();
+                        if (this.view === 'summary') this.renderGlobalSummary();
+
+                        Swal.fire({ icon: 'success', title: 'הנתונים עודכנו בהצלחה!', toast: true, position: 'bottom-end', showConfirmButton: false, timer: 1500 });
+                    } catch (e) {
+                        console.error("error syncing with DB:", e);
+                        Swal.fire({ icon: 'error', title: 'שגיאה ברענון', text: e.message || e });
+                        this.members = tempMembers;
+
+                        // render again the tables, in order to return the tables back to the screen, as just as it was
+                        this.renderTable();
+                        if (this.view === 'home') this.renderHomePage();
+                        if (this.view === 'summary') this.renderGlobalSummary();
+                    } finally {
+                        // 2 turn off the animation in any state (sucess of failure)
+                        this.isRefreshing = false;
+                    }
+                },
+
+
 
                 init() {
                     this.isLoggedIn = !!localStorage.getItem('authUser');
@@ -3124,6 +3189,7 @@
                         this.renderTable();
                     }, { deep: true });
 
+                    /** Key Shortcuts*/
                     window.addEventListener('keydown', (e) => {
                         if (!this.isLoggedIn) return;
                         if (e.key === 'Escape') {
@@ -4521,7 +4587,7 @@
 
                     const curCols = this.activeTab === 'commitments' ? this.config.commitmentColumns : this.config.paymentColumns;
                     let cols = curCols.map(c => ({
-                        title: c.title, 
+                        title: c.title,
                         field: c.field,
                         editor: this.readOnlyMode ? false : (c.type === 'list' ? 'list' : c.type === 'date' ? 'input' : 'input'),
                         formatter: c.type === 'money' ? (this.activeTab === 'commitments' ? commitmentFmt : paymentFmt) : (c.type === 'date' ? (cell) => formatDate(cell.getValue()) : undefined),
@@ -4605,6 +4671,10 @@
                             this.highlightedRowId = null;
                         }, 300);
                     }
+
+                    this.renderHomePage(); // במידה והמשתמש נמצא בדף הבית
+                    this.renderDebtorsTable(); // ריענון טבלת יתרות החובה
+                    this.renderGlobalSummary();
                 },
 
                 toggleRowEdit(row) {
@@ -4925,6 +4995,22 @@
                     const columns = this.currentTable.getColumns().map(col => ({ header: col.getDefinition().title, dataKey: col.getField() }));
                     doc.autoTable({ startY: 35, head: [columns.map(c => c.header)], body: tableData.map(row => columns.map(col => row[col.dataKey] || '')), styles: { font: 'helvetica', halign: 'right' }, headStyles: { fillColor: [44, 95, 125], textColor: 255 } });
                     doc.save(`${filename}_${new Date().toISOString().split('T')[0]}.pdf`);
+                },
+
+                exportToPDF_old(tableId, filename) {
+                    // מוצאים את אלמנט ה-HTML שרוצים להדפיס
+                    const element = document.getElementById(tableId);
+
+                    const options = {
+                        margin: 10,
+                        filename: `${filename}_${new Date().toISOString().split('T')[0]}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true }, // scale 2 שומר על חדות הטקסט
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    // הפקה חלקה בעברית כולל עיצוב ה-CSS הקיים!
+                    html2pdf().set(options).from(element).save();
                 },
 
                 exportFullBackup(format) {
@@ -5273,5 +5359,4 @@
         // ===== END DEMO MODE =====
     </script>
 </body>
-
 </html>
