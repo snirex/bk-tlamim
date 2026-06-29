@@ -6,6 +6,8 @@
     <!--
     button 'add money' - in funds
     remove code duplicate
+    fix loading screen after refresh page
+    add 'loading' animation
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -3199,7 +3201,8 @@
                 readOnlyMode: false,
                 appReady: false,
                 appVisible: false,
-
+                dataLoaded: false,
+                
                 // Navigation
                 view: 'home',
                 activeTab: 'commitments',
@@ -3512,6 +3515,8 @@
                         this.transactions = demoData.transactions || [];
                         if (demoData.config) this.config = { ...this.config, ...demoData.config };
                         this.extractAvailablePurposes();
+                        this.handleRouting(); // <--- 2. רק עכשיו מפעילים את הראוטינג (כשיש מתפללים בזיכרון לחפש לפיהם!)
+                        this.dataLoaded = true;
                         setTimeout(() => this.renderTable(), 100);
                         return;
                     }
@@ -3526,6 +3531,9 @@
                                     this.isLoggedIn = true;
                                     this.adminEmail = user.email || localStorage.getItem('authUser') || '';
                                     this.extractAvailablePurposes();
+                                    this.handleRouting(); // <--- 2. רק עכשיו מפעילים את הראוטינג (כשיש מתפללים בזיכרון לחפש לפיהם!)
+                                    this.dataLoaded = true;
+
                                     setTimeout(() => this.renderTable(), 100);
                                 } else {
                                     this.isLoggedIn = false;
@@ -6238,6 +6246,16 @@
         }
         // ===== END DEMO MODE =====
     </script>
+    <!-- Loader מסך טעינה ממורכז לחלוטין -->
+    <div x-show="!dataLoaded"
+        style="position: fixed; top: 100px; left: 48%; height: 100vh; background: var(--bg-main, #f8f9fa); display: flex !important; align-items: center !important; justify-content: center !important; z-index: 99999;">
+        <div class="d-flex flex-column align-items-center gap-3">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">טוען...</span>
+            </div>
+            <span class="fw-bold text-secondary" style="font-size: 1.1rem;">טוען נתונים...</span>
+        </div>
+    </div>
 </body>
 
 </html>
