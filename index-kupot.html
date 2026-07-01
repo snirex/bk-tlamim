@@ -7,6 +7,7 @@
     button 'add money' - in funds
     remove code duplicate
     remove loading screen after refresh page,remove 'loading' animation
+    show funds only in commitments
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1691,7 +1692,7 @@
                                                 class="form-select form-select-sm home-entry-field">
                                                 <option value="">בחר...</option>
                                                 <template x-if="col.field === 'purpose'">
-                                                    <template x-for="opt in getPurposeOptions()" :key="opt.value">
+                                                    <template x-for="opt in getPurposeOptions(homeActiveTab)" :key="opt.value">
                                                         <option :value="opt.value" :disabled="opt.disabled || false"
                                                             x-text="opt.label"></option>
                                                     </template>
@@ -1959,7 +1960,7 @@
                                         class="form-select form-select-sm new-entry-field">
                                         <option value="">בחר...</option>
                                         <template x-if="col.field === 'purpose'">
-                                            <template x-for="opt in getPurposeOptions()" :key="opt.value">
+                                            <template x-for="opt in getPurposeOptions(activeTab)" :key="opt.value">
                                                 <option :value="opt.value" :disabled="opt.disabled || false"
                                                     x-text="opt.label"></option>
                                             </template>
@@ -4925,7 +4926,7 @@
                         field: c.field,
                         editor: this.readOnlyMode ? false : (c.type === 'list' ? 'list' : c.type === 'date' ? 'input' : 'input'),
                         formatter: c.type === 'money' ? (this.activeTab === 'commitments' ? commitmentFmt : paymentFmt) : (c.type === 'date' ? (cell) => formatDate(cell.getValue()) : undefined),
-                        editorParams: c.type === 'list' ? (c.field === 'purpose' ? { values: this.getPurposeOptions().map(opt => ({ label: opt.label, value: opt.value, disabled: opt.disabled || false })) } : { values: c.options.split(',').map(o => ({ label: o.trim(), value: o.trim() })) }) : {},
+                        editorParams: c.type === 'list' ? (c.field === 'purpose' ? { values: this.getPurposeOptions(this.activeTab).map(opt => ({ label: opt.label, value: opt.value, disabled: opt.disabled || false })) } : { values: c.options.split(',').map(o => ({ label: o.trim(), value: o.trim() })) }) : {},
                         responsive: 0
                     }));
 
@@ -6112,8 +6113,11 @@
                     return this.funds.find(f => String(f.name || '').trim() === nm) || null;
                 },
 
-                getPurposeOptions() {
+                getPurposeOptions(type) {
                     const regular = this.getRegularPurposeOptions().map(v => ({ label: v, value: v, type: 'regular' }));
+                    if (type === 'payments') {//only in commitments
+                        return regular;
+                    }
                     const funds = this.getActiveFunds().map(f => ({
                         label: f.name,
                         value: `fund:${f.id}`,
