@@ -4,6 +4,7 @@
 
 <head>
     <!--
+    paginationSize = 100
     button 'add money' - in funds
     remove code duplicate
     remove loading screen after refresh page,remove 'loading' animation
@@ -1692,7 +1693,8 @@
                                                 class="form-select form-select-sm home-entry-field">
                                                 <option value="">בחר...</option>
                                                 <template x-if="col.field === 'purpose'">
-                                                    <template x-for="opt in getPurposeOptions(homeActiveTab)" :key="opt.value">
+                                                    <template x-for="opt in getPurposeOptions(homeActiveTab)"
+                                                        :key="opt.value">
                                                         <option :value="opt.value" :disabled="opt.disabled || false"
                                                             x-text="opt.label"></option>
                                                     </template>
@@ -2918,7 +2920,8 @@
 
                             <!-- סטטיסטיקות -->
                             <div style="display: grid; grid-template-columns: repeat(2, 2fr); gap: 1rem;">
-                                <div style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div
+                                    style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
                                     <div
                                         style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
                                         יתרה בקופה</div>
@@ -2927,7 +2930,8 @@
                                         ₪<span x-text="Number(selectedFund.balance).toLocaleString()"></span>
                                     </div>
                                 </div>
-                                <div style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div
+                                    style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
                                     <div
                                         style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
                                         נוצרה ב:</div>
@@ -2995,7 +2999,8 @@
                                                             :style="history.type === 'commitment' ? 'color: #28a745;' : 'color: #dc3545;'">
                                                             <span
                                                                 x-text="history.type === 'commitment' ? '+' : '−'"></span>₪
-                                                                <span x-text="Number(history.amount).toLocaleString()"></span>
+                                                            <span
+                                                                x-text="Number(history.amount).toLocaleString()"></span>
                                                         </span>
                                                     </td>
                                                     <td style="padding: 0.75rem; text-align: right;">
@@ -3415,6 +3420,11 @@
 
                         // עדכון הרכיבים והטבלאות במסך
                         this.extractAvailablePurposes();
+                        this.renderTable();
+
+                        // refresh other tables if the user is currentl watching them
+                        if (this.view === 'home') this.renderHomePage();
+                        if (this.view === 'summary') this.renderGlobalSummary();
 
                         Swal.fire({ icon: 'success', title: 'הנתונים עודכנו בהצלחה!', toast: true, position: 'bottom-end', showConfirmButton: false, timer: 1500 });
                     } catch (e) {
@@ -3713,7 +3723,7 @@
                         data,
                         layout: this.fullPageTableScrollMode ? "fitData" : "fitColumns",
                         responsiveLayout: false,
-                        pagination: "local", paginationSize: 50, paginationSizeSelector: [20, 50, 100, 200],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [20, 50, 100, 200],
                         columns,
                         height: "calc(100vh - 140px)",
                         cellEdited: (cell) => {
@@ -4571,7 +4581,7 @@
                         data: reportData,
                         layout: this.getTableScroll("reports") ? "fitData" : "fitColumns",
                         responsiveLayout: this.getTableScroll("reports") ? false : "collapse",
-                        pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                         columns: [
                             { title: "מתפלל", field: "memberName", responsive: 0 },
                             { title: "תאריך", field: "date", responsive: 0, formatter: (cell) => formatDate(cell.getValue()) },
@@ -4952,7 +4962,7 @@
                                 row.getElement().classList.add('new-row-input');
                             }
                         },
-                        pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                         columns: cols,
                         cellEdited: (cell) => {
                             if (!this.readOnlyMode) {
@@ -4960,7 +4970,7 @@
                                 if (rowData._newRow) return; // handled separately
                                 const idx = this.transactions.findIndex(t => t.transactionId === rowData.transactionId);
                                 if (idx !== -1) {
-                                    // אם יש שינוי בעמודת purpose (סוג פעולה)
+                                    //if there's a cjamge om purpose column (סוג פעולה)
                                     if (cell.getField() === 'purpose') {
                                         const parsed = this.parsePurposeSelection(cell.getValue());
                                         this.transactions[idx].purpose = parsed.label || cell.getValue();
@@ -5264,7 +5274,7 @@
                         data: movementsData,
                         layout: this.getTableScroll("movements") ? "fitData" : "fitColumns",
                         responsiveLayout: this.getTableScroll("movements") ? false : "collapse",
-                        pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                         rowFormatter: (row) => {
                             if (this.highlightedRowId && row.getData().transactionId == this.highlightedRowId) {
                                 row.getElement().setAttribute('data-transaction-id', this.highlightedRowId);
@@ -5587,7 +5597,7 @@
                     const container = document.getElementById('homeTable');
                     if (container) container.innerHTML = '';
                     setTimeout(() => {
-                        this.currentTable = new Tabulator("#homeTable", { data: displayData, layout: this.getTableScroll("home") ? "fitData" : "fitColumns", responsiveLayout: this.getTableScroll("home") ? false : "collapse", placeholder: "אין נתונים להצגה", pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100], columns });
+                        this.currentTable = new Tabulator("#homeTable", { data: displayData, layout: this.getTableScroll("home") ? "fitData" : "fitColumns", responsiveLayout: this.getTableScroll("home") ? false : "collapse", placeholder: "אין נתונים להצגה", pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100], columns });
                         const wrapper = document.getElementById('homeTable');
                         if (wrapper) wrapper.classList.toggle('scrollable', this.getTableScroll("home"));
                         this.renderDebtorsTable();
@@ -5609,7 +5619,7 @@
                             layout: this.getTableScroll("debtors") ? "fitData" : "fitColumns",
                             responsiveLayout: this.getTableScroll("debtors") ? false : "collapse",
                             placeholder: "אין נתונים להצגה",
-                            pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                            pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                             columns: [
                                 { title: "שם", field: "name", widthGrow: 2, responsive: 0, cellClick: (e, cell) => { const data = cell.getRow().getData(); const member = this.members.find(m => m.memberUniqueId === data.memberUniqueId); if (member) this.selectMember(member); } },
                                 { title: "חובה", field: "balance", bottomCalc: "sum", responsive: 0, formatter: (cell) => { const v = cell.getValue(); cell.getElement().style.color = '#dc3545'; cell.getElement().style.fontWeight = '600'; cell.getElement().style.direction = 'ltr'; return '₪' + Number(v).toLocaleString(); } }
@@ -5639,7 +5649,7 @@
                             layout: this.getTableScroll("summary") ? "fitData" : "fitColumns",
                             responsiveLayout: this.getTableScroll("summary") ? false : "collapse",
                             placeholder: "אין נתונים להצגה",
-                            pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                            pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                             columns: [
                                 { title: "שם", field: "name", widthGrow: 2, responsive: 0, cellClick: (e, cell) => { if (!this.readOnlyMode) { const data = cell.getRow().getData(); const member = this.members.find(m => m.memberUniqueId === data.memberUniqueId); if (member) this.selectMember(member); } } },
                                 {
@@ -6216,14 +6226,14 @@
     </script>
 
     <script type="module">
-        // ייבוא הספריות הנחוצות משרתי גוגל
+        // Importing the necessary libraries from Google servers
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // ===== DEMO MODE: דילוג מוחלט על אתחול Firebase =====
+        // ===== DEMO MODE: Completely skipping Firebase initialization  =====
         if (!window.IS_DEMO) {
-            // הנתונים שקיבלת מהקונסול
+            //The data you received from the console
             const firebaseConfig = {
                 apiKey: "AIzaSyCTthCVxz18zIXT9Fpnzq_SgusBpINM-z8",
                 authDomain: "betkneset-001.firebaseapp.com",
@@ -6234,12 +6244,12 @@
                 measurementId: "G-2XHKHB4PPR"
             };
 
-            // אתחול האפליקציה
+            //init application
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
             const auth = getAuth(app);
 
-            // חשיפת אובייקטים לחלון הגלובלי כדי ש-Alpine.js יוכל לגשת אליהם
+            // Exposing objects to the global window so Alpine.js can access them
             window.db = db;
             window.auth = auth;
             window.fsMethods = { doc, setDoc, getDoc, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut };
@@ -6249,7 +6259,7 @@
             console.log("Demo mode - Firebase not initialized");
         }
         // ===== END DEMO MODE =====
-    </script>    
+    </script>
 </body>
 
 </html>
