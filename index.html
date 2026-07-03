@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl" x-data="synagogueApp()" :data-theme="darkMode ? 'dark' : 'light'" :style="customStyle"
     x-init="init()">
 
 <head>
     <!--
+    paginationSize = 100
     refresh db
     lastUsed date
     -->
@@ -3018,7 +3020,7 @@
                 {
                     commitmentColumns: [
                         { columnId: 'ob_date', title: 'תאריך', field: 'commitmentDate', type: 'date', fixed: true },
-                        { columnId: 'ob_purpose', title: 'מטרת תשלום', field: 'purpose', type: 'text', fixed: false },
+                        { columnId: 'ob_purpose', title: 'מטרת תשלום', field: 'purpose', type: 'list', fixed: true },
                         { columnId: 'ob_amount', title: 'סכום', field: 'commitmentAmount', type: 'money', fixed: true }
                     ],
                     paymentColumns: [
@@ -3131,12 +3133,13 @@
                         console.error("error syncing with DB:", e);
                         Swal.fire({ icon: 'error', title: 'שגיאה ברענון', text: e.message || e });
                         this.members = tempMembers;
-
+                    } finally {
                         // render again the tables, in order to return the tables back to the screen, as just as it was
                         this.renderTable();
+                        // refresh other tables if the user is currentl watching them
                         if (this.view === 'home') this.renderHomePage();
                         if (this.view === 'summary') this.renderGlobalSummary();
-                    } finally {
+
                         // 2 turn off the animation in any state (sucess of failure)
                         this.isRefreshing = false;
                     }
@@ -3219,6 +3222,7 @@
                         this.transactions = demoData.transactions || [];
                         if (demoData.config) this.config = { ...this.config, ...demoData.config };
                         this.extractAvailablePurposes();
+                        this.handleRouting(); // <--- 2. רק עכשיו מפעילים את הראוטינג (כשיש מתפללים בזיכרון לחפש לפיהם!)
                         setTimeout(() => this.renderTable(), 100);
                         return;
                     }
@@ -3233,6 +3237,8 @@
                                     this.isLoggedIn = true;
                                     this.adminEmail = user.email || localStorage.getItem('authUser') || '';
                                     this.extractAvailablePurposes();
+                                    this.handleRouting(); // <--- 2. רק עכשיו מפעילים את הראוטינג (כשיש מתפללים בזיכרון לחפש לפיהם!)
+
                                     setTimeout(() => this.renderTable(), 100);
                                 } else {
                                     this.isLoggedIn = false;
@@ -3426,7 +3432,7 @@
                         data,
                         layout: this.fullPageTableScrollMode ? "fitData" : "fitColumns",
                         responsiveLayout: false,
-                        pagination: "local", paginationSize: 50, paginationSizeSelector: [20, 50, 100, 200],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [20, 50, 100, 200],
                         columns,
                         height: "calc(100vh - 140px)",
                         cellEdited: (cell) => {
@@ -4236,7 +4242,7 @@
                         data: reportData,
                         layout: this.getTableScroll("reports") ? "fitData" : "fitColumns",
                         responsiveLayout: this.getTableScroll("reports") ? false : "collapse",
-                        pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                         columns: [
                             { title: "מתפלל", field: "memberName", responsive: 0 },
                             { title: "תאריך", field: "date", responsive: 0, formatter: (cell) => formatDate(cell.getValue()) },
@@ -4617,7 +4623,7 @@
                                 row.getElement().classList.add('new-row-input');
                             }
                         },
-                        pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                         columns: cols,
                         cellEdited: (cell) => {
                             if (!this.readOnlyMode) {
@@ -4890,7 +4896,7 @@
                         data: movementsData,
                         layout: this.getTableScroll("movements") ? "fitData" : "fitColumns",
                         responsiveLayout: this.getTableScroll("movements") ? false : "collapse",
-                        pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                        pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                         rowFormatter: (row) => {
                             if (this.highlightedRowId && row.getData().transactionId == this.highlightedRowId) {
                                 row.getElement().setAttribute('data-transaction-id', this.highlightedRowId);
@@ -5213,7 +5219,7 @@
                     const container = document.getElementById('homeTable');
                     if (container) container.innerHTML = '';
                     setTimeout(() => {
-                        this.currentTable = new Tabulator("#homeTable", { data: displayData, layout: this.getTableScroll("home") ? "fitData" : "fitColumns", responsiveLayout: this.getTableScroll("home") ? false : "collapse", placeholder: "אין נתונים להצגה", pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100], columns });
+                        this.currentTable = new Tabulator("#homeTable", { data: displayData, layout: this.getTableScroll("home") ? "fitData" : "fitColumns", responsiveLayout: this.getTableScroll("home") ? false : "collapse", placeholder: "אין נתונים להצגה", pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100], columns });
                         const wrapper = document.getElementById('homeTable');
                         if (wrapper) wrapper.classList.toggle('scrollable', this.getTableScroll("home"));
                         this.renderDebtorsTable();
@@ -5235,7 +5241,7 @@
                             layout: this.getTableScroll("debtors") ? "fitData" : "fitColumns",
                             responsiveLayout: this.getTableScroll("debtors") ? false : "collapse",
                             placeholder: "אין נתונים להצגה",
-                            pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                            pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                             columns: [
                                 { title: "שם", field: "name", widthGrow: 2, responsive: 0, cellClick: (e, cell) => { const data = cell.getRow().getData(); const member = this.members.find(m => m.memberUniqueId === data.memberUniqueId); if (member) this.selectMember(member); } },
                                 { title: "חובה", field: "balance", bottomCalc: "sum", responsive: 0, formatter: (cell) => { const v = cell.getValue(); cell.getElement().style.color = '#dc3545'; cell.getElement().style.fontWeight = '600'; cell.getElement().style.direction = 'ltr'; return '₪' + Number(v).toLocaleString(); } }
@@ -5265,7 +5271,7 @@
                             layout: this.getTableScroll("summary") ? "fitData" : "fitColumns",
                             responsiveLayout: this.getTableScroll("summary") ? false : "collapse",
                             placeholder: "אין נתונים להצגה",
-                            pagination: "local", paginationSize: 20, paginationSizeSelector: [10, 20, 50, 100],
+                            pagination: "local", paginationSize: 100, paginationSizeSelector: [10, 20, 50, 100],
                             columns: [
                                 { title: "שם", field: "name", widthGrow: 2, responsive: 0, cellClick: (e, cell) => { if (!this.readOnlyMode) { const data = cell.getRow().getData(); const member = this.members.find(m => m.memberUniqueId === data.memberUniqueId); if (member) this.selectMember(member); } } },
                                 {
@@ -5324,14 +5330,14 @@
     </script>
 
     <script type="module">
-        // ייבוא הספריות הנחוצות משרתי גוגל
+        // Importing the necessary libraries from Google servers
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // ===== DEMO MODE: דילוג מוחלט על אתחול Firebase =====
+        // ===== DEMO MODE: Completely skipping Firebase initialization  =====
         if (!window.IS_DEMO) {
-            // הנתונים שקיבלת מהקונסול
+            //The data you received from the console
             const firebaseConfig = {
                 apiKey: "AIzaSyCTthCVxz18zIXT9Fpnzq_SgusBpINM-z8",
                 authDomain: "betkneset-001.firebaseapp.com",
@@ -5342,12 +5348,12 @@
                 measurementId: "G-2XHKHB4PPR"
             };
 
-            // אתחול האפליקציה
+            //init application
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
             const auth = getAuth(app);
 
-            // חשיפת אובייקטים לחלון הגלובלי כדי ש-Alpine.js יוכל לגשת אליהם
+            // Exposing objects to the global window so Alpine.js can access them
             window.db = db;
             window.auth = auth;
             window.fsMethods = { doc, setDoc, getDoc, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut };
