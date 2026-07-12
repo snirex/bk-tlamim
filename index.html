@@ -4677,10 +4677,12 @@
                             this.highlightedRowId = null;
                         }, 300);
                     }
-
-                    this.renderHomePage(); // במידה והמשתמש נמצא בדף הבית
+                    this.renderDebtorsTable(); // ריענון טבלת יתרות החובה
+                    /* error: this lines avoid rendering commitments and payments tables
+                    this.renderHomePage(); // if the user is in homepage
                     this.renderDebtorsTable(); // ריענון טבלת יתרות החובה
                     this.renderGlobalSummary();
+                    */
                 },
 
                 toggleRowEdit(row) {
