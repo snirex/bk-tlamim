@@ -1,10 +1,12 @@
+
+
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl" x-data="synagogueApp()" :data-theme="darkMode ? 'dark' : 'light'" :style="customStyle"
     x-init="init()">
 
 <head>
     <!--
-	fix reports
     show funds in reports (דוחות)
     fix funds screen
     allow adding minus amount of money
@@ -1385,6 +1387,10 @@
             direction: ltr;
             unicode-bidi: embed;
         }
+
+        .yellow-bg {
+            background: lightyellow !important;
+        }
     </style>
 
 </head>
@@ -1700,8 +1706,7 @@
                                                 class="form-select form-select-sm home-entry-field">
                                                 <option value="">בחר...</option>
                                                 <template x-if="col.field === 'purpose'">
-                                                    <template x-for="opt in getPurposeOptions(homeActiveTab)"
-                                                        :key="opt.value">
+                                                    <template x-for="opt in getPurposeOptions(homeActiveTab)" :key="opt.value">
                                                         <option :value="opt.value" :disabled="opt.disabled || false"
                                                             x-text="opt.label"></option>
                                                     </template>
@@ -2115,6 +2120,15 @@
                                 <i class="fas fa-chart-bar me-1"></i> הפק דוח
                             </button>
                         </div>
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="reportSummaryOnly"
+                                    x-model="reportParams.summaryOnly">
+                                <label class="form-check-label small" for="reportSummaryOnly">
+                                    הצג יתרה סופית בלבד לכל מתפלל (במקום כל הפעולות)
+                                </label>
+                            </div>
+                        </div>
                         <div class="col-md-12 p-0">
                             <div class="content-card mb-0" style="padding: 0.5rem;">
                                 <div class="section-header"
@@ -2129,15 +2143,21 @@
                                 </div>
                                 <div class="section-body"
                                     :style="ui.reportsParamsCollapsed ? 'max-height: 0; opacity: 0; overflow: hidden;' : 'max-height: 600px; opacity: 1; overflow: visible;'">
+                                    <div class="position-relative mt-2">
+                                        <input type="text" x-model="reportMemberSearch" class="form-control form-control-sm yellow-bg"
+                                            placeholder="חיפוש מתפלל...">
+                                        <button x-show="reportMemberSearch" @click="reportMemberSearch = ''" type="button"
+                                            class="btn btn-sm position-absolute top-50 end-0 translate-middle-y border-0">&times;</button>
+                                    </div>
                                     <div class="d-flex gap-2 flex-wrap mt-2">
-                                        <template x-for="m in members" :key="m.memberUniqueId">
+                                        <template x-for="m in members.filter(mm => !reportMemberSearch || mm.name.toLowerCase().includes(reportMemberSearch.toLowerCase()))" :key="m.memberUniqueId">
                                             <label class="btn btn-sm btn-outline-primary">
                                                 <input type="checkbox" :value="m.memberUniqueId"
                                                     x-model="reportParams.selectedMembers" class="me-1">
                                                 <span x-text="m.name"></span>
                                             </label>
                                         </template>
-                                        <template x-for="fund in funds" :key="'fund_' + fund.id">
+                                        <template x-for="fund in funds.filter(f => !reportMemberSearch || f.name.toLowerCase().includes(reportMemberSearch.toLowerCase()))" :key="'fund_' + fund.id">
                                             <label class="btn btn-sm btn-outline-warning">
                                                 <input type="checkbox" :value="'fund_' + fund.id"
                                                     x-model="reportParams.selectedMembers" class="me-1">
@@ -2150,7 +2170,7 @@
                         </div>
                         <div class="col-md-12 border-top pt-3" style="border-color: var(--border-color) !important;">
                             <div class="d-flex gap-2 align-items-center">
-                                <input type="text" x-model="reportParams.saveName" class="form-control"
+                                <input type="text" x-model="reportParams.saveName" class="form-control yellow-bg"
                                     placeholder="שם הדוח (לשמירה)">
                                 <button @click="saveFavoriteReport()" class="btn btn-success">
                                     <i class="fas fa-star me-1"></i> שמור מועדף
@@ -2193,7 +2213,7 @@
                     <button @click="window.print()" class="btn btn-sm btn-dark">
                         <i class="fas fa-print me-1"></i> הדפס
                     </button>
-                    <div class="dropdown no-print">
+                    <div class="dropdown no-print" x-show="!reportParams.summaryOnly">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-columns me-1"></i> עמודות
@@ -2621,10 +2641,9 @@
                     <div class="section-header" @click="ui.backupOpen = !ui.backupOpen">
                         <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-download-alt me-2"
                                 style="color:var(--primary-color);"></i>גיבוי מערכת מלא
-                            <small class="fw-normal d-block d-sm-inline"
-                                style="color: var(--text-secondary); font-size: 0.75rem;" x-show="lastBackupTime">
-                                <span class="d-none d-sm-inline"> — </span>גיבוי אחרון: <span
-                                    x-text="lastBackupTime"></span>
+                            <small class="fw-normal d-block d-sm-inline" style="color: var(--text-secondary); font-size: 0.75rem;"
+                                x-show="lastBackupTime">
+                                <span class="d-none d-sm-inline"> — </span>גיבוי אחרון: <span x-text="lastBackupTime"></span>
                             </small>
                         </h6>
                         <i class="fas" :class="ui.backupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
@@ -2669,8 +2688,7 @@
                             <div style="max-height: 140px; overflow-y: auto;">
                                 <ul class="list-unstyled mb-0 small">
                                     <template x-for="(item, idx) in backupHistory" :key="idx">
-                                        <li class="py-1 px-2"
-                                            :style="idx % 2 === 0 ? 'background: var(--bg-main);' : ''">
+                                        <li class="py-1 px-2" :style="idx % 2 === 0 ? 'background: var(--bg-main);' : ''">
                                             <i class="fas fa-check-circle me-1" style="color:#28a745;"></i>
                                             <span x-text="item.time"></span>
                                         </li>
@@ -2686,10 +2704,9 @@
                     <div class="section-header" @click="ui.restoreOpen = !ui.restoreOpen">
                         <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-upload-alt me-2"
                                 style="color:#dc3545;"></i>שחזור מערכת מלא
-                            <small class="fw-normal d-block d-sm-inline"
-                                style="color: var(--text-secondary); font-size: 0.75rem;" x-show="lastRestoreTime">
-                                <span class="d-none d-sm-inline"> — </span>שחזור אחרון: <span
-                                    x-text="lastRestoreTime"></span>
+                            <small class="fw-normal d-block d-sm-inline" style="color: var(--text-secondary); font-size: 0.75rem;"
+                                x-show="lastRestoreTime">
+                                <span class="d-none d-sm-inline"> — </span>שחזור אחרון: <span x-text="lastRestoreTime"></span>
                             </small>
                         </h6>
                         <i class="fas" :class="ui.restoreOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
@@ -2700,8 +2717,7 @@
                         <div class="mt-3">
                             <div class="alert alert-warning py-2 small"><i
                                     class="fas fa-exclamation-triangle me-1"></i>שחזור יחליף מיידית בבסיס הנתונים את
-                                <strong>כל הנתונים הקיימים</strong>. פעולה זו בלתי הפיכה!
-                            </div>
+                                    <strong>כל הנתונים הקיימים</strong>. פעולה זו בלתי הפיכה!</div>
                             <div class="d-flex gap-2 flex-wrap align-items-center">
                                 <input type="file" id="restoreFileInput" class="form-control form-control-sm"
                                     style="max-width:320px;" accept=".json,.xlsx,.xls,.txt,.csv">
@@ -2718,8 +2734,7 @@
                                 <div style="max-height: 140px; overflow-y: auto;">
                                     <ul class="list-unstyled mb-0 small">
                                         <template x-for="(item, idx) in restoreHistory" :key="idx">
-                                            <li class="py-1 px-2"
-                                                :style="idx % 2 === 0 ? 'background: var(--bg-main);' : ''">
+                                            <li class="py-1 px-2" :style="idx % 2 === 0 ? 'background: var(--bg-main);' : ''">
                                                 <i class="fas fa-undo me-1" style="color:#dc3545;"></i>
                                                 <span x-text="item.time"></span>
                                             </li>
@@ -2882,8 +2897,7 @@
             <div x-show="view === 'funds'" x-cloak class="content-card">
                 <div class="page-header">
                     <div class="page-title">
-                        <i class="fas fa-piggy-bank"></i> <span
-                            x-text="selectedFund ? 'ניהול קופה' : 'ניהול קופות'"></span>
+                        <i class="fas fa-piggy-bank"></i> <span x-text="selectedFund ? 'ניהול קופה' : 'ניהול קופות'"></span>
                     </div>
                     <button class="btn btn-secondary btn-sm" @click="selectedFund = null"
                         x-show="selectedFund && fundEditingId !== selectedFund.id">
@@ -2976,19 +2990,14 @@
                                     <!-- עריכת שם קופה -->
                                     <template x-if="fundEditingId === selectedFund.id">
                                         <div>
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">שם
-                                                קופה:</label>
+                                            <label style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">שם קופה:</label>
                                             <input type="text" x-model="fundEditingName" class="search-input"
                                                 style="margin-bottom: 0.5rem;">
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">הערות:</label>
+                                            <label style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">הערות:</label>
                                             <textarea x-model="fundEditingNotes" class="search-input"
                                                 style="min-height: 60px; resize: vertical; margin-bottom: 0.5rem;"></textarea>
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">
-                                                סיבות ניצול (ביטויים מופרדים בפסיק, יופיעו כרשימה נפתחת בעת
-                                                הפחתה/ריקון):
+                                            <label style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">
+                                                סיבות ניצול (ביטויים מופרדים בפסיק, יופיעו כרשימה נפתחת בעת הפחתה/ריקון):
                                             </label>
                                             <textarea x-model="fundEditingReasons" class="search-input" placeholder=""
                                                 style="min-height: 50px; resize: vertical;"></textarea>
@@ -3015,8 +3024,7 @@
 
                             <!-- סטטיסטיקות -->
                             <div style="display: grid; grid-template-columns: repeat(2, 2fr); gap: 1rem;">
-                                <div
-                                    style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
                                     <div
                                         style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
                                         יתרה בקופה</div>
@@ -3025,8 +3033,7 @@
                                         ₪<span x-text="Number(selectedFund.balance).toLocaleString()"></span>
                                     </div>
                                 </div>
-                                <div
-                                    style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                <div style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
                                     <div
                                         style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
                                         נוצרה ב:</div>
@@ -3085,8 +3092,7 @@
                                                     <td style="padding: 0.75rem; text-align: right;">
                                                         <span x-text="history.memberName"></span>
                                                         <template x-if="history.reason">
-                                                            <div
-                                                                style="font-size: 0.8rem; color: var(--text-secondary);">
+                                                            <div style="font-size: 0.8rem; color: var(--text-secondary);">
                                                                 <span x-text="history.reason"></span>
                                                             </div>
                                                         </template>
@@ -3097,8 +3103,7 @@
                                                             :style="history.type === 'commitment' ? 'color: #28a745;' : 'color: #dc3545;'">
                                                             <span
                                                                 x-text="history.type === 'commitment' ? '+' : '−'"></span>₪
-                                                            <span
-                                                                x-text="Number(history.amount).toLocaleString()"></span>
+                                                                <span x-text="Number(history.amount).toLocaleString()"></span>
                                                         </span>
                                                     </td>
                                                     <td style="padding: 0.75rem; text-align: right;">
@@ -3135,17 +3140,11 @@
                                             </template>
                                         </tbody>
                                         <tfoot>
-                                            <tr
-                                                style="border-top: 2px solid var(--border-color); background: var(--bg-main);">
-                                                <td colspan="2"
-                                                    style="padding: 0.75rem; text-align: right; font-weight: 700;">יתרה
-                                                </td>
-                                                <td
-                                                    style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 700;">
-                                                    <span
-                                                        :style="Number(selectedFund.balance) < 0 ? 'color:#dc3545;' : 'color: var(--primary-color);'">
-                                                        ₪<span
-                                                            x-text="Number(selectedFund.balance).toLocaleString()"></span>
+                                            <tr style="border-top: 2px solid var(--border-color); background: var(--bg-main);">
+                                                <td colspan="2" style="padding: 0.75rem; text-align: right; font-weight: 700;">יתרה</td>
+                                                <td style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 700;">
+                                                    <span :style="Number(selectedFund.balance) < 0 ? 'color:#dc3545;' : 'color: var(--primary-color);'">
+                                                        ₪<span x-text="Number(selectedFund.balance).toLocaleString()"></span>
                                                     </span>
                                                 </td>
                                                 <td colspan="2"></td>
@@ -3359,8 +3358,10 @@
                     fromDate: '',
                     toDate: '',
                     selectedMembers: [],
-                    saveName: ''
+                    saveName: '',
+                    summaryOnly: false
                 },
+                reportMemberSearch: '',
                 favoriteReports: JSON.parse(localStorage.getItem('synagogue_favorite_reports')) || [],
                 availablePurposes: [],
 
@@ -3422,6 +3423,7 @@
                     { field: 'date', title: 'תאריך', visible: true },
                     { field: 'typeLabel', title: 'סוג', visible: true },
                     { field: 'purpose', title: 'מטרה', visible: true },
+                    { field: 'details', title: 'פרטים', visible: true },
                     { field: 'amount', title: 'סכום', visible: true }
                 ],
                 summaryColorMode: true,
@@ -3521,8 +3523,8 @@
                         --table-font: ${isDark ? this.config.theme.tableFontDark : this.config.theme.tableFont};
                     `;
                 },
-
-
+				
+				
                 //refresh mitpalelim from db
                 async refreshMembers() {
                     if (window.IS_DEMO) {
@@ -4738,6 +4740,22 @@
                     this.reportParams.purpose = this.reportParams.selectedPurposes.join(', ');
                 },
 
+                // בונה מחרוזת "פרטים" מכל השדות הנוספים (שאינם תאריך/מטרה/סכום) שהוגדרו לעמודה זו,
+                // כולל עמודות מותאמות אישית שנוספו על ידי המשתמש (אופן תשלום, אסמכתא וכו')
+                getTransactionDetails(t) {
+                    const cols = t.transactionType === 'commitments' ? this.config.commitmentColumns : this.config.paymentColumns;
+                    const skipFields = ['commitmentDate', 'paymentDate', 'purpose', 'commitmentAmount', 'paymentAmount'];
+                    return (cols || [])
+                        .filter(c => !skipFields.includes(c.field))
+                        .map(c => {
+                            const val = t[c.field];
+                            if (val === undefined || val === null || val === '') return null;
+                            return `${c.title}: ${val}`;
+                        })
+                        .filter(Boolean)
+                        .join(' | ');
+                },
+
                 // הופך את היסטוריית כל הקופות לשורות בפורמט תנועה, לשימוש בדוחות ובסיכום
                 getFundReportRows() {
                     const rows = [];
@@ -4745,7 +4763,7 @@
                         (fund.history || []).forEach(h => {
                             const typeLabel = h.type === 'commitment' ? 'התחייבות'
                                 : h.type === 'addition' ? 'הוספה'
-                                    : h.type === 'reduction' ? 'הפחתה' : 'ריקון';
+                                : h.type === 'reduction' ? 'הפחתה' : 'ריקון';
                             rows.push({
                                 transactionId: 'fund_' + h.id,
                                 memberId: 'fund_' + fund.id,
@@ -4754,7 +4772,8 @@
                                 date: h.date || '',
                                 purpose: h.reason || typeLabel,
                                 amount: Number(h.amount) || 0,
-                                typeLabel
+                                typeLabel,
+                                details: h.initiatedBy ? `בוצע ע"י: ${h.initiatedBy}` : ''
                             });
                         });
                     });
@@ -4775,7 +4794,7 @@
 
                     let reportData = filtered.map(t => {
                         const member = this.members.find(m => m.memberUniqueId === t.memberId);
-                        return { ...t, memberName: member ? member.name : 'לא ידוע', date: t.commitmentDate || t.paymentDate || '', amount: t.commitmentAmount || t.paymentAmount || 0, typeLabel: t.transactionType === 'commitments' ? 'התחייבות' : 'תשלום' };
+                        return { ...t, memberName: member ? member.name : 'לא ידוע', date: t.commitmentDate || t.paymentDate || '', amount: t.commitmentAmount || t.paymentAmount || 0, typeLabel: t.transactionType === 'commitments' ? 'התחייבות' : 'תשלום', details: this.getTransactionDetails(t) };
                     });
 
                     // ═══ קופות: הוספת פעולות קופה לדוח, באותה לוגיקת הסינון ═══
@@ -4793,17 +4812,81 @@
                     reportData = [...reportData, ...fundRows].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
                     if (this.currentTable) { try { this.currentTable.destroy(); } catch (e) { } this.currentTable = null; }
+
+                    // ═══ מצב "יתרה סופית בלבד" — קיבוץ כל התנועות המסוננות לפי מתפלל/קופה, והצגת יתרה אחת בלבד ═══
+                    if (this.reportParams.summaryOnly) {
+                        const balances = new Map();
+                        reportData.forEach(row => {
+                            const key = row.memberId;
+                            const signedAmount = row.transactionType === 'commitments' ? (Number(row.amount) || 0) : -(Number(row.amount) || 0);
+                            if (!balances.has(key)) balances.set(key, { memberId: key, memberName: row.memberName, balance: 0 });
+                            balances.get(key).balance += signedAmount;
+                        });
+                        const summaryData = Array.from(balances.values()).sort((a, b) => b.balance - a.balance);
+
+                        this.currentTable = new Tabulator("#reportTable", {
+                            data: summaryData,
+                            layout: "fitColumns",
+                            responsiveLayout: "collapse",
+                            pagination: "local", paginationSize: 100, paginationSizeSelector: [20, 50, 100, 200],
+                            columns: [
+                                { title: "מתפלל", field: "memberName", widthGrow: 2, responsive: 0 },
+                                {
+                                    title: "יתרה סופית (חובה/זכות)", field: "balance", responsive: 0,
+                                    formatter: (cell) => {
+                                        const v = Number(cell.getValue()) || 0;
+                                        cell.getElement().style.direction = 'ltr';
+                                        if (v > 0) { cell.getElement().style.color = '#dc3545'; cell.getElement().style.fontWeight = '600'; return '-₪' + v.toLocaleString(); }
+                                        else if (v < 0) { cell.getElement().style.color = '#28a745'; cell.getElement().style.fontWeight = '600'; return '+₪' + Math.abs(v).toLocaleString(); }
+                                        return '₪0';
+                                    },
+                                    bottomCalc: "sum",
+                                    bottomCalcFormatter: (cell) => {
+                                        const v = Number(cell.getValue()) || 0;
+                                        cell.getElement().style.direction = 'ltr';
+                                        if (v > 0) { cell.getElement().style.color = '#dc3545'; cell.getElement().style.fontWeight = '600'; return '-₪' + v.toLocaleString(); }
+                                        else if (v < 0) { cell.getElement().style.color = '#28a745'; cell.getElement().style.fontWeight = '600'; return '+₪' + Math.abs(v).toLocaleString(); }
+                                        return '₪0';
+                                    }
+                                }
+                            ]
+                        });
+                        const rw2 = document.getElementById('reportTable');
+                        if (rw2) rw2.classList.remove('scrollable');
+                        this.$nextTick(() => {
+                            const el = document.getElementById('reportTable');
+                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        });
+                        return;
+                    }
+
                     const reportColBuilders = {
                         memberName: () => ({ title: "מתפלל", field: "memberName", responsive: 0 }),
                         date: () => ({ title: "תאריך", field: "date", responsive: 0, formatter: (cell) => formatDate(cell.getValue()) }),
                         typeLabel: () => ({ title: "סוג", field: "typeLabel", responsive: 1 }),
                         purpose: () => ({ title: "מטרה", field: "purpose", responsive: 1 }),
+                        details: () => ({ title: "פרטים", field: "details", responsive: 1 }),
                         amount: () => ({
                             title: "סכום", field: "amount", formatter: (cell) => {
                                 const row = cell.getRow().getData();
                                 const isCommitment = row.transactionType === 'commitments';
                                 return isCommitment ? commitmentFmt(cell) : paymentFmt(cell);
-                            }, bottomCalc: "sum", responsive: 0
+                            },
+                            // סה"כ שורת הסיכום: התחייבויות בפלוס, תשלומים במינוס (חיובי = יתרת חובה, שלילי = יתרת זכות)
+                            bottomCalc: (values, data) => {
+                                return data.reduce((sum, row) => {
+                                    const amt = Number(row.amount) || 0;
+                                    return sum + (row.transactionType === 'commitments' ? amt : -amt);
+                                }, 0);
+                            },
+                            bottomCalcFormatter: (cell) => {
+                                const v = Number(cell.getValue()) || 0;
+                                cell.getElement().style.direction = 'ltr';
+                                if (v > 0) { cell.getElement().style.color = '#dc3545'; cell.getElement().style.fontWeight = '600'; return '-₪' + v.toLocaleString(); }
+                                else if (v < 0) { cell.getElement().style.color = '#28a745'; cell.getElement().style.fontWeight = '600'; return '+₪' + Math.abs(v).toLocaleString(); }
+                                return '₪0';
+                            },
+                            responsive: 0
                         })
                     };
                     this.currentTable = new Tabulator("#reportTable", {
@@ -4842,7 +4925,7 @@
 
                 saveFavoriteReport() {
                     if (!this.reportParams.saveName) { Swal.fire('שגיאה', 'נא להזין שם לדוח', 'error'); return; }
-                    const fav = { id: Date.now(), name: this.reportParams.saveName, params: { purpose: this.reportParams.purpose, selectedPurposes: [...this.reportParams.selectedPurposes], fromDate: this.reportParams.fromDate, toDate: this.reportParams.toDate, selectedMembers: [...this.reportParams.selectedMembers] } };
+                    const fav = { id: Date.now(), name: this.reportParams.saveName, params: { purpose: this.reportParams.purpose, selectedPurposes: [...this.reportParams.selectedPurposes], fromDate: this.reportParams.fromDate, toDate: this.reportParams.toDate, selectedMembers: [...this.reportParams.selectedMembers], summaryOnly: !!this.reportParams.summaryOnly } };
                     this.favoriteReports.push(fav);
                     localStorage.setItem('synagogue_favorite_reports', JSON.stringify(this.favoriteReports));
                     Swal.fire({ icon: 'success', title: 'נשמר!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
@@ -5856,12 +5939,11 @@
                     const container = document.getElementById('homeTable');
                     if (container) container.innerHTML = '';
                     setTimeout(() => {
-                        this.currentTable = new Tabulator("#homeTable", {
-                            data: displayData,
-                            layout: this.getTableScroll("home") ? "fitData" : "fitColumns",
+                        this.currentTable = new Tabulator("#homeTable", { 
+                            data: displayData, 
+                            layout: this.getTableScroll("home") ? "fitData" : "fitColumns", 
                             responsiveLayout: this.getTableScroll("home") ? false : "collapse", placeholder: "אין נתונים להצגה",
-                            pagination: "local", paginationSize: 100, paginationSizeSelector: [20, 50, 100, 200], columns
-                        });
+                             pagination: "local", paginationSize: 100, paginationSizeSelector: [20, 50, 100, 200], columns });
                         const wrapper = document.getElementById('homeTable');
                         if (wrapper) wrapper.classList.toggle('scrollable', this.getTableScroll("home"));
                         this.renderDebtorsTable();
@@ -6600,7 +6682,7 @@
             console.log("Demo mode - Firebase not initialized");
         }
         // ===== END DEMO MODE =====
-    </script>
+    </script>    
 </body>
 
 </html>
