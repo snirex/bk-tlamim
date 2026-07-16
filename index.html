@@ -805,6 +805,36 @@
             text-overflow: ellipsis;
         }
 
+        /* ═══ hover shortcut animation ═══ */
+        .hover-shortcut {
+            display: inline-block;
+            opacity: 0;
+            max-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            vertical-align: middle;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(44, 95, 125, 0.1);
+            border-radius: 4px;
+            transition: opacity 0.3s ease, max-width 0.3s ease, margin-right 0.3s ease, padding 0.3s ease;
+        }
+
+        /* התאמת צבע הרקע של הקיצור למצב כהה */
+        [data-theme="dark"] .hover-shortcut {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        /* האנימציה שמתרחשת בריחוף */
+        .custom-tab:hover .hover-shortcut {
+            opacity: 1;
+            max-width: 80px; /* רוחב מקסימלי מספיק להצגת הטקסט */
+            margin-right: 8px;
+            padding: 2px 6px;
+        }
+
+        
         /* ═══ MOBILE ═══ */
         .mobile-overlay {
             display: none;
@@ -861,6 +891,28 @@
             .funds-grid>div {
                 grid-column: 1 !important;
             }
+			
+			/* Hide quick actions from header on mobile (<992px) */
+            .header-quick-actions {
+                display: none !important;
+            }
+
+			/* Show quick actions in sidebar on mobile (<992px) */
+            .sidebar-quick-actions {
+                display: flex !important;
+            }
+        }
+		
+		/* Hide sidebar quick actions by default (desktop) */
+        .sidebar-quick-actions {
+            display: none;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+		
+		/* Make sidebar buttons stretch equally inside the flex container */
+        .sidebar-quick-actions .sidebar-btn {
+            flex: 1;
         }
 
         /* ═══ ANIMATIONS ═══ */
@@ -1442,6 +1494,23 @@
             </div>
 
             <div class="header-actions">
+                <div class="header-quick-actions d-flex align-items-center" style="gap:0.5rem;" x-show="!readOnlyMode">
+                    <button class="theme-toggle" @click="exportFullBackup('json')"
+                        title="גיבוי מהיר (הורדת JSON בלחיצה אחת)">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span class="d-none d-sm-inline">גיבוי מהיר</span>
+                    </button>
+
+                    <button class="theme-toggle"
+                        @click="document.getElementById('quickRestoreFileInput').click()"
+                        title="שחזור מהיר (בחירת קובץ ושחזור מיידי)">
+                        <i class="fas fa-cloud-download-alt"></i>
+                        <span class="d-none d-sm-inline">שחזור מהיר</span>
+                    </button>
+                </div>
+                <input type="file" id="quickRestoreFileInput" style="display:none"
+                    accept=".json,.xlsx,.xls,.txt,.csv" @change="restoreFullBackup('quickRestoreFileInput')">
+
                 <button class="theme-toggle" @click="toggleDarkMode()">
                     <i class="fas" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
                     <span class="d-none d-sm-inline" x-text="darkMode ? 'בהיר' : 'לילה'"></span>
@@ -1597,6 +1666,16 @@
                     :style="view === 'importexport' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
                     <i class="fas fa-exchange-alt"></i> <span>גיבוי ושחזור</span>
                 </button>
+                <div class="sidebar-quick-actions">
+                    <button @click="exportFullBackup('json')" class="sidebar-btn" title="גיבוי מהיר (JSON)">
+                        <i class="fas fa-cloud-upload-alt"></i> <span>גיבוי מהיר</span>
+                    </button>
+                    <button @click="document.getElementById('quickRestoreFileInput').click()" class="sidebar-btn"
+                        title="שחזור מהיר">
+                        <i class="fas fa-cloud-download-alt"></i> <span>שחזור מהיר</span>
+                    </button>
+                </div>
+
                 <button @click="navigate('management'); mobileMenuOpen = false" class="sidebar-btn"
                     data-tooltip="הגדרות"
                     :style="view === 'management' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
@@ -1923,22 +2002,17 @@
                 <!-- Tabs -->
                 <div class="content-card py-0">
                     <div class="custom-tabs mb-0">
-                        <button class="custom-tab" :class="activeTab === 'movements' ? 'active' : ''"
-                            @click="setTab('movements')">
-                            <i class="fas fa-list-ul me-1"></i> ריכוז תנועות <span class="keyboard-shortcut">(1)</span>
+                        <button class="custom-tab" :class="activeTab === 'movements' ? 'active' : ''" @click="setTab('movements')">
+                            <i class="fas fa-list-ul me-1"></i> ריכוז תנועות <span class="hover-shortcut">alt+1</span>
                         </button>
-                        <button class="custom-tab" :class="activeTab === 'commitments' ? 'active' : ''"
-                            @click="setTab('commitments')">
-                            <i class="fas fa-clipboard-check me-1"></i> התחייבויות <span
-                                class="keyboard-shortcut">(2)</span>
+                        <button class="custom-tab" :class="activeTab === 'commitments' ? 'active' : ''" @click="setTab('commitments')">
+                            <i class="fas fa-clipboard-check me-1"></i> התחייבויות <span class="hover-shortcut">alt+2</span>
                         </button>
-                        <button class="custom-tab" :class="activeTab === 'payments' ? 'active' : ''"
-                            @click="setTab('payments')">
-                            <i class="fas fa-coins me-1"></i> תשלומים <span class="keyboard-shortcut">(3)</span>
+                        <button class="custom-tab" :class="activeTab === 'payments' ? 'active' : ''" @click="setTab('payments')">
+                            <i class="fas fa-coins me-1"></i> תשלומים <span class="hover-shortcut">alt+3</span>
                         </button>
-                        <button class="custom-tab" :class="activeTab === 'edit' ? 'active' : ''"
-                            @click="setTab('edit')">
-                            <i class="fas fa-user-edit me-1"></i> עריכת פרטים <span class="keyboard-shortcut">(4)</span>
+                        <button class="custom-tab" :class="activeTab === 'edit' ? 'active' : ''" @click="setTab('edit')">
+                            <i class="fas fa-user-edit me-1"></i> עריכת פרטים <span class="hover-shortcut">alt+4</span>
                         </button>
                     </div>
                 </div>
@@ -2681,8 +2755,13 @@
                         <!-- היסטוריית 5 הגיבויים האחרונים -->
                         <div x-show="backupHistory.length > 0" class="mt-3 pt-2 border-top"
                             style="border-color: var(--border-color) !important;">
-                            <small class="fw-bold d-block mb-1" style="color: var(--text-secondary);">5 הגיבויים
-                                האחרונים:</small>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="fw-bold" style="color: var(--text-secondary);">5 הגיבויים האחרונים:</small>
+                                <button @click="clearBackupHistory()" class="btn btn-sm btn-link text-danger p-0 text-decoration-none"
+                                    style="font-size: 0.8rem;">
+                                    <i class="fas fa-trash-alt me-1"></i>נקה היסטוריה
+                                </button>
+                            </div>
                             <div style="max-height: 140px; overflow-y: auto;">
                                 <ul class="list-unstyled mb-0 small">
                                     <template x-for="(item, idx) in backupHistory" :key="idx">
@@ -2727,8 +2806,13 @@
                             <!-- היסטוריית 5 השחזורים האחרונים -->
                             <div x-show="restoreHistory.length > 0" class="mt-3 pt-2 border-top"
                                 style="border-color: var(--border-color) !important;">
-                                <small class="fw-bold d-block mb-1" style="color: var(--text-secondary);">5 השחזורים
-                                    האחרונים:</small>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="fw-bold" style="color: var(--text-secondary);">5 השחזורים האחרונים:</small>
+                                    <button @click="clearRestoreHistory()" class="btn btn-sm btn-link text-danger p-0 text-decoration-none"
+                                        style="font-size: 0.8rem;">
+                                        <i class="fas fa-trash-alt me-1"></i>נקה היסטוריה
+                                    </button>
+                                </div>
                                 <div style="max-height: 140px; overflow-y: auto;">
                                     <ul class="list-unstyled mb-0 small">
                                         <template x-for="(item, idx) in restoreHistory" :key="idx">
@@ -5736,13 +5820,14 @@
 
                 exportFullBackup(format) {
                     const date = new Date().toISOString().split('T')[0];
+                    const filename = 'betkneset_backup';
                     if (format === 'json') {
                         const txsWithNames = this.transactions.map(t => {
                             const member = this.members.find(m => m.memberUniqueId === t.memberId);
                             return { ...t, name: member ? member.name : '', nickname: member ? member.nickname : '' };
                         });
                         const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, exportDate: date };
-                        this._downloadFile(JSON.stringify(backup, null, 2), `backup_${date}.json`, 'application/json');
+                        this._downloadFile(JSON.stringify(backup, null, 2), `${filename}.json`, 'application/json');
                         this.recordBackupEvent();
                     } else if (format === 'excel') {
                         const wb = XLSX.utils.book_new();
@@ -5752,10 +5837,10 @@
                         XLSX.utils.book_append_sheet(wb, oblWs, 'התחייבויות');
                         const payWs = XLSX.utils.json_to_sheet(this.transactions.filter(t => t.transactionType === 'payments'));
                         XLSX.utils.book_append_sheet(wb, payWs, 'תשלומים');
-                        XLSX.writeFile(wb, `backup_${date}.xlsx`);
+                        XLSX.writeFile(wb, `${filename}.xlsx`);
                     } else if (format === 'batch') {
                         const text = this._toBatchText(this.transactions);
-                        this._downloadFile(text, `backup_${date}.txt`, 'text/plain');
+                        this._downloadFile(text, `${filename}.txt`, 'text/plain');
                     }
                 },
 
@@ -5783,8 +5868,8 @@
                     }
                 },
 
-                async restoreFullBackup() {
-                    const fileInput = document.getElementById('restoreFileInput');
+                async restoreFullBackup(inputId = 'restoreFileInput') {
+                    const fileInput = document.getElementById(inputId);
                     if (!fileInput || !fileInput.files[0]) { Swal.fire('שגיאה', 'נא לבחור קובץ', 'error'); return; }
                     const result = await Swal.fire({
                         title: 'האם לשחזר מגיבוי?',
@@ -6091,8 +6176,57 @@
                     const now = new Date();
                     return now.toLocaleDateString('he-IL') + ' ' + now.toLocaleTimeString('he-IL');
                 },
+
                 _saveBackupMeta() {
                     this._saveToFirestore('backupMeta', { backups: this.backupHistory, restores: this.restoreHistory });
+                },
+                clearBackupHistory() {
+                    Swal.fire({
+                        title: 'לנקות את היסטוריית הגיבויים?',
+                        text: 'פעולה זו תמחק את רשימת תאריכי הגיבויים האחרונים בלבד (קבצי הגיבוי עצמם אינם נמחקים)',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'כן, נקה',
+                        cancelButtonText: 'ביטול',
+                        confirmButtonColor: '#dc3545'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.backupHistory = [];
+                            this._saveBackupMeta();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'היסטוריית הגיבויים נוקתה!',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        }
+                    });
+                },
+                clearRestoreHistory() {
+                    Swal.fire({
+                        title: 'לנקות את היסטוריית השחזורים?',
+                        text: 'פעולה זו תמחק את רשימת תאריכי השחזורים האחרונים בלבד',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'כן, נקה',
+                        cancelButtonText: 'ביטול',
+                        confirmButtonColor: '#dc3545'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.restoreHistory = [];
+                            this._saveBackupMeta();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'היסטוריית השחזורים נוקתה!',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        }
+                    });
                 },
                 recordBackupEvent() {
                     this.backupHistory.unshift({ time: this._nowLabel() });
@@ -6683,5 +6817,4 @@
         // ===== END DEMO MODE =====
     </script>    
 </body>
-
 </html>
