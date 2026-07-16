@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl" x-data="synagogueApp()" :data-theme="darkMode ? 'dark' : 'light'" :style="customStyle"
     x-init="init()">
@@ -1536,8 +1533,8 @@
                         <div class="worshipper-item"
                             :class="selectedMember?.memberUniqueId === m.memberUniqueId ? 'active' : ''" tabindex="0"
                             :data-member-idx="mIdx" @click="selectMember(m); memberSearch = ''; mobileMenuOpen = false"
-                            @keydown.enter.prevent="selectMember(m); memberSearch = ''; $nextTick(() => document.getElementById('memberSearch').focus())"
-                            @keydown.space.prevent="selectMember(m); memberSearch = ''; $nextTick(() => document.getElementById('memberSearch').focus())"
+                            @keydown.enter.prevent="selectMember(m); memberSearch = ''; if(activeTab === 'movements' || activeTab === 'edit') { activeTab = 'commitments'; }; $nextTick(() => { setTimeout(() => { const el = document.getElementById('newEntryPurpose'); if(el) el.focus(); }, 150); })"
+                            @keydown.space.prevent="selectMember(m); memberSearch = ''; if(activeTab === 'movements' || activeTab === 'edit') { activeTab = 'commitments'; }; $nextTick(() => { setTimeout(() => { const el = document.getElementById('newEntryPurpose'); if(el) el.focus(); }, 150); })"
                             @keydown.arrow-down.prevent="focusWorshipperItem(mIdx + 1)"
                             @keydown.arrow-up.prevent="mIdx === 0 ? $nextTick(() => document.getElementById('memberSearch').focus()) : focusWorshipperItem(mIdx - 1)"
                             @keydown.escape.prevent="$nextTick(() => document.getElementById('memberSearch').focus())">
@@ -1971,7 +1968,8 @@
                                         placeholder="..."></template>
                                 <template x-if="col.type === 'list'" x-transition>
                                     <select x-model="newEntry[col.field]"
-                                        class="form-select form-select-sm new-entry-field">
+                                        class="form-select form-select-sm new-entry-field"
+                                        :id="col.field === 'purpose' ? 'newEntryPurpose' : ''">
                                         <option value="">בחר...</option>
                                         <template x-if="col.field === 'purpose'">
                                             <template x-for="opt in getPurposeOptions(activeTab)" :key="opt.value">
