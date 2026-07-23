@@ -3,10 +3,12 @@
     x-init="init()">
 
 <head>
-    <!--
-    show funds in reports (דוחות)
-    fix funds screen
-    allow adding minus amount of money
+    <!-- 23.7.2026
+      - enhance data loading
+      - change font size
+      - start changing kupot
+      - sort reports by date from oldest (top) to new
+      - change movementsTable columns
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1834,16 +1836,19 @@
                                     @click="batchTxType='payments'; batchTxString=''">תשלומים</button>
                             </div>
                             <div class="alert alert-light mb-2"
-                                style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">                                
+                                style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">
                                 <strong>פורמט:</strong>
                                 <ul>
                                     <li> שורה אחת לכל תנועה —<br>
-                                    <code :style="batchActiveToken === 0 ? 'text-decoration:underline; font-weight:700;' : ''">שם מתפלל</code><code>,</code>
+                                        <code
+                                            :style="batchActiveToken === 0 ? 'text-decoration:underline; font-weight:700;' : ''">שם מתפלל</code><code>,</code>
                                         <template
                                             x-for="(col, ci) in (batchTxType==='commitments' ? config.commitmentColumns : config.paymentColumns)"
                                             :key="col.columnId">
                                             <span>
-                                                <code :style="batchActiveToken === ci + 1 ? 'text-decoration:underline; font-weight:700;' : ''" x-text="col.title"></code>
+                                                <code
+                                                    :style="batchActiveToken === ci + 1 ? 'text-decoration:underline; font-weight:700;' : ''"
+                                                    x-text="col.title"></code>
                                                 <code>,</code>
                                             </span>
                                         </template>
@@ -3155,8 +3160,10 @@
                                         ₪<span x-text="Number(selectedFund.balance).toLocaleString()"></span>
                                     </div>
                                 </div>
-                                <div style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                <div
+                                    style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                                    <div
+                                        style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
                                         פרטי הקופה:</div>
                                     <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary-color);">
                                         <span x-text="selectedFund.notes || 'אין פרטים'"></span>
@@ -3587,12 +3594,10 @@
                     ],
                     movementColumns: [
                         { columnId: 'mov_date', title: 'תאריך', field: 'date', type: 'date', fixed: true },
-                        { columnId: 'mov_purpose', title: 'מטרת התשלום', field: 'purpose', type: 'text', fixed: true },
-                        { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false },
-                        { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false },
                         { columnId: 'mov_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true },
                         { columnId: 'mov_paymentAmount', title: 'תשלום בפועל', field: 'paymentAmount', type: 'money', fixed: true },
-                        { columnId: 'mov_difference', title: 'הפרש', field: 'difference', type: 'money', fixed: true }
+                        { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false },
+                        { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false }
                     ],
                     memberFields: [
                         { fieldId: 'field_name', name: 'שם מלא', key: 'name', required: true },
@@ -3682,12 +3687,10 @@
                     if (!this.config.movementColumns) {
                         this.config.movementColumns = [
                             { columnId: 'mov_date', title: 'תאריך', field: 'date', type: 'date', fixed: true },
-                            { columnId: 'mov_purpose', title: 'מטרת התשלום', field: 'purpose', type: 'text', fixed: true },
-                            { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false },
-                            { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false },
                             { columnId: 'mov_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true },
                             { columnId: 'mov_paymentAmount', title: 'תשלום בפועל', field: 'paymentAmount', type: 'money', fixed: true },
-                            { columnId: 'mov_difference', title: 'הפרש', field: 'difference', type: 'money', fixed: true }
+                            { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false },
+                            { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false }
                         ];
                         this.saveConfigData();
                     }
@@ -4630,7 +4633,7 @@
                         throw e;
                     }
                 },
-                
+
                 // Refresh data from database with automatic retry on network errors
                 async refreshMembers(retryCount = 0) {
                     if (window.IS_DEMO) {
@@ -4990,7 +4993,7 @@
                     if (this.reportParams.toDate) fundRows = fundRows.filter(r => (r.date || '') <= this.reportParams.toDate);
                     if (this.reportParams.selectedMembers.length > 0) fundRows = fundRows.filter(r => this.reportParams.selectedMembers.includes(r.memberId));
 
-                    reportData = [...reportData, ...fundRows].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                    reportData = [...reportData, ...fundRows].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
                     if (this.currentTable) { try { this.currentTable.destroy(); } catch (e) { } this.currentTable = null; }
 
@@ -5748,7 +5751,7 @@
                                 box.className = 'orphan-box';
                                 box.setAttribute('data-row', row.transactionId);
                                 box.style.cssText = 'max-height:200px;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;opacity:1;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:6px;padding:10px 16px;margin:4px 0;display:flex;gap:16px;flex-wrap:wrap;';
-                                const fieldLabels = { date: 'תאריך', purpose: 'מטרת התשלום', paymentType: 'סוג תשלום', reference: 'אסמכתא', commitmentAmount: 'סכום התחייבות', paymentAmount: 'תשלום בפועל', difference: 'הפרש' };
+                                const fieldLabels = { date: 'תאריך', purpose: 'מטרת התשלום', paymentType: 'סוג תשלום', reference: 'אסמכתא', commitmentAmount: 'סכום התחייבות', paymentAmount: 'תשלום בפועל' };
                                 deletedFields.forEach(f => {
                                     const val = row[f];
                                     if (val === undefined || val === '' || val === 0) return;
