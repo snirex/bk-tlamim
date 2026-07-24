@@ -5921,7 +5921,7 @@
 
                 exportFullBackup(format) {
                     const date = new Date().toISOString().split('T')[0];
-                    const filename = 'betkneset_backup';
+                    const filename = 'betkneset_backup' + date;
                     if (format === 'json') {
                         const txsWithNames = this.transactions.map(t => {
                             const member = this.members.find(m => m.memberUniqueId === t.memberId);
