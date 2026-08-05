@@ -1458,28 +1458,168 @@
 <body>
 
     <!-- ═══ LOGIN SCREEN ═══ -->
-    <div x-show="appReady && !isLoggedIn" x-cloak :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
+    <div x-show="appReady && !isLoggedIn && !worshipperMode" x-cloak
+        :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
         <div class="login-screen">
             <div class="login-card">
                 <h1 class="login-title">
                     <i class="fas fa-synagogue"></i>
                     ניהול בית הכנסת
                 </h1>
-                <input type="email" x-model="loginForm.user" class="login-input" placeholder="אימייל"
-                    @keydown.enter="$refs.passInput.focus()">
-                <input type="password" x-ref="passInput" x-model="loginForm.pass" class="login-input"
-                    placeholder="סיסמה" @keydown.enter="login()">
-                <button @click="login()" class="btn-primary-custom w-100 justify-content-center"
-                    style="font-size:1rem; padding: 0.75rem;">
-                    <i class="fas fa-sign-in-alt"></i> כניסה למערכת
-                </button>
-                <div style="text-align: center;"><a href="?demo=1">כנס למצב הדגמה</a></div>
+
+                <!-- ═══ לשוניות: מתפלל / מנהל ═══ -->
+                <div class="d-flex mb-3" style="border-bottom: 1px solid var(--border-color);">
+                    <button type="button" @click="loginTab = 'worshipper'; authStep = 'phone'"
+                        class="btn btn-sm flex-fill"
+                        :class="loginTab === 'worshipper' ? 'fw-bold' : 'text-muted'"
+                        :style="loginTab === 'worshipper' ? 'border-bottom: 2px solid var(--primary-color); border-radius:0;' : 'border-radius:0;'">
+                        <i class="fas fa-user"></i> כניסת מתפלל
+                    </button>
+                    <button type="button" @click="loginTab = 'admin'" class="btn btn-sm flex-fill"
+                        :class="loginTab === 'admin' ? 'fw-bold' : 'text-muted'"
+                        :style="loginTab === 'admin' ? 'border-bottom: 2px solid var(--primary-color); border-radius:0;' : 'border-radius:0;'">
+                        <i class="fas fa-user-shield"></i> כניסת מנהל
+                    </button>
+                </div>
+
+                <!-- ═══ לשונית מתפלל: טלפון + קוד + בחירת חשבון ═══ -->
+                <div x-show="loginTab === 'worshipper'">
+
+                    <!-- שלב 1: הזנת מספר טלפון -->
+                    <div x-show="authStep === 'phone'">
+                        <p class="text-center text-muted small">הזן מספר טלפון נייד לקבלת קוד אימות ב-SMS</p>
+                        <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr"
+                            placeholder="000-0000000" @keydown.enter="sendOtpCode()">
+                        <div id="recaptcha-container"></div>
+                        <button @click="sendOtpCode()" class="btn-primary-custom w-100 justify-content-center mt-2"
+                            style="font-size:1rem; padding: 0.75rem;">
+                            <i class="fas fa-paper-plane"></i> שלח קוד אימות
+                        </button>
+                    </div>
+
+                    <!-- שלב 2: הזנת קוד אימות -->
+                    <div x-show="authStep === 'code'">
+                        <p class="text-center text-muted small">הזן את הקוד בן 6 הספרות שנשלח למספר
+                            <strong x-text="worshipperPhone" dir="ltr" style="unicode-bidi:embed;"></strong>
+                        </p>
+                        <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold"
+                            style="letter-spacing:6px; font-size:1.4rem;" placeholder="------" dir="ltr"
+                            @keydown.enter="verifyOtpCode()">
+                        <button @click="verifyOtpCode()" class="btn-primary-custom w-100 justify-content-center"
+                            style="font-size:1rem; padding: 0.75rem;">
+                            <i class="fas fa-check-circle"></i> אימות ואישור
+                        </button>
+                        <button @click="authStep = 'phone'; otpCode = ''"
+                            class="btn btn-link text-decoration-none w-100 mt-2 text-muted small">
+                            שינוי מספר טלפון
+                        </button>
+                    </div>
+
+                    <!-- שלב 3: בחירת חשבון (כמה מתפללים על אותו טלפון) -->
+                    <div x-show="authStep === 'select'">
+                        <h6 class="text-center mb-3">נמצאו כמה חשבונות המקושרים למספר זה:</h6>
+                        <div class="list-group mb-2" style="max-height:260px; overflow-y:auto;">
+                            <template x-for="m in matchedWorshippers" :key="m.memberUniqueId">
+                                <button type="button" @click="selectWorshipperAccount(m)"
+                                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
+                                    <div>
+                                        <div class="fw-bold" x-text="m.name"></div>
+                                        <small class="text-muted" x-text="m.nickname ? 'כינוי: ' + m.nickname : ''"></small>
+                                    </div>
+                                    <i class="fas fa-chevron-left text-primary"></i>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ לשונית מנהל: הטופס הקיים ═══ -->
+                <div x-show="loginTab === 'admin'">
+                    <input type="email" x-model="loginForm.user" class="login-input" placeholder="אימייל"
+                        @keydown.enter="$refs.passInput.focus()">
+                    <input type="password" x-ref="passInput" x-model="loginForm.pass" class="login-input"
+                        placeholder="סיסמה" @keydown.enter="login()">
+                    <button @click="login()" class="btn-primary-custom w-100 justify-content-center"
+                        style="font-size:1rem; padding: 0.75rem;">
+                        <i class="fas fa-sign-in-alt"></i> כניסה למערכת
+                    </button>
+                    <div style="text-align: center;"><a href="?demo=1">כנס למצב הדגמה</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ מסך מתפלל (קריאה בלבד, הנתונים שלו בלבד) ═══ -->
+    <div x-show="appReady && worshipperMode" x-cloak
+        :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
+        <div class="login-screen" style="align-items:flex-start; padding-top:3rem;">
+            <div class="login-card" style="max-width:720px; width:95%;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="fas fa-user-circle"></i>
+                        <span x-text="worshipperMember?.name"></span>
+                    </h4>
+                    <button class="btn btn-sm btn-outline-secondary" @click="worshipperLogout()">
+                        <i class="fas fa-sign-out-alt"></i> יציאה
+                    </button>
+                </div>
+
+                <!-- מעבר בין חשבונות מקושרים לאותו טלפון -->
+                <div x-show="matchedWorshippers.length > 1" class="d-flex gap-2 mb-3 overflow-auto pb-1">
+                    <template x-for="m in matchedWorshippers" :key="m.memberUniqueId">
+                        <button @click="selectWorshipperAccount(m)" class="btn btn-sm rounded-pill px-3 text-nowrap"
+                            :class="worshipperMember?.memberUniqueId === m.memberUniqueId ? 'btn-primary' : 'btn-outline-secondary'">
+                            <i class="fas fa-user me-1"></i><span x-text="m.name"></span>
+                        </button>
+                    </template>
+                </div>
+
+                <div class="text-center py-4" x-show="worshipperLoading">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                </div>
+
+                <template x-if="!worshipperLoading">
+                    <div>
+                        <div class="member-balance-badge money-ltr mb-3"
+                            :class="getWorshipperBalance() < 0 ? 'text-success' : (getWorshipperBalance() > 0 ? 'text-danger' : '')">
+                            <span x-text="getWorshipperBalance() < 0 ? 'ביתרת זכות: ' : 'ביתרת חובה: '"></span>
+                            <span x-text="Math.abs(getWorshipperBalance()).toLocaleString()"></span> ₪
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>תאריך</th>
+                                        <th>סוג</th>
+                                        <th>סכום התחייבות</th>
+                                        <th>סכום ששולם</th>
+                                        <th>אסמכתא</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="t in worshipperTransactions" :key="t.transactionId">
+                                        <tr>
+                                            <td x-text="t.date"></td>
+                                            <td x-text="t.transactionType === 'commitments' ? 'התחייבות' : 'תשלום'"></td>
+                                            <td class="money-ltr" x-text="t.commitmentAmount || ''"></td>
+                                            <td class="money-ltr" x-text="t.paymentAmount || ''"></td>
+                                            <td x-text="t.reference || ''"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <div x-show="worshipperTransactions.length === 0" class="text-center text-muted py-4">
+                                אין תנועות להצגה
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
 
     <!-- ═══ MAIN APP ═══ -->
-    <div x-show="appReady && isLoggedIn" x-cloak>
+    <div x-show="appReady && isLoggedIn && !worshipperMode" x-cloak>
 
         <!-- HEADER -->
         <header class="app-header no-print">
@@ -3473,6 +3613,18 @@
                 appReady: false,
                 appVisible: false,
 
+                // Worshipper phone login (Firebase Phone Auth)
+                loginTab: 'worshipper', // 'worshipper' | 'admin'
+                authStep: 'phone', // 'phone' | 'code' | 'select'
+                worshipperPhone: '',
+                otpCode: '',
+                confirmationResult: null,
+                matchedWorshippers: [], // [{memberUniqueId, name, nickname}]
+                worshipperMode: false, // true once a worshipper is viewing their own data
+                worshipperMember: null,
+                worshipperTransactions: [],
+                worshipperLoading: false,
+
                 // Navigation
                 view: 'home',
                 activeTab: 'commitments',
@@ -3701,9 +3853,16 @@
 
 
                     const params = new URLSearchParams(window.location.hash.substring(1));
-                    if (params.get('readonly') === 'true') {
-                        this.readOnlyMode = true;
-                        this.isLoggedIn = true;
+
+                    // קישור ישיר למתפלל: תומך גם ב-?phone=... וגם ב-#phone=...
+                    // בפתיחת קישור כזה, ממלאים את הטלפון ושולחים קוד אימות אוטומטית
+                    const queryParams = new URLSearchParams(window.location.search);
+                    const linkPhone = params.get('phone') || queryParams.get('phone');
+                    if (linkPhone && !window.IS_DEMO) {
+                        this.worshipperPhone = linkPhone;
+                        this.loginTab = 'worshipper';
+                        this.authStep = 'phone';
+                        setTimeout(() => { this.sendOtpCode(); }, 600);
                     }
 
                     this.resetEntry();
@@ -3780,6 +3939,14 @@
                     const waitForFirebase = (attempts = 0) => {
                         if (window.auth && window.fsMethods) {
                             window.fsMethods.onAuthStateChanged(window.auth, async (user) => {
+                                // חשבון מתפלל (Phone Auth) - יש לו phoneNumber ואין לו email.
+                                // אלה נתוני מתפלל בלבד, נטענים דרך getMemberData/listMyMembers
+                                // (ראה verifyOtpCode/selectWorshipperAccount) ולא דרך _loadFromFirestore,
+                                // ואסור שחשבון כזה ייכנס למצב מנהל (isLoggedIn).
+                                if (user && user.phoneNumber && !user.email) {
+                                    this.isLoggedIn = false;
+                                    return;
+                                }
                                 if (user) {
                                     await this._loadFromFirestore();
                                     this.isLoggedIn = true;
@@ -3862,8 +4029,6 @@
                         params.set('member', this.selectedMember.memberUniqueId);
                         params.set('tab', this.activeTab);
                     }
-                    if (this.readOnlyMode)
-                        params.set('readonly', 'true');
                     window.location.hash = params.toString();
                 },
 
@@ -4066,6 +4231,149 @@
                     window.location.hash = '';
                     localStorage.removeItem('authUser');
 
+                },
+
+                // ═══════════════════════════════════════════════════════════════
+                // כניסת מתפלל - Firebase Phone Auth (OTP ב-SMS)
+                // ═══════════════════════════════════════════════════════════════
+
+                // נרמול מספר טלפון לפורמט בינלאומי E.164 (0501234567 -> +972501234567)
+                formatPhoneE164(rawPhone) {
+                    let cleaned = String(rawPhone || '').replace(/\D/g, '');
+                    if (cleaned.startsWith('0')) cleaned = '972' + cleaned.substring(1);
+                    if (!cleaned.startsWith('972')) cleaned = '972' + cleaned;
+                    return '+' + cleaned;
+                },
+
+                async sendOtpCode() {
+                    const digits = String(this.worshipperPhone || '').replace(/\D/g, '');
+                    if (digits.length < 9 || digits.length > 10) {
+                        Swal.fire('שגיאה', 'נא להזין מספר טלפון תקין', 'error');
+                        return;
+                    }
+                    if (!window.auth || !window.fsMethods) {
+                        Swal.fire('שגיאה', 'המערכת עדיין נטענת, נסה שוב בעוד רגע', 'error');
+                        return;
+                    }
+                    const phoneFormatted = this.formatPhoneE164(digits);
+                    try {
+                        if (!window.recaptchaVerifier) {
+                            window.recaptchaVerifier = new window.fsMethods.RecaptchaVerifier(
+                                window.auth, 'recaptcha-container', { size: 'invisible' }
+                            );
+                        }
+                        Swal.fire({ title: 'שולח קוד אימות...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                        const confirmation = await window.fsMethods.signInWithPhoneNumber(
+                            window.auth, phoneFormatted, window.recaptchaVerifier
+                        );
+                        this.confirmationResult = confirmation;
+                        Swal.close();
+                        this.authStep = 'code';
+                    } catch (err) {
+                        console.error('sendOtpCode error:', err);
+                        Swal.close();
+                        // מאפסים את ה-reCAPTCHA כדי לאפשר ניסיון נוסף
+                        if (window.recaptchaVerifier) {
+                            try { window.recaptchaVerifier.clear(); } catch (e) { }
+                            window.recaptchaVerifier = null;
+                        }
+                        const msgs = {
+                            'auth/invalid-phone-number': 'מספר הטלפון אינו תקין',
+                            'auth/too-many-requests': 'יותר מדי בקשות, נסה שוב מאוחר יותר',
+                            'auth/quota-exceeded': 'חריגה ממכסת ה-SMS היומית, נסה שוב מחר או פנה לגבאי'
+                        };
+                        Swal.fire('שגיאה בשליחת הקוד', msgs[err.code] || err.message || 'נסה שוב', 'error');
+                    }
+                },
+
+                async verifyOtpCode() {
+                    if (!this.otpCode || this.otpCode.length !== 6) {
+                        Swal.fire('שגיאה', 'נא להזין קוד אימות בן 6 ספרות', 'error');
+                        return;
+                    }
+
+                    // שלב א': אימות הקוד מול Firebase Auth
+                    Swal.fire({ title: 'מאמת קוד...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    try {
+                        await this.confirmationResult.confirm(this.otpCode);
+                    } catch (err) {
+                        console.error('confirm() error:', err.code, err.message);
+                        Swal.close();
+                        Swal.fire('שגיאה', 'קוד אימות שגוי או שפג תוקפו, נסה שוב', 'error');
+                        return;
+                    }
+
+                    // שלב ב': המשתמש כבר מחובר בהצלחה ל-Firebase Auth בשלב הזה.
+                    // כל שגיאה מכאן ואילך היא לא "קוד שגוי" - היא בעיה בקריאה לשרת
+                    // (פונקציה לא פרוסה, config/singleton חסר וכו') ומוצגת בנפרד כדי
+                    // שאפשר יהיה לאבחן אותה.
+                    try {
+                        const listMyMembers = window.fsMethods.httpsCallable(window.functions, 'listMyMembers');
+                        const result = await listMyMembers();
+                        Swal.close();
+                        const members = (result.data && result.data.members) || [];
+                        if (members.length === 0) {
+                            Swal.fire('לא נמצא חשבון', 'מספר הטלפון לא נמצא במערכת בית הכנסת. פנה לגבאי.', 'warning');
+                            await window.fsMethods.signOut(window.auth);
+                            return;
+                        }
+                        this.matchedWorshippers = members;
+                        if (members.length === 1) {
+                            await this.selectWorshipperAccount(members[0]);
+                        } else {
+                            this.authStep = 'select';
+                        }
+                    } catch (err) {
+                        console.error('listMyMembers error:', err.code, err.message);
+                        Swal.close();
+                        Swal.fire(
+                            'האימות הצליח, אך טעינת הנתונים נכשלה',
+                            `קוד: ${err.code || 'לא ידוע'}\n${err.message || ''}`,
+                            'error'
+                        );
+                    }
+                },
+
+                // בחירת/מעבר לחשבון מתפלל - טוענת מהשרת רק את הנתונים שלו
+                async selectWorshipperAccount(member) {
+                    this.worshipperLoading = true;
+                    this.worshipperMode = true;
+                    try {
+                        const getMemberData = window.fsMethods.httpsCallable(window.functions, 'getMemberData');
+                        const result = await getMemberData({ memberUniqueId: member.memberUniqueId });
+                        this.worshipperMember = result.data.member;
+                        this.worshipperTransactions = result.data.transactions || [];
+                        this.authStep = 'phone';
+                        this.otpCode = '';
+                    } catch (err) {
+                        console.error('selectWorshipperAccount error:', err);
+                        Swal.fire('שגיאה', 'לא ניתן לטעון את הנתונים כרגע, נסה שוב', 'error');
+                    } finally {
+                        this.worshipperLoading = false;
+                    }
+                },
+
+                getWorshipperBalance() {
+                    return this.worshipperTransactions.reduce((sum, t) => {
+                        if (t.transactionType === 'commitments') return sum + (Number(t.commitmentAmount) || 0);
+                        if (t.transactionType === 'payments') return sum - (Number(t.paymentAmount) || 0);
+                        return sum;
+                    }, 0);
+                },
+
+                async worshipperLogout() {
+                    if (window.auth && window.fsMethods) {
+                        try { await window.fsMethods.signOut(window.auth); } catch (e) { }
+                    }
+                    this.worshipperMode = false;
+                    this.worshipperMember = null;
+                    this.worshipperTransactions = [];
+                    this.matchedWorshippers = [];
+                    this.worshipperPhone = '';
+                    this.otpCode = '';
+                    this.authStep = 'phone';
+                    window.location.hash = '';
+                    window.history.replaceState(null, '', window.location.pathname);
                 },
 
                 toggleDarkMode() {
@@ -5158,23 +5466,17 @@
                     }
                 },
 
-                shareReadOnlyLink1() {
-                    if (!this.selectedMember) return;
-                    const url = `${window.location.origin}${window.location.pathname}#view=account&member=${this.selectedMember.memberUniqueId}&readonly=true`;
-                    Swal.fire({
-                        title: 'קישור למתפלל (קריאה בלבד)',
-                        html: `<p class="mb-3">העתק והדבק את הקישור הזה למתפלל:</p>
-                            <div class="input-group">
-                                <input type="text" class="form-control" value="${url}" id="readonlyLink" readonly>
-                                <button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('readonlyLink').value); this.textContent='✓ הועתק!'; setTimeout(() => this.textContent='העתק', 2000)">העתק</button>
-                            </div>
-                            <small class="text-muted mt-2 d-block">המתפלל יוכל לראות רק את הנתונים שלו</small>`,
-                        showConfirmButton: false, showCloseButton: true, width: 600
-                    });
-                },
+                // מייצר קישור כניסה מאובטח למתפלל: פותח את מסך הזנת הקוד עם הטלפון
+                // כבר ממולא, שולח SMS אוטומטית. מחליף את מנגנון ה-readonly=true הישן
+                // (שלא היה כרוך באימות אמיתי).
                 shareReadOnlyLink() {
-                    const link = window.location.origin + window.location.pathname +
-                        `#view=account&member=${this.selectedMember.memberUniqueId}&readonly=1`;
+                    if (!this.selectedMember) return;
+                    if (!this.selectedMember.phone) {
+                        Swal.fire('שגיאה', 'למתפלל הזה אין מספר טלפון רשום במערכת', 'warning');
+                        return;
+                    }
+                    const digits = String(this.selectedMember.phone).replace(/\D/g, '');
+                    const link = window.location.origin + window.location.pathname + `?phone=${digits}`;
 
                     Swal.fire({
                         title: 'שתף קישור',
@@ -6924,7 +7226,11 @@
         // Importing the necessary libraries from Google servers
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
+            signInWithPhoneNumber, RecaptchaVerifier
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 
         // ===== DEMO MODE: Completely skipping Firebase initialization  =====
         if (!window.IS_DEMO) {
@@ -6943,11 +7249,17 @@
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
             const auth = getAuth(app);
+            // האזור חייב להתאים לאזור שאליו פרוסות ה-Cloud Functions (functions/index.js -> REGION)
+            const functions = getFunctions(app, 'me-west1');
 
             // Expose Firebase tools to the global window scope for Alpine.js
             window.db = db;
             window.auth = auth;
-            window.fsMethods = { doc, setDoc, getDoc, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut };
+            window.functions = functions;
+            window.fsMethods = {
+                doc, setDoc, getDoc, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
+                signInWithPhoneNumber, RecaptchaVerifier, httpsCallable
+            };
 
             console.log("snir - Firebase initialized successfully");
         } else {
