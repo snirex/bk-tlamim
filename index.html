@@ -1489,7 +1489,7 @@
                     <div x-show="authStep === 'phone'">
                         <p class="text-center text-muted small">הזן מספר טלפון נייד לקבלת קוד אימות ב-SMS</p>
                         <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr"
-                            placeholder="000-0000000" @keydown.enter="sendOtpCode()">
+                            placeholder="050-0000000" @keydown.enter="sendOtpCode()">
                         <div id="recaptcha-container"></div>
                         <button @click="sendOtpCode()" class="btn-primary-custom w-100 justify-content-center mt-2"
                             style="font-size:1rem; padding: 0.75rem;">
@@ -1503,7 +1503,7 @@
                             <strong x-text="worshipperPhone" dir="ltr" style="unicode-bidi:embed;"></strong>
                         </p>
                         <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold"
-                            style="letter-spacing:6px; font-size:1.4rem;" placeholder="------" dir="ltr"
+                            style="letter-spacing:6px; font-size:1.4rem;" placeholder="123456" dir="ltr"
                             @keydown.enter="verifyOtpCode()">
                         <button @click="verifyOtpCode()" class="btn-primary-custom w-100 justify-content-center"
                             style="font-size:1rem; padding: 0.75rem;">
@@ -1554,19 +1554,30 @@
         :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
         <div class="login-screen" style="align-items:flex-start; padding-top:3rem;">
             <div class="login-card" style="max-width:720px; width:95%;">
+
+                <!-- באנר תצוגה מקדימה (רק למנהל, לא למתפלל אמיתי) -->
+                <div x-show="isAdminPreview" class="alert alert-warning py-2 mb-3 d-flex align-items-center gap-2">
+                    <i class="fas fa-eye"></i>
+                    <span>תצוגה מקדימה - כך המתפלל רואה את המסך שלו</span>
+                </div>
+
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="mb-0"><i class="fas fa-user-circle"></i>
                         <span x-text="worshipperMember?.name"></span>
                     </h4>
-                    <button class="btn btn-sm btn-outline-secondary" @click="worshipperLogout()">
-                        <i class="fas fa-sign-out-alt"></i> יציאה
+                    <button class="btn btn-sm btn-outline-secondary"
+                        @click="isAdminPreview ? exitWorshipperPreview() : worshipperLogout()">
+                        <i class="fas" :class="isAdminPreview ? 'fa-arrow-right' : 'fa-sign-out-alt'"></i>
+                        <span x-text="isAdminPreview ? 'חזרה לניהול' : 'יציאה'"></span>
                     </button>
                 </div>
 
                 <!-- מעבר בין חשבונות מקושרים לאותו טלפון -->
                 <div x-show="matchedWorshippers.length > 1" class="d-flex gap-2 mb-3 overflow-auto pb-1">
                     <template x-for="m in matchedWorshippers" :key="m.memberUniqueId">
-                        <button @click="selectWorshipperAccount(m)" class="btn btn-sm rounded-pill px-3 text-nowrap"
+                        <button
+                            @click="isAdminPreview ? previewAsWorshipperById(m.memberUniqueId) : selectWorshipperAccount(m)"
+                            class="btn btn-sm rounded-pill px-3 text-nowrap"
                             :class="worshipperMember?.memberUniqueId === m.memberUniqueId ? 'btn-primary' : 'btn-outline-secondary'">
                             <i class="fas fa-user me-1"></i><span x-text="m.name"></span>
                         </button>
@@ -1586,24 +1597,25 @@
                         </div>
 
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table table-sm text-center">
                                 <thead>
                                     <tr>
-                                        <th>תאריך</th>
-                                        <th>סוג</th>
-                                        <th>סכום התחייבות</th>
-                                        <th>סכום ששולם</th>
-                                        <th>אסמכתא</th>
+                                        <template x-for="col in worshipperMovementColumns" :key="col.columnId">
+                                            <th x-text="col.title"></th>
+                                        </template>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <template x-for="t in worshipperTransactions" :key="t.transactionId">
                                         <tr>
-                                            <td x-text="t.date"></td>
-                                            <td x-text="t.transactionType === 'commitments' ? 'התחייבות' : 'תשלום'"></td>
-                                            <td class="money-ltr" x-text="t.commitmentAmount || ''"></td>
-                                            <td class="money-ltr" x-text="t.paymentAmount || ''"></td>
-                                            <td x-text="t.reference || ''"></td>
+                                            <template x-for="col in worshipperMovementColumns" :key="col.columnId">
+                                                <td :class="col.type === 'money' ? 'money-ltr' : ''"
+                                                    :style="col.field === 'difference' ? (t.difference > 0 ? 'color:#dc3545; font-weight:600;' : (t.difference < 0 ? 'color:#28a745; font-weight:600;' : '')) : ''"
+                                                    x-text="col.field === 'difference'
+                                                        ? (t.difference > 0 ? '-₪' + Math.abs(t.difference).toLocaleString() : (t.difference < 0 ? '+₪' + Math.abs(t.difference).toLocaleString() : '₪0'))
+                                                        : getWorshipperCellValue(t, col)">
+                                                </td>
+                                            </template>
                                         </tr>
                                     </template>
                                 </tbody>
@@ -2137,6 +2149,11 @@
                 getMemberBalance(selectedMember?.memberUniqueId)
             ).toLocaleString()"></span>
                         </div>
+
+                        <!-- Preview as worshipper -->
+                        <button @click="previewAsWorshipper(selectedMember)" class="share-btn" title="תצוגה מקדימה - כך המתפלל רואה">
+                            <i class="fas fa-eye"></i>
+                        </button>
 
                         <!-- Share Button -->
                         <button @click="shareReadOnlyLink()" class="share-btn" title="שתף קישור">
@@ -3621,8 +3638,10 @@
                 confirmationResult: null,
                 matchedWorshippers: [], // [{memberUniqueId, name, nickname}]
                 worshipperMode: false, // true once a worshipper is viewing their own data
+                isAdminPreview: false, // true when an admin is previewing the worshipper view (not a real phone login)
                 worshipperMember: null,
                 worshipperTransactions: [],
+                worshipperMovementColumns: [],
                 worshipperLoading: false,
 
                 // Navigation
@@ -4343,6 +4362,7 @@
                         const result = await getMemberData({ memberUniqueId: member.memberUniqueId });
                         this.worshipperMember = result.data.member;
                         this.worshipperTransactions = result.data.transactions || [];
+                        this.worshipperMovementColumns = result.data.movementColumns || this.defaultMovementColumns();
                         this.authStep = 'phone';
                         this.otpCode = '';
                     } catch (err) {
@@ -4351,6 +4371,44 @@
                     } finally {
                         this.worshipperLoading = false;
                     }
+                },
+
+                defaultMovementColumns() {
+                    return [
+                        { columnId: 'mov_date', title: 'תאריך', field: 'date', type: 'date', fixed: true },
+                        { columnId: 'mov_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true },
+                        { columnId: 'mov_paymentAmount', title: 'תשלום בפועל', field: 'paymentAmount', type: 'money', fixed: true },
+                        { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false },
+                        { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false }
+                    ];
+                },
+
+                // הופך תנועה גולמית לשורת "ריכוז תנועות" - אותה לוגיקה בדיוק כמו
+                // renderMovementsTable, כדי שתצוגת המתפלל תהיה זהה למה שהמנהל רואה
+                toMovementRow(t) {
+                    const oblAmt = Number(t.commitmentAmount) || 0;
+                    const payAmt = Number(t.paymentAmount) || 0;
+                    return {
+                        transactionId: t.transactionId,
+                        transactionType: t.transactionType,
+                        date: t.commitmentDate || t.paymentDate || '',
+                        purpose: t.purpose || '',
+                        paymentType: t.paymentMethod || '',
+                        reference: t.reference || '',
+                        commitmentAmount: oblAmt,
+                        paymentAmount: payAmt,
+                        difference: oblAmt - payAmt
+                    };
+                },
+
+                // ערך תא בודד בטבלת המתפלל, לפי הגדרת העמודה (title/field/type)
+                getWorshipperCellValue(t, col) {
+                    if (col.field === 'date') return formatDate(t.date);
+                    const val = t[col.field];
+                    if (col.type === 'money') {
+                        return (val === undefined || val === null || val === '' || Number(val) === 0) ? '' : Number(val).toLocaleString();
+                    }
+                    return val || '';
                 },
 
                 getWorshipperBalance() {
@@ -4368,12 +4426,54 @@
                     this.worshipperMode = false;
                     this.worshipperMember = null;
                     this.worshipperTransactions = [];
+                    this.worshipperMovementColumns = [];
                     this.matchedWorshippers = [];
                     this.worshipperPhone = '';
                     this.otpCode = '';
                     this.authStep = 'phone';
                     window.location.hash = '';
                     window.history.replaceState(null, '', window.location.pathname);
+                },
+
+                // ═══════════════════════════════════════════════════════════════
+                // תצוגה מקדימה למנהל - "כך המתפלל רואה את המסך", בלי OTP/שרת בכלל.
+                // המנהל כבר טוען את כל הנתונים בזיכרון, אז פשוט מסננים מקומית.
+                // ═══════════════════════════════════════════════════════════════
+                previewAsWorshipper(member) {
+                    if (!member) return;
+                    this.worshipperMember = {
+                        memberUniqueId: member.memberUniqueId,
+                        name: member.name,
+                        nickname: member.nickname || ''
+                    };
+                    this.worshipperTransactions = this.transactions
+                        .filter(t => t.memberId === member.memberUniqueId)
+                        .map(t => this.toMovementRow(t));
+                    this.worshipperMovementColumns = this.config.movementColumns || this.defaultMovementColumns();
+                    // אם יש לו טלפון ויש עוד מתפללים על אותו טלפון - מציגים גם את
+                    // סרגל המעבר, בדיוק כמו שיראה מתפלל אמיתי
+                    this.matchedWorshippers = member.phone
+                        ? this.members
+                            .filter(m => m.phone && String(m.phone).replace(/\D/g, '') === String(member.phone).replace(/\D/g, ''))
+                            .map(m => ({ memberUniqueId: m.memberUniqueId, name: m.name, nickname: m.nickname || '' }))
+                        : [{ memberUniqueId: member.memberUniqueId, name: member.name, nickname: member.nickname || '' }];
+                    this.isAdminPreview = true;
+                    this.worshipperMode = true;
+                },
+
+                // מעבר בין חשבונות תוך כדי תצוגה מקדימה (בלי לקרוא לשרת)
+                previewAsWorshipperById(memberUniqueId) {
+                    const m = this.members.find(x => x.memberUniqueId === memberUniqueId);
+                    if (m) this.previewAsWorshipper(m);
+                },
+
+                // יציאה מתצוגה מקדימה - חוזרים למסך הניהול, בלי להתנתק מכלום
+                exitWorshipperPreview() {
+                    this.worshipperMode = false;
+                    this.isAdminPreview = false;
+                    this.worshipperMember = null;
+                    this.worshipperTransactions = [];
+                    this.matchedWorshippers = [];
                 },
 
                 toggleDarkMode() {
