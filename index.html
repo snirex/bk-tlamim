@@ -6113,50 +6113,41 @@
                     const deletedFields = allMovFields.filter(f => !activeFields.includes(f));
                     const cols = (this.config.movementColumns || []).map(c => {
                         const colDef = { title: c.title, field: c.field, bottomCalc: c.type === 'money' ? 'sum' : undefined, responsive: 0 };
+
                         if (c.field === 'difference') {
-                            colDef.formatter = (cell) => {
-                                const val = cell.getValue();
-                                if (val === undefined || val === null || val === '') return '';
-                                const num = Number(val);
-                                cell.getElement().style.direction = 'ltr';//money
-                                if (num > 0) { cell.getElement().style.color = '#dc3545'; cell.getElement().style.fontWeight = '600'; return '-₪' + Math.abs(num).toLocaleString(); }
-                                if (num < 0) { cell.getElement().style.color = '#28a745'; cell.getElement().style.fontWeight = '600'; return '+₪' + Math.abs(num).toLocaleString(); }
-                                cell.getElement().style.color = ''; return '₪0';
-                            };
+                            colDef.formatter = () => '';
                             colDef.bottomCalcFormatter = (cell) => {
-                                const val = cell.getValue();
-                                const num = Number(val) || 0;
-                                cell.getElement().style.direction = 'ltr';//money
-                                if (num > 0) { cell.getElement().style.color = '#dc3545'; return '-₪' + Math.abs(num).toLocaleString(); }
-                                if (num < 0) { cell.getElement().style.color = '#28a745'; return '+₪' + Math.abs(num).toLocaleString(); }
+                                const num = Number(cell.getValue()) || 0;
+                                const el = cell.getElement();
+                                el.style.direction = 'ltr';
+                                el.style.textAlign = 'left';
+                                if (num > 0) { el.style.color = '#dc3545'; el.style.fontWeight = '600'; return '-₪' + Math.abs(num).toLocaleString(); }
+                                if (num < 0) { el.style.color = '#28a745'; el.style.fontWeight = '600'; return '+₪' + Math.abs(num).toLocaleString(); }
                                 return '₪0';
                             };
-
-
-                            /*
-                        } else if (c.field === 'paymentAmount') {
-                            // תשלומים מוצגים כמינוס (הקטנת החוב)
-                            colDef.formatter = (cell) => {
-                                const val = cell.getValue();
-                                const num = Number(val) || 0;
-                                if (num === 0) return '';
-                                cell.getElement().style.color = '#28a745';
-                                cell.getElement().style.fontWeight = '600';
-                                return '-₪' + num.toLocaleString();
-                            };
+                        } else if (c.field === 'commitmentAmount') {
+                            colDef.formatter = commitmentFmt;
                             colDef.bottomCalcFormatter = (cell) => {
-                                const val = cell.getValue();
-                                const num = Number(val) || 0;
-                                if (num === 0) return '₪0';
-                                cell.getElement().style.color = '#28a745';
-                                return '-₪' + num.toLocaleString();
+                                const num = Number(cell.getValue()) || 0;
+                                const el = cell.getElement();
+                                el.style.direction = 'ltr';
+                                el.style.textAlign = 'left';
+                                if (num > 0) { el.style.fontWeight = '600'; return '+₪' + num.toLocaleString(); }
+                                return '₪0';
                             };
-                            */
-
-
+                        } else if (c.field === 'paymentAmount') {
+                            colDef.formatter = paymentFmt;
+                            colDef.bottomCalcFormatter = (cell) => {
+                                const num = Number(cell.getValue()) || 0;
+                                const el = cell.getElement();
+                                el.style.direction = 'ltr';
+                                el.style.textAlign = 'left';
+                                if (num > 0) { el.style.fontWeight = '600'; return '-₪' + num.toLocaleString(); }
+                                return '₪0';
+                            };
                         } else {
                             if (c.type === 'money') {
-                                colDef.formatter = c.field === 'commitmentAmount' ? commitmentFmt : (c.field === 'paymentAmount' ? paymentFmt : moneyFmt);
+                                colDef.formatter = moneyFmt;
                             } else if (c.type === 'date') {
                                 colDef.formatter = (cell) => formatDate(cell.getValue());
                             }
