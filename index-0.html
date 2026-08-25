@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl" x-data="synagogueApp()" :data-theme="darkMode ? 'dark' : 'light'" :style="customStyle"
     x-init="init()">
 
 <head>
     <!--
-    show funds in reports (דוחות)
-    fix funds screen
-    allow adding minus amount of money
+    impl. funds
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2887,7 +2884,7 @@
                     <div class="col-md-5">
 
                         <!-- עריכת מתפלל -->
-                        <div x-show="editingMember" class="content-card mb-3"
+                        <div id="editingmember" x-show="editingMember" class="content-card mb-3"
                             style="border: 2px solid var(--primary-color); background: rgba(44,95,125,0.05);" x-cloak
                             x-transition>
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -2966,7 +2963,7 @@
                                                     x-text="'#' + m.nickname + (m.memberUniqueId ? ' · ' + m.memberUniqueId : '')"></small>
                                             </div>
                                             <div class="d-flex gap-1">
-                                                <button @click="editingMember = {...m}"
+                                                <button @click="editingMember = {...m}; scrollToElement('editingmember')"
                                                     class="btn btn-sm btn-outline-primary"><i
                                                         class="fas fa-pencil-alt"></i></button>
                                                 <button @click="deleteMember(m.memberUniqueId)"
@@ -3348,7 +3345,7 @@
                     <div class="funds-grid"
                         style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
                         <!-- תיבה 1: הוספת מטרת תשלום חדשה -->
-                        <div class="content-card" style="grid-column: 1;">
+                        <div class="content-card" style="grid-column: 1; background: lightyellow;">
                             <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
                                 <i class="fas fa-bullseye"></i> הוספת מטרת תשלום חדשה
                             </h5>
@@ -3375,7 +3372,7 @@
                         </div>
 
                         <!-- תיבה 2: מטרות תשלום קיימות -->
-                        <div class="content-card" style="grid-column: 2;">
+                        <div class="content-card" style="grid-column: 2; background: lightyellow;">
                             <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
                                 <i class="fas fa-list"></i> מטרות תשלום קיימות
                             </h5>
@@ -5847,6 +5844,13 @@
                     return rows;
                 },
 
+                scrollToElement(targetId) {
+                    this.$nextTick(() => {
+                        const element = document.getElementById(targetId);
+                        if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                },
+
                 generateReport() {
                     let filtered = [...this.transactions];
                     if (this.reportParams.purpose || this.reportParams.selectedPurposes.length > 0) {
@@ -5920,10 +5924,7 @@
                         });
                         const rw2 = document.getElementById('reportTable');
                         if (rw2) rw2.classList.remove('scrollable');
-                        this.$nextTick(() => {
-                            const el = document.getElementById('reportTable');
-                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        });
+                        this.scrollToElement('reportTable');
                         return;
                     }
 
@@ -5967,17 +5968,7 @@
                     if (rw) {
                         rw.classList.toggle('scrollable', this.getTableScroll("reports"));
                     }
-                    this.$nextTick(() => {
-                        const el = document.getElementById('reportTable');
-
-                        if (el) {
-                            // slide to table
-                            el.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start'
-                            });
-                        }
-                    });
+                    this.scrollToElement('reportTable');
                 },
 
                 // מאפשר לשנות אילו עמודות מוצגות בטבלת הדוח — גם לאחר שהטבלה כבר מוצגת על המסך
