@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl" x-data="synagogueApp()" :data-theme="darkMode ? 'dark' : 'light'" :style="customStyle"
     x-init="init()">
 
 <head>
     <!--
-    *Fix bug - The list of payment purpose (payments) received the content of the "Action type" list (commitments). Now it takes the list from config page
+    impl. funds
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -3268,18 +3269,17 @@
                 <div class="page-header">
                     <div class="page-title">
                         <i class="fas fa-piggy-bank"></i> <span
-                            x-text="selectedFund ? 'ניהול קופה' : 'ניהול קופות'"></span>
+                            x-text="selectedFund ? 'ניהול קופה' : (selectedPurpose ? 'ניהול מטרת תשלום' : 'ניהול קופות ומטרות תשלום')"></span>
                     </div>
-                    <button class="btn btn-secondary btn-sm" @click="selectedFund = null"
-                        x-show="selectedFund && fundEditingId !== selectedFund.id">
+                    <button class="btn btn-secondary btn-sm" @click="selectedFund = null; selectedPurpose = null"
+                        x-show="(selectedFund && fundEditingId !== selectedFund.id) || (selectedPurpose && purposeEditingId !== selectedPurpose.id)">
                         <i class="fas fa-arrow-right"></i> חזור
                     </button>
                 </div>
-                <div style="font-size: 14px; color: red; text-align: right;">שים לב, ממשק ניהול הקופות הוא במצב נסיוני
-                    בלבד, והקופות אינן נשמרות בבסיס הנתונים אלא בדפדפן הפרטי בלבד</div>
 
-                <!-- הצגת דף קופות כשאין בחירה -->
-                <template x-if="!selectedFund">
+                <!-- הצגת דף קופות ומטרות תשלום כשאין בחירה -->
+                <template x-if="!selectedFund && !selectedPurpose">
+                  <div>
                     <div class="funds-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <!-- תיבה 1: הוספת קופה חדשה -->
                         <div class="content-card" style="grid-column: 1;">
@@ -3341,6 +3341,76 @@
                             </template>
                         </div>
                     </div>
+
+                    <!-- ═══ מטרות תשלום — רשימה גלובלית, משותפת לכל הקופות ═══ -->
+                    <div class="funds-grid"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+                        <!-- תיבה 1: הוספת מטרת תשלום חדשה -->
+                        <div class="content-card" style="grid-column: 1; background: lightyellow;">
+                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                <i class="fas fa-bullseye"></i> הוספת מטרת תשלום חדשה
+                            </h5>
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">שם
+                                    מטרת תשלום:</label>
+                                <input type="text" x-model="newPurposeName" class="search-input">
+                                <!-- placeholder="למשל: שובה ישראל" -->
+                            </div>
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">תאריך
+                                    התחלה:</label>
+                                <input type="date" x-model="newPurposeStartDate" class="search-input">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label
+                                    style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">הערות:</label>
+                                <textarea x-model="newPurposeNotes" class="search-input"
+                                    style="min-height: 70px; resize: vertical;"></textarea>
+                            </div>
+                            <button class="btn btn-primary btn-sm" style="width: 100%;" @click="addPurpose()">
+                                <i class="fas fa-plus"></i> הוסף מטרת תשלום
+                            </button>
+                        </div>
+
+                        <!-- תיבה 2: מטרות תשלום קיימות -->
+                        <div class="content-card" style="grid-column: 2; background: lightyellow;">
+                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                <i class="fas fa-list"></i> מטרות תשלום קיימות
+                            </h5>
+                            <template x-if="paymentPurposes.length === 0">
+                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                    אין מטרות תשלום.
+                                    <br />
+                                    הוסף מטרת תשלום חדשה בתיבה בצד ימין.
+                                </div>
+                            </template>
+                            <template x-if="paymentPurposes.length > 0">
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <template x-for="purpose in paymentPurposes" :key="purpose.id">
+                                        <div
+                                            style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                            <div style="flex: 1; cursor: pointer;" @click="selectPurpose(purpose.id)">
+                                                <div style="font-weight: 600;">
+                                                    <span x-text="purpose.name"></span>
+                                                </div>
+                                                <div
+                                                    style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                                    התקבל בסה"כ: <span
+                                                        style="direction: ltr; display: inline-block; color: var(--primary-color); font-weight: 600;">₪<span
+                                                            x-text="Number(getPurposeCumulative(purpose.id, purpose.startDate, getTodayDate())).toLocaleString()"></span></span>
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-sm btn-danger" @click="deletePurpose(purpose.id)"
+                                                style="margin-left: 0.5rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                  </div>
                 </template>
 
                 <!-- הצגת דף פרטי קופה כשיש בחירה -->
@@ -3366,14 +3436,6 @@
                                                 קופה:</label>
                                             <input type="text" x-model="fundEditingName" class="search-input"
                                                 style="margin-bottom: 0.5rem;">
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">
-                                                סיבות ניצול (ביטויים מופרדים בפסיק, יופיעו כרשימה נפתחת בעת
-                                                הפחתה/ריקון):
-                                            </label>
-                                            <textarea x-model="fundEditingReasons" class="search-input" placeholder=""
-                                                style="min-height: 50px; resize: vertical;"></textarea>
-
                                             <label
                                                 style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">הערות:</label>
                                             <textarea x-model="fundEditingNotes" class="search-input"
@@ -3530,7 +3592,9 @@
                                                 <th style="padding: 0.75rem; text-align: center; font-weight: 600;">סכום
                                                 </th>
                                                 <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
-                                                    הערות</th>
+                                                    מטרת תשלום</th>
+                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                    פרטים</th>
                                                 <th style="padding: 0.75rem; text-align: center; font-weight: 600;">
                                                     פעולות</th>
                                             </tr>
@@ -3547,7 +3611,10 @@
                                                             x-text="Number(history.amount).toLocaleString()"></span>
                                                     </td>
                                                     <td style="padding: 0.75rem; text-align: right;">
-                                                        <span x-text="history.reason || '—'"></span>
+                                                        <span x-text="history.purposeName || '—'"></span>
+                                                    </td>
+                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                        <span x-text="history.details || '—'"></span>
                                                     </td>
                                                     <td style="padding: 0.75rem; text-align: center;">
                                                         <div
@@ -3563,6 +3630,148 @@
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </div>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- הצגת דף פרטי מטרת תשלום כשיש בחירה -->
+                <template x-if="selectedPurpose">
+                    <div>
+                        <!-- תיבה: פרטי מטרת תשלום -->
+                        <div class="content-card" style="margin-bottom: 1.5rem;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <!-- שם מטרת תשלום -->
+                                    <template x-if="purposeEditingId !== selectedPurpose.id">
+                                        <div>
+                                            <h5 x-text="selectedPurpose.name"
+                                                style="color: var(--primary-color); margin-bottom: 0.5rem;"></h5>
+                                        </div>
+                                    </template>
+                                    <!-- עריכת מטרת תשלום -->
+                                    <template x-if="purposeEditingId === selectedPurpose.id">
+                                        <div>
+                                            <label
+                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">שם
+                                                מטרת תשלום:</label>
+                                            <input type="text" x-model="purposeEditingName" class="search-input"
+                                                style="margin-bottom: 0.5rem;">
+                                            <label
+                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">תאריך
+                                                התחלה:</label>
+                                            <input type="date" x-model="purposeEditingStartDate" class="search-input"
+                                                style="margin-bottom: 0.5rem;">
+                                            <label
+                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">הערות:</label>
+                                            <textarea x-model="purposeEditingNotes" class="search-input"
+                                                style="min-height: 60px; resize: vertical; margin-bottom: 0.5rem;"></textarea>
+                                            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                                                <button class="btn btn-sm btn-success" @click="saveEditPurpose()">
+                                                    <i class="fas fa-check"></i> שמור
+                                                </button>
+                                                <button class="btn btn-sm btn-secondary" @click="cancelEditPurpose()">
+                                                    <i class="fas fa-times"></i> ביטול
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                                <!-- כפתורי עריכה -->
+                                <div style="display: flex; gap: 0.5rem; margin-right: auto;">
+                                    <template x-if="purposeEditingId !== selectedPurpose.id">
+                                        <button class="btn btn-sm btn-info" @click="startEditPurpose(selectedPurpose.id)">
+                                            <i class="fas fa-edit"></i> עריכה
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                            <template x-if="purposeEditingId !== selectedPurpose.id">
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                    <span x-show="selectedPurpose.notes" x-text="selectedPurpose.notes"></span>
+                                    <div style="margin-top: 0.5rem;">תאריך התחלה: <b><span
+                                                x-text="formatDate(selectedPurpose.startDate)"></span></b></div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- תיבה: סכום מצטבר -->
+                        <div class="content-card" style="margin-bottom: 1.5rem;">
+                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                <i class="fas fa-coins"></i> סכום מצטבר
+                            </h5>
+                            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">מתאריך:</label>
+                                    <input type="date" x-model="purposeRangeFrom" class="search-input">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">עד
+                                        תאריך:</label>
+                                    <input type="date" x-model="purposeRangeTo" class="search-input">
+                                </div>
+                            </div>
+                            <div
+                                style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center; max-width: 260px;">
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                    סה"כ בטווח שנבחר</div>
+                                <div
+                                    style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); direction: ltr;">
+                                    ₪<span
+                                        x-text="Number(getPurposeCumulative(selectedPurpose.id, purposeRangeFrom, purposeRangeTo)).toLocaleString()"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- תיבה: היסטוריית קבלת כספים -->
+                        <div class="content-card">
+                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                <i class="fas fa-arrow-circle-down" style="color: #28a745;"></i> כסף שהתקבל ממטרת תשלום
+                                זו
+                            </h5>
+                            <template x-if="getPurposeHistoryRows(selectedPurpose.id).length === 0">
+                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                    אין עדיין פעולות ניצול המקושרות למטרת תשלום זו.
+                                </div>
+                            </template>
+                            <template x-if="getPurposeHistoryRows(selectedPurpose.id).length > 0">
+                                <div style="overflow-x: auto;">
+                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                                        <thead
+                                            style="background: var(--bg-main); border-bottom: 2px solid var(--border-color);">
+                                            <tr>
+                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">תאריך
+                                                </th>
+                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                    מקופה</th>
+                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">סכום
+                                                </th>
+                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                    פרטים</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="row in getPurposeHistoryRows(selectedPurpose.id)" :key="row.id">
+                                                <tr style="border-bottom: 1px solid var(--border-color);">
+                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                        <span x-text="formatDate(row.date)"></span>
+                                                    </td>
+                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                        <span x-text="row.fundName"></span>
+                                                    </td>
+                                                    <td
+                                                        style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 600; color: #28a745;">
+                                                        +₪<span x-text="Number(row.amount).toLocaleString()"></span>
+                                                    </td>
+                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                        <span x-text="row.details || '—'"></span>
                                                     </td>
                                                 </tr>
                                             </template>
@@ -3690,7 +3899,8 @@
                     { id: 7, memberId: 4, type: 'payment', paymentDate: '2026-04-01', purpose: 'תרומה שנתית', paymentMethod: 'צ׳ק', reference: '987', paymentAmount: 750 }
                 ],
                 config: null, // null => ייעשה שימוש בקונפיג ברירת המחדל של האפליקציה
-                funds: []
+                funds: [],
+                paymentPurposes: []
             };
         }
 
@@ -3875,7 +4085,19 @@
                 fundEditingId: null,
                 fundEditingName: '',
                 fundEditingNotes: '',
-                fundEditingReasons: '',
+
+                // ═══ payment purposes - מטרות תשלום (רשימה גלובלית, משותפת לכל הקופות) ═══
+                paymentPurposes: [],
+                selectedPurpose: null,
+                newPurposeName: '',
+                newPurposeStartDate: '',
+                newPurposeNotes: '',
+                purposeEditingId: null,
+                purposeEditingName: '',
+                purposeEditingNotes: '',
+                purposeEditingStartDate: '',
+                purposeRangeFrom: '',
+                purposeRangeTo: '',
 
                 // Print sessions
                 printSessions: JSON.parse(localStorage.getItem('synagogue_print_sessions')) || [],
@@ -4047,6 +4269,7 @@
                         this.members = demoData.members || [];
                         this.transactions = demoData.transactions || [];
                         this.funds = demoData.funds || [];
+                        this.paymentPurposes = demoData.paymentPurposes || [];
                         if (demoData.config) this.config = { ...this.config, ...demoData.config };
                         if (demoData.backupMeta) {
                             this.backupHistory = demoData.backupMeta.backups || [];
@@ -4726,8 +4949,10 @@
                                 window.fsMethods.setDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'members'), { list: [] }),
                                 window.fsMethods.setDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'transactions'), { list: [] }),
                                 window.fsMethods.setDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'funds'), { list: [] }),
+                                window.fsMethods.setDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'paymentPurposes'), { list: [] }),
                             ]);
                             this.funds = [];
+                            this.paymentPurposes = [];
                         }
                         await Swal.fire('הושלם!', 'כל הנתונים נמחקו', 'success');
                         location.reload();
@@ -5195,6 +5420,7 @@
                         else if (collection === 'transactions') saveDemoData({ transactions: safeData.list || [] });
                         else if (collection === 'config') saveDemoData({ config: safeData });
                         else if (collection === 'funds') saveDemoData({ funds: safeData.list || [] });
+                        else if (collection === 'paymentPurposes') saveDemoData({ paymentPurposes: safeData.list || [] });
                         else if (collection === 'backupMeta') saveDemoData({ backupMeta: safeData });
                         this._logDb('ok', `שמירה (דמו): ${collection} (${Array.isArray(data.list) ? data.list.length + ' רשומות' : 'הגדרות'})`);
                         return;
@@ -5234,10 +5460,11 @@
                             window.fsMethods.getDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'transactions')),
                             window.fsMethods.getDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'config')),
                             window.fsMethods.getDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'funds')),
+                            window.fsMethods.getDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'paymentPurposes')),
                             window.fsMethods.getDoc(window.fsMethods.doc(window.db, 'users', uid, 'data', 'backupMeta')),
                         ]);
 
-                        const [membersRes, txRes, configRes, fundsRes, backupMetaRes] = results;
+                        const [membersRes, txRes, configRes, fundsRes, paymentPurposesRes, backupMetaRes] = results;
 
                         // Process members data if successfully fetched
                         if (membersRes.status === 'fulfilled' && membersRes.value.exists()) {
@@ -5261,6 +5488,11 @@
                         // Process funds data if successfully fetched
                         if (fundsRes.status === 'fulfilled' && fundsRes.value.exists()) {
                             this.funds = fundsRes.value.data().list || [];
+                        }
+
+                        // Process payment purposes data if successfully fetched
+                        if (paymentPurposesRes.status === 'fulfilled' && paymentPurposesRes.value.exists()) {
+                            this.paymentPurposes = paymentPurposesRes.value.data().list || [];
                         }
 
                         // Process backup metadata if successfully fetched
@@ -5395,7 +5627,7 @@
                             const member = this.members.find(m => m.memberUniqueId === t.memberId);
                             return { ...t, name: member ? member.name : '', nickname: member ? member.nickname : '' };
                         });
-                        const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, exportDate: date };
+                        const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, paymentPurposes: this.paymentPurposes, exportDate: date };
                         this.backupPreviewText = JSON.stringify(backup, null, 2);
                         this.backupPreviewFilename = `backup_${date}.json`;
                     } else if (format === 'batch') {
@@ -5554,7 +5786,7 @@
                 extractAvailablePurposes() {
                     const purposes = new Set();
                     this.transactions.forEach(t => { if (t.purpose) purposes.add(t.purpose); });
-                    this.funds.forEach(f => (f.fundReasons || []).forEach(r => purposes.add(r)));
+                    this.paymentPurposes.forEach(p => purposes.add(p.name));
                     this.availablePurposes = Array.from(purposes);
                 },
 
@@ -5603,10 +5835,10 @@
                                 memberName: '🏦 ' + fund.name,
                                 transactionType: (h.type === 'commitment' || h.type === 'addition') ? 'commitments' : 'payments',
                                 date: h.date || '',
-                                purpose: h.reason || typeLabel,
+                                purpose: h.type === 'reduction' ? (h.purposeName || typeLabel) : typeLabel,
                                 amount: Number(h.amount) || 0,
                                 typeLabel,
-                                details: h.initiatedBy ? `בוצע ע"י: ${h.initiatedBy}` : ''
+                                details: h.type === 'reduction' ? (h.details || '') : (h.initiatedBy ? `בוצע ע"י: ${h.initiatedBy}` : '')
                             });
                         });
                     });
@@ -6629,7 +6861,7 @@
                             const member = this.members.find(m => m.memberUniqueId === t.memberId);
                             return { ...t, name: member ? member.name : '', nickname: member ? member.nickname : '' };
                         });
-                        const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, exportDate: date };                        
+                        const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, paymentPurposes: this.paymentPurposes, exportDate: date };                        
                         this._downloadFile(JSON.stringify(backup, null, 2), `${filename}.json`, 'application/json');
                         this.recordBackupEvent();
                     } else if (format === 'excel') {
@@ -6692,6 +6924,7 @@
                             if (backup.transactions) { this.transactions = backup.transactions; saves.push(this.saveTransactionsData()); }
                             if (backup.config) { this.config = backup.config; saves.push(this.saveConfigData()); }
                             if (backup.funds) { this.funds = backup.funds; saves.push(this.saveFunds()); }
+                            if (backup.paymentPurposes) { this.paymentPurposes = backup.paymentPurposes; saves.push(this.savePaymentPurposes()); }
 
                             // ממתינים בפועל לכתיבה ל-Firestore — כך שהשחזור מוודא שהנתונים
                             // בבסיס הנתונים עצמו הוחלפו, ולא רק התצוגה המקומית באתר.
@@ -6975,6 +7208,149 @@
                     return this._saveToFirestore('funds', { list: this.funds });
                 },
 
+                // ═══ PAYMENT PURPOSES MANAGEMENT — מטרות תשלום (רשימה גלובלית, משותפת לכל הקופות) ═══
+                initPaymentPurposes() { },
+
+                savePaymentPurposes() {
+                    return this._saveToFirestore('paymentPurposes', { list: this.paymentPurposes });
+                },
+
+                addPurpose() {
+                    if (!this.newPurposeName.trim()) {
+                        Swal.fire('שגיאה', 'נא להזין שם מטרת תשלום', 'error');
+                        return;
+                    }
+                    if (this.paymentPurposes.some(p => p.name.toLowerCase() === this.newPurposeName.trim().toLowerCase())) {
+                        Swal.fire('שגיאה', 'מטרת תשלום בשם זה כבר קיימת', 'error');
+                        return;
+                    }
+                    const purpose = {
+                        id: Date.now().toString(),
+                        name: this.newPurposeName.trim(),
+                        startDate: this.newPurposeStartDate || this.getTodayDate(),
+                        notes: this.newPurposeNotes.trim(),
+                        createdAt: this.getTodayDate()
+                    };
+                    this.paymentPurposes.push(purpose);
+                    this.savePaymentPurposes();
+                    this.newPurposeName = '';
+                    this.newPurposeNotes = '';
+                    this.newPurposeStartDate = '';
+                    Swal.fire('הצלחה', 'מטרת התשלום נוספה בהצלחה', 'success');
+                },
+
+                deletePurpose(purposeId) {
+                    const purpose = this.paymentPurposes.find(p => p.id === purposeId);
+                    if (!purpose) return;
+
+                    Swal.fire({
+                        title: `מחיקת מטרת תשלום: ${purpose.name}`,
+                        text: `מחיקה תסיר את מטרת התשלום מהרשימה. פעולות ניצול קודמות שכבר בוצעו אליה יישארו בהיסטוריית הקופות, אך לא ניתן יהיה לבחור אותה עוד בפעולות חדשות.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        confirmButtonText: 'מחק',
+                        cancelButtonText: 'ביטול'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.paymentPurposes = this.paymentPurposes.filter(p => p.id !== purposeId);
+                            this.savePaymentPurposes();
+                            if (this.selectedPurpose?.id === purposeId) {
+                                this.selectedPurpose = null;
+                            }
+                            Swal.fire('הצלחה', 'מטרת התשלום נמחקה', 'success');
+                        }
+                    });
+                },
+
+                selectPurpose(purposeId) {
+                    this.selectedPurpose = this.paymentPurposes.find(p => p.id === purposeId) || null;
+                    this.purposeRangeFrom = this.selectedPurpose ? this.selectedPurpose.startDate : '';
+                    this.purposeRangeTo = this.getTodayDate();
+                },
+
+                startEditPurpose(purposeId) {
+                    const purpose = this.paymentPurposes.find(p => p.id === purposeId);
+                    if (purpose) {
+                        this.purposeEditingId = purposeId;
+                        this.purposeEditingName = purpose.name;
+                        this.purposeEditingNotes = purpose.notes;
+                        this.purposeEditingStartDate = purpose.startDate;
+                    }
+                },
+
+                cancelEditPurpose() {
+                    this.purposeEditingId = null;
+                    this.purposeEditingName = '';
+                    this.purposeEditingNotes = '';
+                    this.purposeEditingStartDate = '';
+                },
+
+                saveEditPurpose() {
+                    if (!this.purposeEditingName.trim()) {
+                        Swal.fire('שגיאה', 'נא להזין שם מטרת תשלום', 'error');
+                        return;
+                    }
+                    const purpose = this.paymentPurposes.find(p => p.id === this.purposeEditingId);
+                    if (!purpose) return;
+
+                    if (this.purposeEditingName.toLowerCase() !== purpose.name.toLowerCase() &&
+                        this.paymentPurposes.some(p => p.name.toLowerCase() === this.purposeEditingName.trim().toLowerCase())) {
+                        Swal.fire('שגיאה', 'מטרת תשלום בשם זה כבר קיימת', 'error');
+                        return;
+                    }
+
+                    purpose.name = this.purposeEditingName.trim();
+                    purpose.notes = this.purposeEditingNotes.trim();
+                    purpose.startDate = this.purposeEditingStartDate || purpose.startDate;
+                    this.savePaymentPurposes();
+                    this.purposeEditingId = null;
+                    this.purposeEditingName = '';
+                    this.purposeEditingNotes = '';
+                    this.purposeEditingStartDate = '';
+                    if (this.selectedPurpose?.id === purpose.id) {
+                        this.selectedPurpose = { ...purpose };
+                    }
+                    Swal.fire('הצלחה', 'מטרת התשלום עודכנה', 'success');
+                },
+
+                // בונה רשימת <option> למטרות תשלום, למיון בסדר א-ב, עם אפשרות לסמן ID נבחר מראש
+                getPurposeOptionsHtml(selectedId = '') {
+                    const sorted = [...this.paymentPurposes].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'he'));
+                    let html = `<option value="">בחר מטרת תשלום...</option>`;
+                    sorted.forEach(p => {
+                        const sel = String(p.id) === String(selectedId) ? 'selected' : '';
+                        html += `<option value="${p.id}" ${sel}>${this.escapeHtml(p.name)}</option>`;
+                    });
+                    return html;
+                },
+
+                // כל פעולות ה"ניצול כסף" מכל הקופות שמקושרות למטרת תשלום נתונה (מקור האמת היחיד — נגזר מהיסטוריית הקופות)
+                getPurposeHistoryRows(purposeId) {
+                    const rows = [];
+                    this.funds.forEach(fund => {
+                        (fund.history || []).forEach(h => {
+                            if (h.type === 'reduction' && h.purposeId === purposeId) {
+                                rows.push({
+                                    id: h.id,
+                                    date: h.date || '',
+                                    amount: Number(h.amount) || 0,
+                                    fundName: fund.name,
+                                    details: h.details || ''
+                                });
+                            }
+                        });
+                    });
+                    return rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                },
+
+                // סכום מצטבר של מטרת תשלום בטווח תאריכים (ברירת מחדל: מתאריך ההתחלה ועד היום)
+                getPurposeCumulative(purposeId, fromDate, toDate) {
+                    return this.getPurposeHistoryRows(purposeId)
+                        .filter(r => (!fromDate || r.date >= fromDate) && (!toDate || r.date <= toDate))
+                        .reduce((sum, r) => sum + r.amount, 0);
+                },
+
                 // ═══ היסטוריית גיבוי/שחזור — שומרים את 5 האחרונים בלבד ═══
                 _nowLabel() {
                     const now = new Date();
@@ -7064,8 +7440,7 @@
                         notes: this.newFundNotes.trim(),
                         balance: 0,
                         createdAt: this.getTodayDate(),
-                        history: [],
-                        fundReasons: []
+                        history: []
                     };
                     this.funds.push(fund);
                     this.saveFunds();
@@ -7108,7 +7483,6 @@
                         this.fundEditingId = fundId;
                         this.fundEditingName = fund.name;
                         this.fundEditingNotes = fund.notes;
-                        this.fundEditingReasons = (fund.fundReasons || []).join(', ');
                     }
                 },
 
@@ -7116,7 +7490,6 @@
                     this.fundEditingId = null;
                     this.fundEditingName = '';
                     this.fundEditingNotes = '';
-                    this.fundEditingReasons = '';
                 },
 
                 saveEditFund() {
@@ -7135,15 +7508,10 @@
 
                     fund.name = this.fundEditingName.trim();
                     fund.notes = this.fundEditingNotes.trim();
-                    fund.fundReasons = this.fundEditingReasons
-                        .split(',')
-                        .map(r => r.trim())
-                        .filter(r => r.length > 0);
                     this.saveFunds();
                     this.fundEditingId = null;
                     this.fundEditingName = '';
                     this.fundEditingNotes = '';
-                    this.fundEditingReasons = '';
                     if (this.selectedFund?.id === fund.id) {
                         this.selectedFund = { ...fund };
                     }
@@ -7221,11 +7589,12 @@
                     });
                 },
 
-                //take money from fund
+                //take money from fund — ניצול כסף לטובת מטרת תשלום (מהוה התחייבות של הקופה כלפי מטרת התשלום)
                 addFundReduction() {
-                    const reasons = this.selectedFund.fundReasons || [];
-                    const reasonsOptionsHtml = reasons.map(r =>
-                        `<option value="${this.escapeHtml(r)}">${this.escapeHtml(r)}</option>`).join('');
+                    if (this.paymentPurposes.length === 0) {
+                        Swal.fire('אין מטרות תשלום', 'יש להגדיר לפחות מטרת תשלום אחת בדף הראשי של ניהול הקופות לפני ביצוע ניצול כסף.', 'warning');
+                        return;
+                    }
                     Swal.fire({
                         title: 'ניצול כסף מהקופה',
                         html: `
@@ -7234,15 +7603,12 @@
                                 <input type="date" id="reductionDate" class="swal2-input fund-popup-input" value="${this.getTodayDate()}">
                                 <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום לניצול:</label>
                                 <input type="number" id="reductionAmount" class="swal2-input fund-popup-input" placeholder="0">
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">שם היוזם:</label>
-                                <select id="reductionMemberId" class="swal2-select fund-popup-input">
-                                    ${this.getMemberOptionsHtml()}
+                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">מטרת תשלום:</label>
+                                <select id="reductionPurpose" class="swal2-select fund-popup-input">
+                                    ${this.getPurposeOptionsHtml()}
                                 </select>
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סיבת ניצול:</label>
-                                <select id="reductionReason" class="swal2-select fund-popup-input">
-                                    <option value="">— ללא —</option>
-                                    ${reasonsOptionsHtml}
-                                </select>
+                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">פרטים:</label>
+                                <textarea id="reductionDetails" class="swal2-textarea fund-popup-input" placeholder="פרטים נוספים (לא חובה)"></textarea>
                             </div>
                         `,
                         showCancelButton: true,
@@ -7251,31 +7617,34 @@
                         preConfirm: () => {
                             const date = document.getElementById('reductionDate').value;
                             const amount = Number(document.getElementById('reductionAmount').value);
-                            const memberId = document.getElementById('reductionMemberId').value;
-                            const reason = document.getElementById('reductionReason').value;
+                            const purposeId = document.getElementById('reductionPurpose').value;
+                            const details = document.getElementById('reductionDetails').value.trim();
                             if (!date) {
                                 Swal.showValidationMessage('נא להזין תאריך');
                                 return false;
                             }
-                            if (!memberId) {
-                                Swal.showValidationMessage('נא לבחור מתפלל יוזם');
+                            if (!amount) {
+                                Swal.showValidationMessage('נא להזין סכום');
                                 return false;
                             }
-                            const member = this.members.find(m => String(m.memberUniqueId) === String(memberId));
-                            return { date, amount, memberId, initiator: member ? member.name : '', reason };
+                            if (!purposeId) {
+                                Swal.showValidationMessage('נא לבחור מטרת תשלום');
+                                return false;
+                            }
+                            const purpose = this.paymentPurposes.find(p => p.id === purposeId);
+                            return { date, amount, purposeId, purposeName: purpose ? purpose.name : '', details };
                         }
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            const { date, amount, initiator, memberId, reason } = result.value;
+                            const { date, amount, purposeId, purposeName, details } = result.value;
                             const historyItem = {
                                 id: Date.now().toString(),
                                 date: date,
                                 amount: amount,
-                                memberName: initiator,
-                                memberId: memberId,
+                                purposeId: purposeId,
+                                purposeName: purposeName,
+                                details: details || '',
                                 type: 'reduction',
-                                initiatedBy: initiator,
-                                reason: reason || '',
                                 transactionId: ''
                             };
                             this.selectedFund.history.push(historyItem);
@@ -7299,17 +7668,70 @@
                         historyItem.type === 'addition' ? 'הוספה' :
                             historyItem.type === 'reduction' ? 'הפחתה' : 'פעולה';
 
-                    const showReasonField = historyItem.type === 'reduction';
-                    const showMemberSelect = historyItem.type === 'addition' || historyItem.type === 'reduction';
-                    const reasons = this.selectedFund.fundReasons || [];
-                    const reasonsOptionsHtml = reasons.map(r =>
-                        `<option value="${this.escapeHtml(r)}" ${r === historyItem.reason ? 'selected' : ''}>${this.escapeHtml(r)}</option>`).join('');
-                    const reasonFieldHtml = showReasonField ? `
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סיבת ניצול:</label>
-                                <select id="editReason" class="swal2-select fund-popup-input" style="display: block;">
-                                    <option value="">— ללא —</option>
-                                    ${reasonsOptionsHtml}
-                                </select>` : '';
+                    // ═══ עריכת "ניצול כסף" — תאריך, סכום, מטרת תשלום, פרטים ═══
+                    if (historyItem.type === 'reduction') {
+                        Swal.fire({
+                            title: `עריכת ${typeLabel}`,
+                            html: `
+                                <div style="text-align: right; margin-bottom: 1rem;">
+                                    <label style="display: block; margin-bottom: 0.5rem;">תאריך:</label>
+                                    <input type="date" id="editDate" class="swal2-input fund-popup-input" value="${historyItem.date}">
+                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום:</label>
+                                    <input type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}">
+                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">מטרת תשלום:</label>
+                                    <select id="editPurpose" class="swal2-select fund-popup-input">
+                                        ${this.getPurposeOptionsHtml(historyItem.purposeId)}
+                                    </select>
+                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">פרטים:</label>
+                                    <textarea id="editDetails" class="swal2-textarea fund-popup-input">${this.escapeHtml(historyItem.details || '')}</textarea>
+                                </div>
+                            `,
+                            showCancelButton: true,
+                            confirmButtonText: 'עדכן',
+                            cancelButtonText: 'ביטול',
+                            preConfirm: () => {
+                                const date = document.getElementById('editDate').value;
+                                const amount = Number(document.getElementById('editAmount').value);
+                                const purposeId = document.getElementById('editPurpose').value;
+                                const details = document.getElementById('editDetails').value.trim();
+                                if (!date) {
+                                    Swal.showValidationMessage('נא להזין תאריך');
+                                    return false;
+                                }
+                                if (!purposeId) {
+                                    Swal.showValidationMessage('נא לבחור מטרת תשלום');
+                                    return false;
+                                }
+                                const purpose = this.paymentPurposes.find(p => p.id === purposeId);
+                                return { date, amount, purposeId, purposeName: purpose ? purpose.name : '', details };
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const { date, amount, purposeId, purposeName, details } = result.value;
+                                const oldAmount = historyItem.amount;
+                                const balanceDiff = amount - oldAmount;
+
+                                historyItem.date = date;
+                                historyItem.amount = amount;
+                                historyItem.purposeId = purposeId;
+                                historyItem.purposeName = purposeName;
+                                historyItem.details = details || '';
+
+                                this.selectedFund.balance -= balanceDiff;
+
+                                const fundIndex = this.funds.findIndex(f => f.id === this.selectedFund.id);
+                                if (fundIndex !== -1) {
+                                    this.funds[fundIndex] = { ...this.selectedFund };
+                                }
+                                this.saveFunds();
+                                Swal.fire('הצלחה', `${typeLabel} עודכנה`, 'success');
+                            }
+                        });
+                        return;
+                    }
+
+                    // ═══ עריכת "התחייבות" / "הוספה" — נשארת מבוססת מתפלל, כפי שהייתה ═══
+                    const showMemberSelect = historyItem.type === 'addition';
                     const nameFieldHtml = showMemberSelect ? `
                                 <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">שם היוזם:</label>
                                 <select id="editMemberId" class="swal2-select fund-popup-input">
@@ -7327,7 +7749,6 @@
                                 ${nameFieldHtml}
                                 <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום:</label>
                                 <input type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}">
-                                ${reasonFieldHtml}
                             </div>
                         `,
                         showCancelButton: true,
@@ -7336,8 +7757,6 @@
                         preConfirm: () => {
                             const date = document.getElementById('editDate').value;
                             const amount = Number(document.getElementById('editAmount').value);
-                            const reasonEl = document.getElementById('editReason');
-                            const reason = reasonEl ? reasonEl.value : historyItem.reason;
                             if (!date) {
                                 Swal.showValidationMessage('נא להזין תאריך');
                                 return false;
@@ -7359,11 +7778,11 @@
                                     return false;
                                 }
                             }
-                            return { date, name, memberId, amount, reason };
+                            return { date, name, memberId, amount };
                         }
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            const { date, name, memberId, amount, reason } = result.value;
+                            const { date, name, memberId, amount } = result.value;
                             const oldAmount = historyItem.amount;
                             const balanceDiff = amount - oldAmount;
 
@@ -7374,16 +7793,9 @@
                             }
                             historyItem.amount = amount;
                             historyItem.initiatedBy = name;
-                            if (showReasonField) {
-                                historyItem.reason = reason || '';
-                            }
 
                             // עדכן את היתרה בהתאם לסוג הפעולה
-                            if (historyItem.type === 'commitment' || historyItem.type === 'addition') {
-                                this.selectedFund.balance += balanceDiff;
-                            } else if (historyItem.type === 'reduction') {
-                                this.selectedFund.balance -= balanceDiff;
-                            }
+                            this.selectedFund.balance += balanceDiff;
 
                             // עדכן גם בתרנזקציה של המתפלל אם קיימת (רק לcommitment)
                             if (historyItem.type === 'commitment' && historyItem.transactionId) {
