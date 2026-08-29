@@ -1,11 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl" x-data="synagogueApp()" :data-theme="darkMode ? 'dark' : 'light'" :style="customStyle"
     x-init="init()">
 
 <head>
     <!--
-    impl. funds
+     * Improve funds design (ios accordion)
+     * Reduce the line of the person details in the scroll.
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -393,6 +393,106 @@
             }
         }
 
+        /* ═══ אקורדיון בסגנון iOS — שורת "הוספה" המוטמעת בתוך כרטיס "פריטים קיימים" ═══ */
+        .ios-accordion {
+            border-radius: 14px;
+            margin: 1rem 0;
+            overflow: hidden;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            transition: box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .ios-accordion.is-open {
+            box-shadow: var(--shadow-sm);
+            border-color: var(--primary-color);
+        }
+
+        .ios-accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.15s ease;
+        }
+
+        .ios-accordion-header:active {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .ios-accordion-header:active {
+            background-color: rgba(255, 255, 255, 0.07);
+        }
+
+        .ios-accordion-header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .ios-accordion-chevron {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+                background-color 0.25s ease,
+                color 0.25s ease;
+        }
+
+        [data-theme="dark"] .ios-accordion-chevron {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ios-accordion.is-open .ios-accordion-chevron {
+            transform: rotate(180deg);
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .ios-accordion-body {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .ios-accordion.is-open .ios-accordion-body {
+            grid-template-rows: 1fr;
+        }
+
+        .ios-accordion-body-inner {
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .ios-accordion-body-content {
+            padding: 0.9rem 1rem 1.1rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0.05rem;
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.3s ease 0.08s, transform 0.3s ease 0.08s;
+        }
+
+        .ios-accordion.is-open .ios-accordion-body-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .dashed {
             border: 2px dashed var(--primary-color);
             background: rgba(44, 95, 125, 0.03);
@@ -543,7 +643,7 @@
         }
 
         table.table-border th,
-        table.table-border td{
+        table.table-border td {
             border: 1px solid lightslategray;
         }
 
@@ -815,7 +915,7 @@
         }
 
         .fund-popup-input {
-            text-align: right; 
+            text-align: right;
             width: 80%;
         }
 
@@ -1360,6 +1460,10 @@
 
 
         .member-header-card {
+            position: sticky;
+            top: var(--header-height);
+            z-index: 1020;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             border-radius: 12px;
@@ -1370,6 +1474,42 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* אלמנטים שיצטמצמו/ייעלמו בזמן גלילה */
+        .member-header-card .collapsible-info {
+            max-height: 100px;
+            opacity: 1;
+            overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease;
+        }
+
+        /* מצב מוקטן (דבוק לראש הדף בזמן גלילה) */
+        .member-header-card.is-stuck {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* בזמן גלילה - הסתרת הפרטים המשניים והקטנת כותרת השם */
+        .member-header-card.is-stuck .collapsible-info {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            margin: 0 !important;
+        }
+
+        .member-header-card.is-stuck h2 {
+            font-size: 1.25rem !important;
+            transition: font-size 0.35s ease;
+        }
+
+        /* אפקט צל והקטנה/הצמדה בזמן גלילה */
+        .member-header-card.is-stuck {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
         }
 
         .member-header-card h2 {
@@ -1455,6 +1595,24 @@
         .yellow-bg {
             background: lightyellow !important;
         }
+
+
+        /* הצמדה חלקית מונפשת לכרטיס פרטי המתפלל */
+        .worshipper-header-sticky {
+            position: sticky;
+            top: var(--header-height);
+            z-index: 1020;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: var(--bg-secondary);
+        }
+
+        /* אפקט צל והקטנה בזמן גלילה/הצמדה */
+        .worshipper-header-sticky.is-stuck {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-bottom: 2px solid var(--primary-color);
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
     </style>
 
 </head>
@@ -1474,8 +1632,7 @@
                 <!-- ═══ לשוניות: מתפלל / מנהל ═══ -->
                 <div class="d-flex mb-3" style="border-bottom: 1px solid var(--border-color);">
                     <button type="button" @click="loginTab = 'worshipper'; authStep = 'phone'"
-                        class="btn btn-sm flex-fill"
-                        :class="loginTab === 'worshipper' ? 'fw-bold' : 'text-muted'"
+                        class="btn btn-sm flex-fill" :class="loginTab === 'worshipper' ? 'fw-bold' : 'text-muted'"
                         :style="loginTab === 'worshipper' ? 'border-bottom: 2px solid var(--primary-color); border-radius:0;' : 'border-radius:0;'">
                         <i class="fas fa-user"></i> כניסת מתפלל
                     </button>
@@ -1492,15 +1649,9 @@
                     <!-- שלב 1: הזנת מספר טלפון -->
                     <div x-show="authStep === 'phone'">
                         <p class="text-center text-muted small">הזן מספר טלפון נייד לקבלת קוד אימות ב-SMS</p>
-                        <input type="tel"
-                               x-model="worshipperPhone" 
-                               class="login-input text-center" 
-                               dir="ltr"
-                               placeholder="050-0000000" 
-                               autocomplete="tel"
-                               inputmode="tel" 
-                               name="phone"
-                               @keydown.enter="sendOtpCode()">
+                        <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr"
+                            placeholder="050-0000000" autocomplete="tel" inputmode="tel" name="phone"
+                            @keydown.enter="sendOtpCode()">
 
                         <div id="recaptcha-container"></div>
                         <button @click="sendOtpCode()" class="btn-primary-custom w-100 justify-content-center mt-2"
@@ -1516,8 +1667,7 @@
                         </p>
                         <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold"
                             style="letter-spacing:6px; font-size:1.4rem;" placeholder="------" dir="ltr"
-                            autocomplete="one-time-code" inputmode="numeric"
-                            @keydown.enter="verifyOtpCode()">
+                            autocomplete="one-time-code" inputmode="numeric" @keydown.enter="verifyOtpCode()">
                         <button @click="verifyOtpCode()" class="btn-primary-custom w-100 justify-content-center"
                             style="font-size:1rem; padding: 0.75rem;">
                             <i class="fas fa-check-circle"></i> אימות ואישור
@@ -1537,7 +1687,8 @@
                                     class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
                                     <div>
                                         <div class="fw-bold" x-text="m.name"></div>
-                                        <small class="text-muted" x-text="m.nickname ? 'כינוי: ' + m.nickname : ''"></small>
+                                        <small class="text-muted"
+                                            x-text="m.nickname ? 'כינוי: ' + m.nickname : ''"></small>
                                     </div>
                                     <i class="fas fa-chevron-left text-primary"></i>
                                 </button>
@@ -1548,11 +1699,8 @@
 
                 <!-- ═══ לשונית מנהל: הטופס הקיים ═══ -->
                 <div x-show="loginTab === 'admin'">
-                    <input type="email" 
-                           x-model="loginForm.user" 
-                           class="login-input" 
-                           placeholder="אימייל" autocomplete="email"
-                           @keydown.enter="$refs.passInput.focus()">
+                    <input type="email" x-model="loginForm.user" class="login-input" placeholder="אימייל"
+                        autocomplete="email" @keydown.enter="$refs.passInput.focus()">
 
                     <input type="password" x-ref="passInput" x-model="loginForm.pass" class="login-input"
                         placeholder="סיסמה" @keydown.enter="login()">
@@ -1567,8 +1715,7 @@
     </div>
 
     <!-- ═══ מסך מתפלל (קריאה בלבד, הנתונים שלו בלבד) ═══ -->
-    <div x-show="appReady && worshipperMode" x-cloak
-        :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
+    <div x-show="appReady && worshipperMode" x-cloak :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
         <div class="login-screen" style="align-items:flex-start; padding-top:3rem;">
             <div class="login-card" style="max-width:720px; width:95%;">
 
@@ -1580,7 +1727,8 @@
                     </div>
                 </template>
                 <div class="text-center mb-3">
-                    <h3 class="fw-bold" style="color: var(--primary-color);" x-text="config.synagogueName || 'ניהול בית הכנסת'"></h3>
+                    <h3 class="fw-bold" style="color: var(--primary-color);"
+                        x-text="config.synagogueName || 'ניהול בית הכנסת'"></h3>
                     <h5 class="text-muted mb-0">
                         <i class="fas fa-user-circle me-1"></i>
                         <span x-text="worshipperMember?.name"></span>
@@ -1616,7 +1764,7 @@
                                 <i class="fas fa-file-excel me-1"></i> Excel
                             </button>
                         </div>
-                
+
                         <div class="table-responsive" id="worshipperTableContainer">
                             <table class="table table-sm text-center table-border" border="1">
                                 <thead>
@@ -1645,13 +1793,13 @@
                                 אין תנועות להצגה
                             </div>
                         </div>
-                
+
                         <div class="member-balance-badge money-ltr mb-3"
                             :class="getWorshipperBalance() < 0 ? 'text-success' : (getWorshipperBalance() > 0 ? 'text-danger' : '')">
                             <span x-text="getWorshipperBalance() < 0 ? 'יתרת זכות: ' : 'יתרת חובה: '"></span>
                             <span x-text="Math.abs(getWorshipperBalance()).toLocaleString()"></span> ₪
                         </div>
-                
+
                         <button class="btn btn-sm btn-outline-secondary"
                             @click="isAdminPreview ? exitWorshipperPreview() : worshipperLogout()">
                             <i class="fas" :class="isAdminPreview ? 'fa-arrow-right' : 'fa-sign-out-alt'"></i>
@@ -1890,8 +2038,10 @@
                 </div>
                 <div class="sidebar-section-title" style="font-size:0.8rem; word-break:break-all;">
                     <footer class="py-4 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                        <p>נבנה על ידי <span class="font-bold text-indigo-600 dark:text-indigo-400">שניר אלגבסי</span> © 2026</p>
-                        <p>Made by <span class="font-bold text-indigo-600 dark:text-indigo-400">Snir Elgabsi</span> © 2026</p>
+                        <p>נבנה על ידי <span class="font-bold text-indigo-600 dark:text-indigo-400">שניר אלגבסי</span> ©
+                            2026</p>
+                        <p>Made by <span class="font-bold text-indigo-600 dark:text-indigo-400">Snir Elgabsi</span> ©
+                            2026</p>
                         <div class="flex justify-center gap-3 text-[11px] text-gray-400 dark:text-gray-500">
                             <a href="https://github.com/snirex" target="_blank"
                                 class="hover:text-indigo-500 transition font-medium">GitHub</a>
@@ -1899,7 +2049,8 @@
                             <a href="https://www.linkedin.com/in/snir-elgabsi" target="_blank"
                                 class="hover:text-indigo-500 transition font-medium">LinkedIn</a>
                             <span>•</span>
-                            <a href="mailto:elsnir@gmail.com" class="hover:text-indigo-500 transition font-medium">צור קשר</a>
+                            <a href="mailto:elsnir@gmail.com" class="hover:text-indigo-500 transition font-medium">צור
+                                קשר</a>
                         </div>
                     </footer>
                 </div>
@@ -2168,7 +2319,8 @@
                         <h2 x-text="selectedMember?.name"></h2>
                         <!-- <div x-show="selectedMember?.nickname && selectedMember?.nickname !== selectedMember?.name" style="opacity:.75;font-size:.85rem;" x-text="selectedMember?.name"></div> -->
 
-                        <div style="opacity:.85;font-size:.9rem;">
+                        <!-- פרטים משניים - ייעלמו באנימציה בזמן גלילה -->
+                        <div class="collapsible-info" style="opacity:.85;font-size:.9rem; margin-top: 0.25rem;">
                             <i class="fa-solid fa-id-card"></i>
                             <span style="margin-right:.5rem;opacity:.7;" x-text="selectedMember?.nickname"></span>
 
@@ -2198,8 +2350,11 @@
             ).toLocaleString()"></span>
                         </div>
 
+                        <!-- כפתורים משניים - ייעלמו באנימציה בזמן גלילה -->
+                        <div class="collapsible-info d-flex align-items-center gap-2">
                         <!-- Preview as worshipper -->
-                        <button @click="previewAsWorshipper(selectedMember)" class="share-btn" title="תצוגה מקדימה - כך המתפלל רואה">
+                        <button @click="previewAsWorshipper(selectedMember)" class="share-btn"
+                            title="תצוגה מקדימה - כך המתפלל רואה">
                             <i class="fas fa-eye"></i>
                         </button>
 
@@ -2208,7 +2363,7 @@
                             <i class="fas fa-share-alt"></i>
                         </button>
 
-                    </div>
+                    </div></div>
                 </div>
                 <!-- <div class="d-flex gap-2 flex-wrap no-print">
                             <button @click="shareReadOnlyLink()" class="btn btn-sm btn-info" title="שלח קישור למתפלל">
@@ -2645,15 +2800,18 @@
 
                                 <template x-if="!adminLinkedPhone">
                                     <div>
-                                        <div x-show="adminLinkStep === 'phone'" class="d-flex gap-2 flex-wrap align-items-center">
+                                        <div x-show="adminLinkStep === 'phone'"
+                                            class="d-flex gap-2 flex-wrap align-items-center">
                                             <input type="tel" x-model="adminLinkPhone" class="form-control"
-                                                style="max-width:220px;" dir="ltr" autocomplete="tel" placeholder="050-0000000">
+                                                style="max-width:220px;" dir="ltr" autocomplete="tel"
+                                                placeholder="050-0000000">
                                             <button class="btn btn-sm btn-primary" @click="sendAdminPhoneLinkOtp()">
                                                 <i class="fas fa-paper-plane"></i> שלח קוד
                                             </button>
                                             <div id="recaptcha-container-admin-link"></div>
                                         </div>
-                                        <div x-show="adminLinkStep === 'code'" class="d-flex gap-2 flex-wrap align-items-center mt-2">
+                                        <div x-show="adminLinkStep === 'code'"
+                                            class="d-flex gap-2 flex-wrap align-items-center mt-2">
                                             <input type="text" x-model="adminLinkCode" maxlength="6"
                                                 class="form-control" style="max-width:140px;" dir="ltr"
                                                 autocomplete="one-time-code" inputmode="numeric" placeholder="------">
@@ -2964,7 +3122,8 @@
                                                     x-text="'#' + m.nickname + (m.memberUniqueId ? ' · ' + m.memberUniqueId : '')"></small>
                                             </div>
                                             <div class="d-flex gap-1">
-                                                <button @click="editingMember = {...m}; scrollToElement('editingmember')"
+                                                <button
+                                                    @click="editingMember = {...m}; scrollToElement('editingmember')"
                                                     class="btn btn-sm btn-outline-primary"><i
                                                         class="fas fa-pencil-alt"></i></button>
                                                 <button @click="deleteMember(m.memberUniqueId)"
@@ -3279,138 +3438,163 @@
 
                 <!-- הצגת דף קופות ומטרות תשלום כשאין בחירה -->
                 <template x-if="!selectedFund && !selectedPurpose">
-                  <div>
-                    <div class="funds-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        <!-- תיבה 1: הוספת קופה חדשה -->
-                        <div class="content-card" style="grid-column: 1;">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-plus-circle"></i> הוספת קופה חדשה
-                            </h5>
-                            <div style="margin-bottom: 0.75rem;">
-                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">שם
-                                    קופה:</label>
-                                <input type="text" x-model="newFundName" class="search-input">
-                                <!-- placeholder="למשל: קופת גמח" -->
+                    <div>
+                        <div>
+                            <!-- קופות קיימות + הוספת קופה חדשה (מוטמעת) -->
+                            <div class="content-card">
+                                <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                    <i class="fas fa-list"></i> קופות קיימות
+                                </h5>
+                                <template x-if="funds.length === 0">
+                                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                        אין קופות.
+                                        <br />
+                                        הוסף קופה חדשה למעלה.
+                                    </div>
+                                </template>
+                                <template x-if="funds.length > 0">
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <template x-for="fund in funds" :key="fund.id">
+                                            <div
+                                                style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                                <div style="flex: 1; cursor: pointer;" @click="selectFund(fund.id)">
+                                                    <div style="font-weight: 600;">
+                                                        <span x-text="fund.name"></span>
+                                                    </div>
+                                                    <div
+                                                        style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                                        יתרה: <span
+                                                            style="direction: ltr; display: inline-block; color: var(--primary-color); font-weight: 600;">₪<span
+                                                                x-text="Number(fund.balance).toLocaleString()"></span></span>
+                                                    </div>
+                                                </div>
+                                                <button class="btn btn-sm btn-danger" @click="deleteFund(fund.id)"
+                                                    style="margin-left: 0.5rem;">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <!-- add fund - ios accordion -->
+                                <div class="ios-accordion" :class="{ 'is-open': showAddFundForm }">
+                                    <div class="ios-accordion-header" @click="showAddFundForm = !showAddFundForm">
+                                        <h5 class="ios-accordion-header-title">
+                                            <i class="fas fa-plus-circle"></i> הוספת קופה חדשה
+                                        </h5>
+                                        <span class="ios-accordion-chevron"><i class="fas fa-chevron-down"></i></span>
+                                    </div>
+                                    <div class="ios-accordion-body">
+                                        <div class="ios-accordion-body-inner">
+                                            <div class="ios-accordion-body-content">
+                                                <div style="margin-bottom: 0.75rem;">
+                                                    <label
+                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">שם
+                                                        קופה:</label>
+                                                    <input type="text" x-model="newFundName" class="search-input">
+                                                    <!-- placeholder="למשל: קופת גמח" -->
+                                                </div>
+                                                <div style="margin-bottom: 1rem;">
+                                                    <label
+                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">הערות:</label>
+                                                    <textarea x-model="newFundNotes" class="search-input"
+                                                        style="min-height: 70px; resize: vertical;"></textarea>
+                                                </div>
+                                                <button class="btn btn-primary btn-sm" style="width: 100%;"
+                                                    @click="addFund()">
+                                                    <i class="fas fa-plus"></i> הוסף קופה
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                            <div style="margin-bottom: 1rem;">
-                                <label
-                                    style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">הערות:</label>
-                                <textarea x-model="newFundNotes" class="search-input"
-                                    style="min-height: 70px; resize: vertical;"></textarea>
-                            </div>
-                            <button class="btn btn-primary btn-sm" style="width: 100%;" @click="addFund()">
-                                <i class="fas fa-plus"></i> הוסף קופה
-                            </button>
                         </div>
 
-                        <!-- תיבה 2: קופות קיימות -->
-                        <div class="content-card" style="grid-column: 2;">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-list"></i> קופות קיימות
-                            </h5>
-                            <template x-if="funds.length === 0">
-                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                                    אין קופות.
-                                    <br />
-                                    הוסף קופה חדשה בתיבה בצד ימין.
-                                </div>
-                            </template>
-                            <template x-if="funds.length > 0">
-                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                    <template x-for="fund in funds" :key="fund.id">
-                                        <div
-                                            style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
-                                            <div style="flex: 1; cursor: pointer;" @click="selectFund(fund.id)">
-                                                <div style="font-weight: 600;">
-                                                    <span x-text="fund.name"></span>
+                        <!-- ═══ מטרות תשלום — רשימה גלובלית, משותפת לכל הקופות ═══ -->
+                        <div style="margin-top: 1.5rem;">
+                            <!-- מטרות תשלום קיימות + הוספת מטרת תשלום חדשה (מוטמעת) -->
+                            <div class="content-card">
+                                <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                    <i class="fas fa-list"></i> מטרות תשלום קיימות
+                                </h5>
+                                <template x-if="paymentPurposes.length === 0">
+                                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                        אין מטרות תשלום.
+                                        <br />
+                                        הוסף מטרת תשלום חדשה למעלה.
+                                    </div>
+                                </template>
+                                <template x-if="paymentPurposes.length > 0">
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <template x-for="purpose in paymentPurposes" :key="purpose.id">
+                                            <div
+                                                style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
+                                                <div style="flex: 1; cursor: pointer;"
+                                                    @click="selectPurpose(purpose.id)">
+                                                    <div style="font-weight: 600;">
+                                                        <span x-text="purpose.name"></span>
+                                                    </div>
+                                                    <div
+                                                        style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                                        התקבל בסה"כ: <span
+                                                            style="direction: ltr; display: inline-block; color: var(--primary-color); font-weight: 600;">₪<span
+                                                                x-text="Number(getPurposeCumulative(purpose.id, purpose.startDate, getTodayDate())).toLocaleString()"></span></span>
+                                                    </div>
                                                 </div>
-                                                <div
-                                                    style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                                                    יתרה: <span
-                                                        style="direction: ltr; display: inline-block; color: var(--primary-color); font-weight: 600;">₪<span
-                                                            x-text="Number(fund.balance).toLocaleString()"></span></span>
-                                                </div>
+                                                <button class="btn btn-sm btn-danger" @click="deletePurpose(purpose.id)"
+                                                    style="margin-left: 0.5rem;">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </div>
-                                            <button class="btn btn-sm btn-danger" @click="deleteFund(fund.id)"
-                                                style="margin-left: 0.5rem;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                        </template>
+                                    </div>
+                                </template>
+                                <!-- שורת הוספת מטרת תשלום - אקורדיון בסגנון iOS -->
+                                <div class="ios-accordion" :class="{ 'is-open': showAddPurposeForm }">
+                                    <div class="ios-accordion-header" @click="showAddPurposeForm = !showAddPurposeForm">
+                                        <h5 class="ios-accordion-header-title">
+                                            <i class="fas fa-plus-circle"></i> הוספת מטרת תשלום חדשה
+                                        </h5>
+                                        <span class="ios-accordion-chevron"><i class="fas fa-chevron-down"></i></span>
+                                    </div>
+                                    <div class="ios-accordion-body">
+                                        <div class="ios-accordion-body-inner">
+                                            <div class="ios-accordion-body-content">
+                                                <div style="margin-bottom: 0.75rem;">
+                                                    <label
+                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">שם
+                                                        מטרת תשלום:</label>
+                                                    <input type="text" x-model="newPurposeName" class="search-input">
+                                                    <!-- placeholder="למשל: שובה ישראל" -->
+                                                </div>
+                                                <div style="margin-bottom: 0.75rem;">
+                                                    <label
+                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">תאריך
+                                                        התחלה:</label>
+                                                    <input type="date" x-model="newPurposeStartDate"
+                                                        class="search-input">
+                                                </div>
+                                                <div style="margin-bottom: 1rem;">
+                                                    <label
+                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">הערות:</label>
+                                                    <textarea x-model="newPurposeNotes" class="search-input"
+                                                        style="min-height: 70px; resize: vertical;"></textarea>
+                                                </div>
+                                                <button class="btn btn-primary btn-sm" style="width: 100%;"
+                                                    @click="addPurpose()">
+                                                    <i class="fas fa-plus"></i> הוסף מטרת תשלום
+                                                </button>
+                                            </div>
                                         </div>
-                                    </template>
+                                    </div>
                                 </div>
-                            </template>
+
+                            </div>
                         </div>
                     </div>
-
-                    <!-- ═══ מטרות תשלום — רשימה גלובלית, משותפת לכל הקופות ═══ -->
-                    <div class="funds-grid"
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
-                        <!-- תיבה 1: הוספת מטרת תשלום חדשה -->
-                        <div class="content-card" style="grid-column: 1; background: lightyellow;">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-bullseye"></i> הוספת מטרת תשלום חדשה
-                            </h5>
-                            <div style="margin-bottom: 0.75rem;">
-                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">שם
-                                    מטרת תשלום:</label>
-                                <input type="text" x-model="newPurposeName" class="search-input">
-                                <!-- placeholder="למשל: שובה ישראל" -->
-                            </div>
-                            <div style="margin-bottom: 0.75rem;">
-                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">תאריך
-                                    התחלה:</label>
-                                <input type="date" x-model="newPurposeStartDate" class="search-input">
-                            </div>
-                            <div style="margin-bottom: 1rem;">
-                                <label
-                                    style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">הערות:</label>
-                                <textarea x-model="newPurposeNotes" class="search-input"
-                                    style="min-height: 70px; resize: vertical;"></textarea>
-                            </div>
-                            <button class="btn btn-primary btn-sm" style="width: 100%;" @click="addPurpose()">
-                                <i class="fas fa-plus"></i> הוסף מטרת תשלום
-                            </button>
-                        </div>
-
-                        <!-- תיבה 2: מטרות תשלום קיימות -->
-                        <div class="content-card" style="grid-column: 2; background: lightyellow;">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-list"></i> מטרות תשלום קיימות
-                            </h5>
-                            <template x-if="paymentPurposes.length === 0">
-                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                                    אין מטרות תשלום.
-                                    <br />
-                                    הוסף מטרת תשלום חדשה בתיבה בצד ימין.
-                                </div>
-                            </template>
-                            <template x-if="paymentPurposes.length > 0">
-                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                    <template x-for="purpose in paymentPurposes" :key="purpose.id">
-                                        <div
-                                            style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
-                                            <div style="flex: 1; cursor: pointer;" @click="selectPurpose(purpose.id)">
-                                                <div style="font-weight: 600;">
-                                                    <span x-text="purpose.name"></span>
-                                                </div>
-                                                <div
-                                                    style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                                                    התקבל בסה"כ: <span
-                                                        style="direction: ltr; display: inline-block; color: var(--primary-color); font-weight: 600;">₪<span
-                                                            x-text="Number(getPurposeCumulative(purpose.id, purpose.startDate, getTodayDate())).toLocaleString()"></span></span>
-                                                </div>
-                                            </div>
-                                            <button class="btn btn-sm btn-danger" @click="deletePurpose(purpose.id)"
-                                                style="margin-left: 0.5rem;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </template>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                  </div>
                 </template>
 
                 <!-- הצגת דף פרטי קופה כשיש בחירה -->
@@ -3541,10 +3725,10 @@
                                                     </td>
                                                     <td
                                                         style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 600; color: #28a745;">
-                                                        +₪<span
-                                                            x-text="Number(history.amount).toLocaleString()"></span>
+                                                        +₪<span x-text="Number(history.amount).toLocaleString()"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #28a745;">
+                                                    <td
+                                                        style="padding: 0.75rem; text-align: right; font-weight: 600; color: #28a745;">
                                                         <span x-show="history.type === 'commitment'">התחייבות</span>
                                                         <span x-show="history.type === 'addition'">הוספה</span>
                                                     </td>
@@ -3607,8 +3791,7 @@
                                                     </td>
                                                     <td
                                                         style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 600; color: #dc3545;">
-                                                        −₪<span
-                                                            x-text="Number(history.amount).toLocaleString()"></span>
+                                                        −₪<span x-text="Number(history.amount).toLocaleString()"></span>
                                                     </td>
                                                     <td style="padding: 0.75rem; text-align: right;">
                                                         <span x-text="history.purposeName || '—'"></span>
@@ -3687,7 +3870,8 @@
                                 <!-- כפתורי עריכה -->
                                 <div style="display: flex; gap: 0.5rem; margin-right: auto;">
                                     <template x-if="purposeEditingId !== selectedPurpose.id">
-                                        <button class="btn btn-sm btn-info" @click="startEditPurpose(selectedPurpose.id)">
+                                        <button class="btn btn-sm btn-info"
+                                            @click="startEditPurpose(selectedPurpose.id)">
                                             <i class="fas fa-edit"></i> עריכה
                                         </button>
                                     </template>
@@ -3707,9 +3891,11 @@
                             <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
                                 <i class="fas fa-coins"></i> סכום מצטבר
                             </h5>
-                            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
+                            <div
+                                style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
                                 <div>
-                                    <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">מתאריך:</label>
+                                    <label
+                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">מתאריך:</label>
                                     <input type="date" x-model="purposeRangeFrom" class="search-input">
                                 </div>
                                 <div>
@@ -3758,7 +3944,8 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <template x-for="row in getPurposeHistoryRows(selectedPurpose.id)" :key="row.id">
+                                            <template x-for="row in getPurposeHistoryRows(selectedPurpose.id)"
+                                                :key="row.id">
                                                 <tr style="border-bottom: 1px solid var(--border-color);">
                                                     <td style="padding: 0.75rem; text-align: right;">
                                                         <span x-text="formatDate(row.date)"></span>
@@ -4085,6 +4272,7 @@
                 fundEditingId: null,
                 fundEditingName: '',
                 fundEditingNotes: '',
+                showAddFundForm: false,
 
                 // ═══ payment purposes - מטרות תשלום (רשימה גלובלית, משותפת לכל הקופות) ═══
                 paymentPurposes: [],
@@ -4093,6 +4281,7 @@
                 newPurposeStartDate: '',
                 newPurposeNotes: '',
                 purposeEditingId: null,
+                showAddPurposeForm: false,
                 purposeEditingName: '',
                 purposeEditingNotes: '',
                 purposeEditingStartDate: '',
@@ -4238,6 +4427,19 @@
                         this.saveConfigData();
                         this.renderTable();
                     }, { deep: true });
+
+                    // הפעלה בעת גלילת החלון
+                    window.addEventListener('scroll', () => {
+                        // const headerCard = document.querySelector('.worshipper-header-sticky');
+                        const headerCard = document.querySelector('.member-header-card');
+                        if (headerCard) {
+                            if (window.scrollY > 40) {
+                                headerCard.classList.add('is-stuck');
+                            } else {
+                                headerCard.classList.remove('is-stuck');
+                            }
+                        }
+                    });
 
                     /** Key Shortcuts*/
                     window.addEventListener('keydown', (e) => {
@@ -6861,7 +7063,7 @@
                             const member = this.members.find(m => m.memberUniqueId === t.memberId);
                             return { ...t, name: member ? member.name : '', nickname: member ? member.nickname : '' };
                         });
-                        const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, paymentPurposes: this.paymentPurposes, exportDate: date };                        
+                        const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, paymentPurposes: this.paymentPurposes, exportDate: date };
                         this._downloadFile(JSON.stringify(backup, null, 2), `${filename}.json`, 'application/json');
                         this.recordBackupEvent();
                     } else if (format === 'excel') {
@@ -7236,6 +7438,7 @@
                     this.newPurposeName = '';
                     this.newPurposeNotes = '';
                     this.newPurposeStartDate = '';
+                    this.showAddPurposeForm = false;
                     Swal.fire('הצלחה', 'מטרת התשלום נוספה בהצלחה', 'success');
                 },
 
@@ -7446,6 +7649,7 @@
                     this.saveFunds();
                     this.newFundName = '';
                     this.newFundNotes = '';
+                    this.showAddFundForm = false;
                     Swal.fire('הצלחה', 'קופה נוספה בהצלחה', 'success');
                 },
 
