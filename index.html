@@ -87,16 +87,12 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-
         body {
             font-family: 'Heebo', 'Assistant', sans-serif;
             background: var(--bg-main);
             color: var(--text-primary);
             transition: background-color var(--transition-speed), color var(--transition-speed);
+            overflow-x: hidden;
         }
 
         /* ═══ SCROLLBAR ═══ */
@@ -374,9 +370,7 @@
             margin-right: var(--sidebar-width);
             margin-top: var(--header-height);
             padding: 2rem;
-            height: calc(100vh - var(--header-height));
-            overflow-y: auto;
-            overflow-x: hidden;
+            min-height: calc(100vh - var(--header-height));
             transition: margin-right var(--transition-speed);
         }
 
@@ -1084,13 +1078,6 @@
             .main-content {
                 margin: 0 !important;
                 padding: 0 !important;
-                height: auto !important;
-                overflow: visible !important;
-            }
-
-            html, body {
-                height: auto !important;
-                overflow: visible !important;
             }
 
             .content-card {
@@ -4637,21 +4624,18 @@
                         this.renderTable();
                     }, { deep: true });
 
-                    // הפעלה בעת גלילת תוכן העמוד (main-content הוא כעת מכל הגלילה, לא החלון)
-                    const mainContentEl = document.querySelector('.main-content');
-                    if (mainContentEl) {
-                        mainContentEl.addEventListener('scroll', () => {
-                            // const headerCard = document.querySelector('.worshipper-header-sticky');
-                            const headerCard = document.querySelector('.member-header-card');
-                            if (headerCard) {
-                                if (mainContentEl.scrollTop > 40) {
-                                    headerCard.classList.add('is-stuck');
-                                } else {
-                                    headerCard.classList.remove('is-stuck');
-                                }
+                    // הפעלה בעת גלילת החלון
+                    window.addEventListener('scroll', () => {
+                        // const headerCard = document.querySelector('.worshipper-header-sticky');
+                        const headerCard = document.querySelector('.member-header-card');
+                        if (headerCard) {
+                            if (window.scrollY > 40) {
+                                headerCard.classList.add('is-stuck');
+                            } else {
+                                headerCard.classList.remove('is-stuck');
                             }
-                        });
-                    }
+                        }
+                    });
 
                     /** Key Shortcuts*/
                     window.addEventListener('keydown', (e) => {
