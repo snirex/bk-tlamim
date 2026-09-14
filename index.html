@@ -12,9 +12,7 @@
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- this exact title is important to google cloud -->
-    <title id="pageTitle">מערכת ניהול בית הכנסת</title>
+    <title id="pageTitle">ניהול בית הכנסת</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
@@ -1719,8 +1717,14 @@
                     </button>
                     <div style="text-align: center;"><a href="?demo=1">כנס למצב הדגמה</a></div>
                 </div>
+                <div class="text-center mt-3" style="font-size: 0.8rem;">
+                    <a href="privacy.html" target="_blank" class="text-muted text-decoration-none">
+                        <i class="fas fa-shield-alt me-1"></i> מדיניות פרטיות
+                    </a>
+                </div>
             </div>
         </div>
+        
     </div>
 
     <!-- ═══ מסך מתפלל (קריאה בלבד, הנתונים שלו בלבד) ═══ -->
@@ -2060,6 +2064,11 @@
                             <span>•</span>
                             <a href="mailto:elsnir@gmail.com" class="hover:text-indigo-500 transition font-medium">צור
                                 קשר</a>
+                        </div>
+                        <div class="text-center mt-3" style="font-size: 0.8rem;">
+                            <a href="privacy.html" target="_blank" class="text-muted text-decoration-none">
+                                <i class="fas fa-shield-alt me-1"></i> מדיניות פרטיות
+                            </a>
                         </div>
                     </footer>
                 </div>
@@ -4206,24 +4215,30 @@
             return '₪' + num.toLocaleString();
         }
 
-        // התחייבות — מוצגת בפלוס (אדום = חוב)
+        // התחייבות — בד"כ מוצגת בפלוס (אדום = חוב), אך אם הוזן סכום שלילי (למשל יתרת פתיחה בזכות)
+        // הכיוון מתהפך: זו למעשה הקטנת חוב, ולכן מוצגת במינוס (ירוק)
         function commitmentFmt(cell) {
             const num = Number(cell.getValue()) || 0;
             const el = cell.getElement();
             el.style.direction = 'ltr';
             el.style.unicodeBidi = 'embed';
-            if (num !== 0) { el.style.color = '#dc3545'; el.style.fontWeight = '600'; }
-            return num === 0 ? '₪0' : '+₪' + num.toLocaleString();
+            if (num === 0) return '₪0';
+            if (num > 0) { el.style.color = '#dc3545'; el.style.fontWeight = '600'; return '+₪' + num.toLocaleString(); }
+            el.style.color = '#28a745'; el.style.fontWeight = '600';
+            return '-₪' + Math.abs(num).toLocaleString();
         }
 
-        // תשלום — מוצג במינוס (ירוק = הקטנת חוב)
+        // תשלום — בד"כ מוצג במינוס (ירוק = הקטנת חוב), אך אם הוזן סכום שלילי (למשל ביטול/היפוך תשלום)
+        // הכיוון מתהפך: זו למעשה הגדלת חוב, ולכן מוצג בפלוס (אדום)
         function paymentFmt(cell) {
             const num = Number(cell.getValue()) || 0;
             const el = cell.getElement();
             el.style.direction = 'ltr';
             el.style.unicodeBidi = 'embed';
-            if (num !== 0) { el.style.color = '#28a745'; el.style.fontWeight = '600'; }
-            return num === 0 ? '₪0' : '-₪' + num.toLocaleString();
+            if (num === 0) return '₪0';
+            if (num > 0) { el.style.color = '#28a745'; el.style.fontWeight = '600'; return '-₪' + num.toLocaleString(); }
+            el.style.color = '#dc3545'; el.style.fontWeight = '600';
+            return '+₪' + Math.abs(num).toLocaleString();
         }
 
         // Helper: convert YYYY-MM-DD → DD/MM/YYYY for display
