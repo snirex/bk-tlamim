@@ -4,6 +4,8 @@
 
 <head>
     <!--
+    * privacy policy
+    * view information about the app on login page
     * add google drive connection
     * Google connection details
         https://claude.ai/chat/a99473b9-e524-4caa-a4e9-ea3d52f2436a
@@ -1626,14 +1628,16 @@
 
 <body>
 
-    <!-- ═══ LOGIN SCREEN ═══ -->
+    <!-- ═══ LOGIN & PUBLIC LANDING SCREEN ═══ -->
     <div x-show="appReady && !isLoggedIn && !worshipperMode" x-cloak
         :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
-        <div class="login-screen">
+        <div class="login-screen flex-column py-5">
+
+            <!-- כרטיס הכניסה הראשי -->
             <div class="login-card">
                 <h1 class="login-title">
                     <i class="fas fa-synagogue"></i>
-                    ניהול בית הכנסת
+                    מערכת ניהול בית הכנסת
                 </h1>
 
                 <!-- ═══ לשוניות: מתפלל / מנהל ═══ -->
@@ -1650,10 +1654,8 @@
                     </button>
                 </div>
 
-                <!-- ═══ לשונית מתפלל: טלפון + קוד + בחירת חשבון ═══ -->
+                <!-- לשונית מתפלל -->
                 <div x-show="loginTab === 'worshipper'">
-
-                    <!-- שלב 1: הזנת מספר טלפון -->
                     <div x-show="authStep === 'phone'">
                         <p class="text-center text-muted small">הזן מספר טלפון נייד לקבלת קוד אימות ב-SMS</p>
                         <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr"
@@ -1667,7 +1669,6 @@
                         </button>
                     </div>
 
-                    <!-- שלב 2: הזנת קוד אימות -->
                     <div x-show="authStep === 'code'">
                         <p class="text-center text-muted small">הזן את הקוד בן 6 הספרות שנשלח למספר
                             <strong x-text="worshipperPhone" dir="ltr" style="unicode-bidi:embed;"></strong>
@@ -1685,7 +1686,6 @@
                         </button>
                     </div>
 
-                    <!-- שלב 3: בחירת חשבון (כמה מתפללים על אותו טלפון) -->
                     <div x-show="authStep === 'select'">
                         <h6 class="text-center mb-3">נמצאו כמה חשבונות המקושרים למספר זה:</h6>
                         <div class="list-group mb-2" style="max-height:260px; overflow-y:auto;">
@@ -1704,7 +1704,7 @@
                     </div>
                 </div>
 
-                <!-- ═══ לשונית מנהל: הטופס הקיים ═══ -->
+                <!-- לשונית מנהל -->
                 <div x-show="loginTab === 'admin'">
                     <input type="email" x-model="loginForm.user" class="login-input" placeholder="אימייל"
                         autocomplete="email" @keydown.enter="$refs.passInput.focus()">
@@ -1715,16 +1715,49 @@
                         style="font-size:1rem; padding: 0.75rem;">
                         <i class="fas fa-sign-in-alt"></i> כניסה למערכת
                     </button>
-                    <div style="text-align: center;"><a href="?demo=1">כנס למצב הדגמה</a></div>
+                    <div style="text-align: center;" class="mt-2"><a href="?demo=1">כנס למצב הדגמה</a></div>
                 </div>
-                <div class="text-center mt-3" style="font-size: 0.8rem;">
-                    <a href="privacy.html" target="_blank" class="text-muted text-decoration-none">
-                        <i class="fas fa-shield-alt me-1"></i> מדיניות פרטיות
-                    </a>
+            </div>
+
+            <!-- ═══ פתרון 2 ו-3: הסבר ציבורי על האפליקציה ומטרתה (מיועד לסורק של גוגל) ═══ -->
+            <!-- ═══ הסבר ציבורי על האפליקציה (אקורדיון מתקפל) ═══ -->
+            <div class="login-card mt-3" style="max-width: 400px; padding: 1.25rem;">
+                <!-- כותרת לחיצה לפתיחה/סגירה -->
+                <div @click="ui.aboutOpen = !ui.aboutOpen" class="d-flex justify-content-between align-items-center"
+                    style="cursor: pointer; user-select: none;">
+                    <h2 class="h6 fw-bold mb-0" style="color: var(--primary-color);">
+                        <i class="fas fa-info-circle me-1"></i> אודות המערכת
+                    </h2>
+                    <i class="fas" :class="ui.aboutOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
+                        style="color: var(--text-secondary); font-size: 0.85rem;"></i>
+                </div>
+
+                <!-- התוכן המוסתר שמתרחב באנימציה -->
+                <div class="section-body"
+                    :style="ui.aboutOpen ? 'max-height: 300px; opacity: 1; margin-top: 0.75rem;' : 'max-height: 0; opacity: 0; margin-top: 0;'"
+                    style="overflow: hidden; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;">
+
+                    <p class="small text-muted mb-2 text-center">
+                        מערכת ניהול בית הכנסת מיועדת לניהול שוטף של קהילת בית הכנסת, מעקב התחייבויות, גביית תשלומים,
+                        ניהול קופות
+                        וצפייה אישית של המתפללים במצב חשבונם.
+                    </p>
+                    <p class="small text-muted mb-2 text-center">
+                        המערכת מאפשרת למתפלל לצפות בנתונים שלו ע"י אימות מספר טלפון, ומאפשרת למנהל המערכת להכנס ע"י סיסמה או ע"י הזנת אימות
+                        מספר הטלפון שלו.
+                    </p>
+                    <p class="small text-muted mb-0 text-center">
+                        המערכת כוללת אינטגרציה מאובטחת ל-Google Drive לצורך גיבוי ושחזור נתוני בית הכנסת בלבד.
+                    </p>
+                    <hr class="my-2">
+                    <div class="text-center">
+                        <a href="privacy.html" target="_blank" class="small text-decoration-none text-muted">
+                            <i class="fas fa-shield-alt me-1"></i> מדיניות פרטיות (Privacy Policy)
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        
     </div>
 
     <!-- ═══ מסך מתפלל (קריאה בלבד, הנתונים שלו בלבד) ═══ -->
@@ -2474,7 +2507,8 @@
                         </template>
                         <div class="col-md-auto d-flex flex-column align-items-center">
                             <label class="small fw-bold mb-1 text-nowrap" style="font-size: 0.7rem; cursor: pointer;"
-                                @click="jumpToMemberAfterAdd = !jumpToMemberAfterAdd" :title="jumpToMemberAfterAdd ? 'לאחר הוספה יעבור לחיפוש מתפלל' : 'לאחר הוספה יחזור לשדה מטרה/אופן תשלום'">
+                                @click="jumpToMemberAfterAdd = !jumpToMemberAfterAdd"
+                                :title="jumpToMemberAfterAdd ? 'לאחר הוספה יעבור לחיפוש מתפלל' : 'לאחר הוספה יחזור לשדה מטרה/אופן תשלום'">
                                 מעבר למתפלל הבא
                             </label>
                             <div class="form-check form-switch mb-0">
@@ -2579,7 +2613,8 @@
                                 <input class="form-check-input" type="checkbox" role="switch" id="reportExactMatch"
                                     x-model="reportParams.exactMatch" style="cursor: pointer;">
                                 <label class="form-check-label small" for="reportExactMatch" style="cursor: pointer;">
-                                    <span x-text="reportParams.exactMatch ? 'חיפוש לפי התאמה מדויקת' : 'חיפוש לפי הכלה (מכיל את הטקסט)'"></span>
+                                    <span
+                                        x-text="reportParams.exactMatch ? 'חיפוש לפי התאמה מדויקת' : 'חיפוש לפי הכלה (מכיל את הטקסט)'"></span>
                                 </label>
                             </div>
                             <div x-show="availablePurposes.length > 0">
@@ -2903,7 +2938,8 @@
                                         </div>
                                         <label class="small fw-bold mb-1">Google OAuth Client ID</label>
                                         <input type="text" x-model="config.googleDrive.clientId" dir="ltr"
-                                            class="form-control mb-2" placeholder="xxxxxxxxxxxx.apps.googleusercontent.com"
+                                            class="form-control mb-2"
+                                            placeholder="xxxxxxxxxxxx.apps.googleusercontent.com"
                                             @change="saveConfigData()">
                                         <label class="small fw-bold mb-1">שם תיקיית הגיבויים בדרייב (תיווצר אוטומטית
                                             אם לא קיימת)</label>
@@ -3354,14 +3390,16 @@
                                 <div class="d-flex gap-2 flex-wrap align-items-center mb-2">
                                     <button class="btn btn-primary btn-sm" @click="backupToGoogleDrive()"
                                         :disabled="googleDriveBackingUp">
-                                        <span x-show="!googleDriveBackingUp"><i class="fas fa-cloud-upload-alt me-1"></i>גבה
+                                        <span x-show="!googleDriveBackingUp"><i
+                                                class="fas fa-cloud-upload-alt me-1"></i>גבה
                                             עכשיו לדרייב</span>
                                         <span x-show="googleDriveBackingUp"><i
                                                 class="fas fa-spinner fa-spin me-1"></i>מעלה...</span>
                                     </button>
                                     <button class="btn btn-outline-secondary btn-sm" @click="listGoogleDriveBackups()"
                                         :disabled="googleDriveLoadingFiles">
-                                        <i class="fas fa-sync-alt me-1" :class="googleDriveLoadingFiles ? 'fa-spin' : ''"></i>רענן
+                                        <i class="fas fa-sync-alt me-1"
+                                            :class="googleDriveLoadingFiles ? 'fa-spin' : ''"></i>רענן
                                         רשימה
                                     </button>
                                     <span class="badge bg-success">מחובר<span x-show="googleDriveUserEmail"
@@ -4419,6 +4457,7 @@
                     filteredExportOpen: false,
                     importOpen: false,
                     reportsParamsCollapsed: true,
+                    aboutOpen: false, // ברירת מחדל: מוסתר
                 },
                 // Search strings for tables
                 debtorsSearch: '',
