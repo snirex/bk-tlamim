@@ -10,6 +10,8 @@
     * Google connection details
         https://claude.ai/chat/a99473b9-e524-4caa-a4e9-ea3d52f2436a
         https://gemini.google.com/app/e60de666d583fbf1?hl=he
+        google drive connection:
+        https://claude.ai/chat/7040079e-2039-4efe-a283-024bd1839a3c
     * addNewEntry - add toggle wether to jump to search mitpalel right after 'adding entry'
     -->
     <meta charset="UTF-8">
@@ -7977,7 +7979,7 @@
                                     resolve();
                                 }
                             });
-                            this.googleDriveTokenClient.requestAccessToken({ prompt: this.googleDriveAccessToken ? '' : 'consent' });
+                            this.googleDriveTokenClient.requestAccessToken({ prompt: this.googleDriveAccessToken ? '' : 'select_account consent' });
                         });
                         Swal.fire({ icon: 'success', title: 'החיבור לגוגל דרייב הושלם', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
                     } catch (err) {
@@ -7995,6 +7997,14 @@
                     this.googleDriveConnected = false;
                     this.googleDriveFiles = [];
                     this.googleDriveUserEmail = '';
+                    
+                    //The folder belongs to the previous google account. 
+                    //we clear it here so in the next connection (even to an other account) 
+                    //an other folder will be found/created in the new google drive
+                    if (this.config?.googleDrive?.folderId) {
+                        this.config.googleDrive.folderId = '';
+                        this.saveConfigData();
+                    }
                 },
 
                 // עוטף fetch עם הרשאת Bearer, ומטפל בתוקף שפג (401) ע"י ניסיון רענון שקט
