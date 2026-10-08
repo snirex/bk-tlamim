@@ -4518,7 +4518,8 @@
 
                 // Google Drive backup integration
                 // הדבק כאן פעם אחת את ה-Client ID המרכזי שלך (xxxx.apps.googleusercontent.com) - כל בתי הכנסת ישתמשו בו בלחיצה אחת
-                defaultGoogleClientId: '300451630668-h9evrtgafhq3q5a6ubjor6oehuh0l8au.apps.googleusercontent.com',
+                //old: defaultGoogleClientId: '300451630668-h9evrtgafhq3q5a6ubjor6oehuh0l8au.apps.googleusercontent.com',
+                defaultGoogleClientId: '300451630668-ve7ohupjgtrjklc2gdr9ulbcaljsfsfm.apps.googleusercontent.com',
                 get effectiveGoogleClientId() {
                     return (this.config?.googleDrive?.clientId || '').trim() || this.defaultGoogleClientId;
                 },
