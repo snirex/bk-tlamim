@@ -2945,6 +2945,10 @@
                                             <span x-show="googleDriveConnecting"><i
                                                     class="fas fa-spinner fa-spin me-1"></i> מתחבר...</span>
                                         </button>
+                                        <div class="small text-muted mt-2">מזהה בשימוש:
+                                            <span dir="ltr" x-text="effectiveGoogleClientId || '(לא הוגדר)'"></span>
+                                            <span x-show="(config.googleDrive?.clientId || '').trim()">(מוגדר ידנית בהגדרות)</span>
+                                        </div>
                                     </div>
                                 </template>
 
@@ -4517,8 +4521,7 @@
                 purposeRangeTo: '',
 
                 // Google Drive backup integration
-                // הדבק כאן פעם אחת את ה-Client ID המרכזי שלך (xxxx.apps.googleusercontent.com) - כל בתי הכנסת ישתמשו בו בלחיצה אחת
-                //old: defaultGoogleClientId: '300451630668-h9evrtgafhq3q5a6ubjor6oehuh0l8au.apps.googleusercontent.com',
+                // הדבק כאן פעם אחת את ה-Client ID המרכזי שלך (xxxx.apps.googleusercontent.com) - כל בתי הכנסת ישתמשו בו בלחיצה אחת                
                 defaultGoogleClientId: '300451630668-ve7ohupjgtrjklc2gdr9ulbcaljsfsfm.apps.googleusercontent.com',
                 get effectiveGoogleClientId() {
                     return (this.config?.googleDrive?.clientId || '').trim() || this.defaultGoogleClientId;
@@ -7944,8 +7947,12 @@
                 },
 
                 async connectGoogleDrive() {
-                    const clientId = this.effectiveGoogleClientId;
+                    const clientId = (this.effectiveGoogleClientId || '').replace(/[\s'"]/g, '');
                     if (!clientId) { Swal.fire('שגיאה', 'חיבור הדרייב עדיין לא הוגדר באתר. יש לפנות למפתח.', 'error'); return; }
+                    if (!/^\d{6,}-[a-z0-9]{20,}\.apps\.googleusercontent\.com$/i.test(clientId)) {
+                        Swal.fire({ icon: 'error', title: 'Client ID לא תקין', text: 'הערך שנשלח לגוגל: ' + clientId });
+                        return;
+                    }
                     this.googleDriveConnecting = true;
                     try {
                         await this._loadGoogleIdentityScript();
