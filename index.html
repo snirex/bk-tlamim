@@ -2947,7 +2947,8 @@
                                         </button>
                                         <div class="small text-muted mt-2">מזהה בשימוש:
                                             <span dir="ltr" x-text="effectiveGoogleClientId || '(לא הוגדר)'"></span>
-                                            <span x-show="(config.googleDrive?.clientId || '').trim()">(מוגדר ידנית בהגדרות)</span>
+                                            <span x-show="(config.googleDrive?.clientId || '').trim() && effectiveGoogleClientId === (config.googleDrive?.clientId || '').trim()">(מוגדר ידנית בהגדרות)</span>
+                                            <span class="text-danger" x-show="(config.googleDrive?.clientId || '').trim() && effectiveGoogleClientId !== (config.googleDrive?.clientId || '').trim()">(הערך שהוזן ב"הגדרה מתקדמת" אינו Client ID תקין ולכן מתעלמים ממנו)</span>
                                         </div>
                                     </div>
                                 </template>
@@ -4524,7 +4525,10 @@
                 // הדבק כאן פעם אחת את ה-Client ID המרכזי שלך (xxxx.apps.googleusercontent.com) - כל בתי הכנסת ישתמשו בו בלחיצה אחת                
                 defaultGoogleClientId: '300451630668-ve7ohupjgtrjklc2gdr9ulbcaljsfsfm.apps.googleusercontent.com',
                 get effectiveGoogleClientId() {
-                    return (this.config?.googleDrive?.clientId || '').trim() || this.defaultGoogleClientId;
+                    //return (this.config?.googleDrive?.clientId || '').trim() || this.defaultGoogleClientId;
+                    const custom = (this.config?.googleDrive?.clientId || '').replace(/[\s'"]/g, '');
+                    const valid = /^\d{6,}-[a-z0-9]{20,}\.apps\.googleusercontent\.com$/i.test(custom);//check that clientId is legal
+                    return valid ? custom : this.defaultGoogleClientId;
                 },
                 googleDriveConnected: false,
                 googleDriveConnecting: false,
