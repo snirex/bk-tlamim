@@ -9,6 +9,7 @@
     * add google drive connection
     * Google connection details
         https://claude.ai/chat/a99473b9-e524-4caa-a4e9-ea3d52f2436a
+        https://claude.ai/chat/7040079e-2039-4efe-a283-024bd1839a3c
         https://gemini.google.com/app/e60de666d583fbf1?hl=he
     * addNewEntry - add toggle wether to jump to search mitpalel right after 'adding entry'
     -->
@@ -17,6 +18,14 @@
     <meta name="theme-color" content="#2c5f7d" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#2c5f7d" media="(prefers-color-scheme: dark)">
     
+    <!-- Early connections to Firebase/Google servers: saves time during the initial data load -->
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://accounts.google.com">
+    <link rel="dns-prefetch" href="https://www.googleapis.com">
+
     <title id="pageTitle">ניהול בית הכנסת</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -2056,6 +2065,7 @@
                     data-tooltip="גיבוי/שחזור"
                     :style="view === 'importexport' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
                     <i class="fas fa-exchange-alt"></i> <span>גיבוי ושחזור</span>
+                    <span class="keyboard-shortcut">Alt+B</span>
                 </button>
                 <div class="sidebar-quick-actions">
                     <button @click="exportFullBackup('json')" class="sidebar-btn" title="גיבוי מהיר (JSON)">
@@ -2133,15 +2143,31 @@
 
                 <!-- תזכורת חיבור לגוגל דרייב -->
                 <template x-if="!window.IS_DEMO && isLoggedIn && !googleDriveConnected">
-                    <div class="alert py-2 small mb-3"
+                    <div class="alert py-2 small mb-3 d-flex align-items-center gap-2 flex-wrap"
                         :class="config.googleDrive?.connectedOnce ? 'alert-info' : 'alert-warning'">
-                        <i class="fab fa-google me-1"></i>
-                        <span x-show="!config.googleDrive?.connectedOnce"><b>הגיבוי לגוגל דרייב עדיין לא מוגדר.</b>
-                            כדי לשמור גיבויים בענן בלחיצה אחת, יש להתחבר לחשבון הגוגל שלך.</span>
-                        <span x-show="config.googleDrive?.connectedOnce">החיבור לגוגל דרייב אינו פעיל בכניסה הנוכחית.
-                            ניתן להתחבר מחדש בלחיצה אחת.</span>
-                        <a href="#" class="fw-bold ms-1"
-                            @click.prevent="navigate('management'); ui.googleDriveOpen = true;">להתחברות לגוגל דרייב ←</a>
+                        <span><i class="fab fa-google me-1"></i>
+                            <span x-show="!dataLoaded" class="text-muted">בודק את חיבור הגיבוי לגוגל דרייב...</span>
+                            <span x-show="dataLoaded && !config.googleDrive?.connectedOnce"><b>הגיבוי לגוגל דרייב עדיין לא מוגדר.</b>
+                                כדי לשמור גיבויים בענן בלחיצה אחת, יש להתחבר לחשבון הגוגל שלך.</span>
+                            <span x-show="dataLoaded && config.googleDrive?.connectedOnce">
+                                <b>גוגל דרייב מחובר</b>
+                                <span x-show="config.googleDrive?.userEmail">(<span dir="ltr"
+                                        x-text="config.googleDrive?.userEmail"></span>)</span>
+                                <span x-show="googleDriveConnecting"> — מתחבר במכשיר זה...</span>
+                                <span x-show="!googleDriveConnecting"> — נדרשת לחיצה אחת להפעלה במכשיר זה.</span>
+                            </span>
+                        </span>
+                        <template x-if="dataLoaded && config.googleDrive?.connectedOnce">
+                            <button class="btn btn-sm btn-primary" @click="connectGoogleDrive()"
+                                :disabled="googleDriveConnecting">
+                                <i class="fas" :class="googleDriveConnecting ? 'fa-spinner fa-spin' : 'fa-plug'"></i>
+                                התחבר מחדש
+                            </button>
+                        </template>
+                        <template x-if="dataLoaded && !config.googleDrive?.connectedOnce">
+                            <a href="#" class="fw-bold"
+                                @click.prevent="navigate('management'); ui.googleDriveOpen = true;">להתחברות לגוגל דרייב ←</a>
+                        </template>
                     </div>
                 </template>
 
@@ -2434,13 +2460,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="d-flex gap-2 flex-wrap no-print">
-                            <button @click="shareReadOnlyLink()" class="btn btn-sm btn-info" title="שלח קישור למתפלל">
-                                <i class="fas fa-share-alt"></i> שתף
-                            </button>
-                        </div>
-                    </div>
-                </div> -->
 
                 <!-- Tabs -->
                 <div class="content-card py-0">
@@ -2930,7 +2949,14 @@
 
                                 <template x-if="!googleDriveConnected">
                                     <div>
-                                        <div class="alert alert-info py-2 small mb-2" x-show="defaultGoogleClientId">
+                                        <div class="alert alert-success py-2 small mb-2" x-show="config.googleDrive?.connectedOnce">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            הדרייב כבר חובר לחשבון
+                                            <b dir="ltr" x-text="config.googleDrive?.userEmail || ''"></b>
+                                            (ממכשיר אחר או מכניסה קודמת). לחץ "התחבר מחדש" כדי להפעיל אותו גם במכשיר זה —
+                                            ללא הגדרה מחדש, והגיבויים הקיימים יופיעו מיד.
+                                        </div>
+                                        <div class="alert alert-info py-2 small mb-2" x-show="defaultGoogleClientId && !config.googleDrive?.connectedOnce">
                                             לחץ על "התחבר לגוגל דרייב", בחר את חשבון הגוגל שלך ואשר את ההרשאה. זהו.
                                             האתר יקבל גישה <b>רק לקבצים שהוא עצמו יוצר</b> בדרייב שלך, ולא לשאר הקבצים.
                                             אם גוגל מציגה הודעה שהאפליקציה "לא מאומתת": "Advanced" ← "Go to ... (unsafe)".
@@ -2955,7 +2981,7 @@
                                         <button class="btn btn-primary" @click="connectGoogleDrive()"
                                             :disabled="googleDriveConnecting || !effectiveGoogleClientId">
                                             <span x-show="!googleDriveConnecting"><i class="fab fa-google me-1"></i>
-                                                התחבר לגוגל דרייב</span>
+                                                <span x-text="config.googleDrive?.connectedOnce ? 'התחבר מחדש' : 'התחבר לגוגל דרייב'"></span></span>
                                             <span x-show="googleDriveConnecting"><i
                                                     class="fas fa-spinner fa-spin me-1"></i> מתחבר...</span>
                                         </button>
@@ -2984,49 +3010,6 @@
                                 </template>
                             </div>
                         </div>
-
-
-                        <div class="content-card">
-                            <div class="section-header" @click="ui.colorsOpen = !ui.colorsOpen">
-                                <h6 class="mb-0 fw-bold">🎨 הגדרת צבעים מותאמת</h6>
-                                <i class="fas" :class="ui.colorsOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
-                            </div>
-                            <div class="section-body"
-                                :style="ui.colorsOpen ? 'max-height: 400px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
-                                <button type="button" class="btn btn-outline-secondary btn-sm mt-2"
-                                    @click="resetColors()">
-                                    איפוס לצבעי ברירת מחדל
-                                </button>
-                                <div class="row g-3 mt-1">
-                                    <div class="col-md-6"><label class="small fw-bold">צבע ראשי (Light)</label><input
-                                            type="color" x-model="config.theme.primary"
-                                            class="form-control form-control-color w-100" @change="saveConfigData()">
-                                    </div>
-                                    <div class="col-md-6"><label class="small fw-bold">צבע ראשי (Dark)</label><input
-                                            type="color" x-model="config.theme.primaryDark"
-                                            class="form-control form-control-color w-100" @change="saveConfigData()">
-                                    </div>
-                                    <div class="col-md-6"><label class="small fw-bold">רקע דף (Light)</label><input
-                                            type="color" x-model="config.theme.bg"
-                                            class="form-control form-control-color w-100" @change="saveConfigData()">
-                                    </div>
-                                    <div class="col-md-6"><label class="small fw-bold">רקע דף (Dark)</label><input
-                                            type="color" x-model="config.theme.bgDark"
-                                            class="form-control form-control-color w-100" @change="saveConfigData()">
-                                    </div>
-                                    <div class="col-md-6"><label class="small fw-bold">רקע כרטיסים (Light)</label><input
-                                            type="color" x-model="config.theme.cardBg"
-                                            class="form-control form-control-color w-100" @change="saveConfigData()">
-                                    </div>
-                                    <div class="col-md-6"><label class="small fw-bold">רקע כרטיסים (Dark)</label><input
-                                            type="color" x-model="config.theme.cardBgDark"
-                                            class="form-control form-control-color w-100" @change="saveConfigData()">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
 
                         <!-- עמודות התחייבויות -->
                         <div class="content-card">
@@ -3390,14 +3373,29 @@
                     <div class="section-body"
                         :style="ui.googleDriveBackupOpen ? 'max-height:900px;opacity:1;overflow:visible;' : 'max-height:0;opacity:0;overflow:hidden;'">
                         <template x-if="!googleDriveConnected">
-                            <div class="alert alert-secondary py-2 small mt-2 mb-0">
-                                עדיין לא מחובר לגוגל דרייב. ניתן להתחבר דרך
-                                <a href="#" @click.prevent="navigate('management'); ui.googleDriveOpen = true;">הגדרות
-                                    מערכת</a>.
+                            <div class="alert alert-secondary py-2 small mt-2 mb-0 d-flex align-items-center gap-2 flex-wrap">
+                                <template x-if="config.googleDrive?.connectedOnce">
+                                    <span class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span>הדרייב מחובר לחשבון <b dir="ltr" x-text="config.googleDrive?.userEmail || ''"></b>
+                                            — יש להפעיל אותו במכשיר זה:</span>
+                                        <button class="btn btn-primary btn-sm" @click="connectGoogleDrive()"
+                                            :disabled="googleDriveConnecting">
+                                            <i class="fas" :class="googleDriveConnecting ? 'fa-spinner fa-spin' : 'fa-plug'"></i>
+                                            התחבר מחדש
+                                        </button>
+                                    </span>
+                                </template>
+                                <template x-if="!config.googleDrive?.connectedOnce">
+                                    <span>עדיין לא מחובר לגוגל דרייב. ניתן להתחבר דרך
+                                        <a href="#" @click.prevent="navigate('management'); ui.googleDriveOpen = true;">הגדרות
+                                            מערכת</a>.</span>
+                                </template>
                             </div>
                         </template>
                         <template x-if="googleDriveConnected">
-                            <div class="mt-2">
+                            <div class="mt-2">                                
+                                    <span class="badge bg-success">מחובר<span x-show="googleDriveUserEmail"
+                                            x-text="' — ' + googleDriveUserEmail"></span></span>
                                 <div class="d-flex gap-2 flex-wrap align-items-center mb-2">
                                     <button class="btn btn-primary btn-sm" @click="backupToGoogleDrive()"
                                         :disabled="googleDriveBackingUp">
@@ -3413,8 +3411,6 @@
                                             :class="googleDriveLoadingFiles ? 'fa-spin' : ''"></i>רענן
                                         רשימה
                                     </button>
-                                    <span class="badge bg-success">מחובר<span x-show="googleDriveUserEmail"
-                                            x-text="' — ' + googleDriveUserEmail"></span></span>
                                     <a x-show="config.googleDrive.folderId" target="_blank"
                                         :href="'https://drive.google.com/drive/folders/' + config.googleDrive.folderId"
                                         class="btn btn-sm btn-outline-primary">
@@ -4456,7 +4452,6 @@
                     payOpen: false,
                     movOpen: false,
                     fieldsOpen: false,
-                    colorsOpen: false,
                     adminPhoneOpen: false,
                     googleDriveOpen: false,
                     homeSearchOpen: false,
@@ -4553,6 +4548,11 @@
                 googleDriveBackingUp: false,
                 googleDriveUserEmail: '',
                 _gisLoaded: false,
+                googleDriveNeedsClick: false,   // חיבור קיים בחשבון, אך במכשיר הזה נדרשת לחיצה אחת להפעלה
+                _driveTokenExpiry: 0,
+                _drivePending: null,
+                _driveClientIdUsed: '',
+                _driveAutoTried: false,
 
                 // Print sessions
                 printSessions: JSON.parse(localStorage.getItem('synagogue_print_sessions')) || [],
@@ -4728,6 +4728,7 @@
                         if (e.altKey && (e.key === 'g' || e.key === 'ע')) { e.preventDefault(); this.navigate('management'); }
                         if (e.altKey && (e.key === 'r' || e.key === 'ר')) { e.preventDefault(); this.navigate('reports'); }
                         if (e.altKey && (e.key === 's' || e.key === 'ד')) { e.preventDefault(); this.navigate('summary'); }
+                        if (e.altKey && (e.key === 'b' || e.key === 'נ')) { e.preventDefault(); this.navigate('importexport'); }
                         if (e.altKey && (e.key === 'c' || e.key === 'ב')) { e.preventDefault(); this.navigate('funds'); }
                         if (e.altKey && e.key === '1') { e.preventDefault(); this.setTab('movements'); }
                         if (e.altKey && e.key === '2') { e.preventDefault(); this.setTab('commitments'); }
@@ -4777,7 +4778,7 @@
                                     let _loadOk = false;
                                     for (let attempt = 0; attempt < 4 && !_loadOk; attempt++) {
                                         try { await this._loadFromFirestore(); _loadOk = true; }
-                                        catch (e) { await new Promise(r => setTimeout(r, 1500 * (attempt + 1))); }
+                                        catch (e) { await new Promise(r => setTimeout(r, 500 * (attempt + 1))); }
                                     }
                                     if (!_loadOk) {
                                         Swal.fire({ icon: 'error', title: 'שגיאה בחיבור לבסיס הנתונים', text: 'לא ניתן היה לטעון את הנתונים. שמירת שינויים חסומה עד לטעינה מוצלחת כדי לא לדרוס נתונים. לחץ על כפתור הרענון לניסיון נוסף.' });
@@ -4789,12 +4790,15 @@
                                     this.handleRouting(); // <--- 2. רק עכשיו מפעילים את הראוטינג (כשיש מתפללים בזיכרון לחפש לפיהם!)
 
                                     setTimeout(() => this.renderTable(), 100);
+
+                                    // חיבור אוטומטי לגוגל דרייב ברקע (לא חוסם את הטעינה): אם הדרייב כבר חובר מכל מכשיר, מחברים גם כאן
+                                    if (_loadOk) this.autoReconnectGoogleDrive();
                                 } else {
                                     this.isLoggedIn = false;
                                 }
                             });
-                        } else if (attempts < 200) {
-                            setTimeout(() => waitForFirebase(attempts + 1), 150);
+                        } else if (attempts < 600) {
+                            setTimeout(() => waitForFirebase(attempts + 1), 50);
                         } else {
                             Swal.fire({ icon: 'error', title: 'שגיאה בחיבור לבסיס הנתונים', text: 'ספריות Firebase לא נטענו. בדוק את חיבור האינטרנט ורענן את הדף.' });
                         }
@@ -5069,6 +5073,7 @@
                         return;
                     }
                     // ===== END DEMO MODE =====
+                    this._clearDriveSession();   // טוקן הדרייב לא נשאר בדפדפן אחרי יציאה
                     if (window.auth)
                         await window.auth.signOut();
                     this.isLoggedIn = false;
@@ -5981,6 +5986,7 @@
                     }
 
                     try {
+                        const _t0 = performance.now();
                         const uid = window.auth.currentUser.uid;
 
                         // Execute all fetch requests in parallel using Promise.allSettled
@@ -6044,7 +6050,7 @@
                         }
 
                         this.dataLoaded = true;
-                        this._logDb('ok', `Load from Firestore: ${this.members.length} members, ${this.transactions.length} transactions`);
+                        this._logDb('ok', `Load from Firestore: ${this.members.length} members, ${this.transactions.length} transactions (${Math.round(performance.now() - _t0)}ms)`);
                     } catch (e) {
                         this._logDb('error', `Firestore load error — ${e.message || e}`);
                         console.warn('Firestore load error:', e);
@@ -7711,40 +7717,7 @@
                         if (wrapper) wrapper.classList.toggle('scrollable', this.getTableScroll("summary"));
                     }, 50);
                 },
-                resetColors() {
-                    Swal.fire({
-                        title: 'איפוס צבעים',
-                        text: "האם להחזיר את כל הצבעים לברירת המחדל?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#2c5f7d',
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'כן, אפס',
-                        cancelButtonText: 'ביטול'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // הגדרת ערכי ברירת המחדל המדויקים לפי ה-CSS המקורי שלך
-                            this.settings.customColors = {
-                                primary: '#2c5f7d',
-                                secondary: '#7d4e2c',
-                                accent: '#d4af37',
-                                bgHeader: '#0d6efd'
-                            };
 
-                            // שמירה ועדכון מיידי
-                            //this.saveSettings();
-
-                            // הודעת הצלחה
-                            Swal.fire({
-                                title: 'אופס!',
-                                text: 'הצבעים הוחזרו לברירת המחדל.',
-                                icon: 'success',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        }
-                    });
-                },
 
                 // ═══ FUNDS MANAGEMENT ═══
 
@@ -7988,56 +7961,165 @@
 
                 _loadGoogleIdentityScript() {
                     return new Promise((resolve, reject) => {
-                        if (this._gisLoaded && window.google && window.google.accounts && window.google.accounts.oauth2) { resolve(); return; }
-                        const existing = document.getElementById('gis-script');
-                        if (existing) { existing.addEventListener('load', () => resolve()); return; }
-                        const script = document.createElement('script');
-                        script.id = 'gis-script';
-                        script.src = 'https://accounts.google.com/gsi/client';
-                        script.async = true;
-                        script.defer = true;
-                        script.onload = () => { this._gisLoaded = true; resolve(); };
-                        script.onerror = () => reject(new Error('טעינת ספריית Google נכשלה'));
-                        document.head.appendChild(script);
+                        if (window.google && window.google.accounts && window.google.accounts.oauth2) { this._gisLoaded = true; resolve(); return; }
+                        let script = document.getElementById('gis-script');
+                        if (!script) {
+                            script = document.createElement('script');
+                            script.id = 'gis-script';
+                            script.src = 'https://accounts.google.com/gsi/client';
+                            script.async = true;
+                            script.defer = true;
+                            document.head.appendChild(script);
+                        }
+                        script.addEventListener('load', () => { this._gisLoaded = true; resolve(); });
+                        script.addEventListener('error', () => { script.remove(); reject(new Error('טעינת ספריית Google נכשלה')); });
                     });
                 },
 
-                async connectGoogleDrive() {
+                _validDriveClientId() {
                     const clientId = (this.effectiveGoogleClientId || '').replace(/[\s'"]/g, '');
-                    if (!clientId) { Swal.fire('שגיאה', 'חיבור הדרייב עדיין לא הוגדר באתר. יש לפנות למפתח.', 'error'); return; }
-                    if (!/^\d{6,}-[a-z0-9]{20,}\.apps\.googleusercontent\.com$/i.test(clientId)) {
-                        Swal.fire({ icon: 'error', title: 'Client ID לא תקין', text: 'הערך שנשלח לגוגל: ' + clientId });
-                        return;
+                    if (!clientId) throw new Error('חיבור הדרייב עדיין לא הוגדר באתר. יש לפנות למפתח.');
+                    if (!/^\d{6,}-[a-z0-9]{20,}\.apps\.googleusercontent\.com$/i.test(clientId)) throw new Error('Client ID לא תקין: ' + clientId);
+                    return clientId;
+                },
+
+                // יוצר (פעם אחת) את לקוח ה-OAuth של גוגל. התוצאה של כל בקשת טוקן מגיעה דרך _drivePending
+                async _ensureDriveTokenClient() {
+                    const clientId = this._validDriveClientId();
+                    await this._loadGoogleIdentityScript();
+                    if (!this.googleDriveTokenClient || this._driveClientIdUsed !== clientId) {
+                        this._driveClientIdUsed = clientId;
+                        this.googleDriveTokenClient = google.accounts.oauth2.initTokenClient({
+                            client_id: clientId,
+                            scope: 'https://www.googleapis.com/auth/drive.file',
+                            callback: (resp) => {
+                                const p = this._drivePending; this._drivePending = null;
+                                if (!p) return;
+                                if (resp.error) p.reject(new Error(resp.error_description || resp.error)); else p.resolve(resp);
+                            },
+                            // נקרא כשהחלון נחסם / נסגר ע"י המשתמש - בלעדיו ההבטחה הייתה נתקעת לנצח
+                            error_callback: (err) => {
+                                const p = this._drivePending; this._drivePending = null;
+                                if (p) p.reject(new Error((err && err.type) || 'popup_error'));
+                            }
+                        });
                     }
+                    return this.googleDriveTokenClient;
+                },
+
+                // prompt: 'none' = שקט לחלוטין (נכשל אם נדרשת אינטראקציה); '' = מציג חלון רק אם צריך; 'select_account consent' = חיבור ראשון
+                async _requestDriveToken(prompt, timeoutMs = 0) {
+                    const client = await this._ensureDriveTokenClient();
+                    const hint = this.config?.googleDrive?.userEmail || this.googleDriveUserEmail || '';
+                    const resp = await new Promise((resolve, reject) => {
+                        let timer = null;
+                        const done = (fn) => (v) => { if (timer) clearTimeout(timer); fn(v); };
+                        this._drivePending = { resolve: done(resolve), reject: done(reject) };
+                        if (timeoutMs) timer = setTimeout(() => { this._drivePending = null; reject(new Error('timeout')); }, timeoutMs);
+                        const opts = { prompt };
+                        if (hint && prompt !== 'select_account consent') opts.hint = hint;
+                        client.requestAccessToken(opts);
+                    });
+                    this._setDriveToken(resp.access_token, resp.expires_in);
+                    return resp.access_token;
+                },
+
+                _setDriveToken(token, expiresIn) {
+                    this.googleDriveAccessToken = token;
+                    this._driveTokenExpiry = Date.now() + (Number(expiresIn) || 3600) * 1000 - 60000;
+                    this.googleDriveConnected = true;
+                    this.googleDriveNeedsClick = false;
+                    // נשמר ב-sessionStorage בלבד (נמחק עם סגירת הלשונית) כדי לשרוד רענון דף בלי לבקש חיבור מחדש
+                    try {
+                        sessionStorage.setItem('drv_tok', JSON.stringify({ t: token, e: this._driveTokenExpiry, uid: window.auth?.currentUser?.uid || '' }));
+                    } catch (e) { }
+                },
+
+                _restoreDriveTokenFromSession() {
+                    try {
+                        const o = JSON.parse(sessionStorage.getItem('drv_tok') || 'null');
+                        if (o && o.t && o.e > Date.now() && o.uid && o.uid === window.auth?.currentUser?.uid) {
+                            this.googleDriveAccessToken = o.t;
+                            this._driveTokenExpiry = o.e;
+                            this.googleDriveConnected = true;
+                            return true;
+                        }
+                    } catch (e) { }
+                    return false;
+                },
+
+                _clearDriveSession() {
+                    try { sessionStorage.removeItem('drv_tok'); } catch (e) { }
+                    this.googleDriveAccessToken = '';
+                    this._driveTokenExpiry = 0;
+                    this.googleDriveConnected = false;
+                    this.googleDriveNeedsClick = false;
+                    this.googleDriveFiles = [];
+                    this.googleDriveUserEmail = '';
+                    this._driveAutoTried = false;
+                },
+
+                // אחרי שיש טוקן: מזהה את החשבון, מעדכן את הקונפיג המשותף (Firestore), ומוצא את תיקיית הגיבויים
+                async _afterDriveConnected() {
+                    if (!this.config.googleDrive) this.config.googleDrive = { clientId: '', folderId: '', folderName: 'גיבויי בית הכנסת' };
+                    const gd = this.config.googleDrive;
+                    try {
+                        const about = await this._driveFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress,displayName)');
+                        this.googleDriveUserEmail = about?.user?.emailAddress || '';
+                    } catch (e) { /* לא קריטי */ }
+                    let changed = false;
+                    if (!gd.connectedOnce) { gd.connectedOnce = true; changed = true; }
+                    const email = this.googleDriveUserEmail;
+                    if (email) {
+                        // חשבון גוגל אחר מזה ששמור -> התיקייה השמורה שייכת לדרייב אחר, מחפשים/יוצרים תיקייה בדרייב הנוכחי
+                        if (gd.userEmail && gd.userEmail !== email && gd.folderId) { gd.folderId = ''; changed = true; }
+                        if (gd.userEmail !== email) { gd.userEmail = email; changed = true; }
+                    }
+                    if (changed) this.saveConfigData();
+                    await this.ensureGoogleDriveFolder();
+                    await this.listGoogleDriveBackups();
+                },
+
+                // נקרא אוטומטית אחרי טעינת הנתונים: אם כבר חיברו את הדרייב (מכל מכשיר) - מחברים גם כאן
+                async autoReconnectGoogleDrive() {
+                    if (window.IS_DEMO || this.googleDriveConnected || this._driveAutoTried) return;
+                    if (!this.config?.googleDrive?.connectedOnce) return;
+                    this._driveAutoTried = true;
+                    this._loadGoogleIdentityScript().catch(() => { });   // טעינה מוקדמת, כדי שהלחיצה הבאה תהיה מיידית
+                    try {
+                        if (this._restoreDriveTokenFromSession()) {
+                            await this._afterDriveConnected();
+                            return;
+                        }
+                        this.googleDriveConnecting = true;
+                        await this._requestDriveToken('none', 8000);       // חיבור שקט (עובד כשמחוברים לגוגל בדפדפן)
+                        await this._afterDriveConnected();
+                    } catch (e) {
+                        // הדפדפן חסם חלון / נדרשת אינטראקציה - מציגים כפתור "התחבר מחדש" בלחיצה אחת
+                        this.googleDriveConnected = false;
+                        this.googleDriveNeedsClick = true;
+                    } finally {
+                        this.googleDriveConnecting = false;
+                    }
+                },
+
+                async connectGoogleDrive() {
                     this.googleDriveConnecting = true;
                     try {
-                        await this._loadGoogleIdentityScript();
-                        await new Promise((resolve, reject) => {
-                            this.googleDriveTokenClient = google.accounts.oauth2.initTokenClient({
-                                client_id: clientId,
-                                scope: 'https://www.googleapis.com/auth/drive.file',
-                                callback: async (resp) => {
-                                    if (resp.error) { reject(new Error(resp.error)); return; }
-                                    this.googleDriveAccessToken = resp.access_token;
-                                    this.googleDriveConnected = true;
-                                    if (this.config.googleDrive && !this.config.googleDrive.connectedOnce) {
-                                        this.config.googleDrive.connectedOnce = true;
-                                        this.saveConfigData();
-                                    }
-                                    try {
-                                        const info = await this._driveFetch('https://www.googleapis.com/oauth2/v3/userinfo');
-                                        this.googleDriveUserEmail = info?.email || '';
-                                    } catch (e) { /* לא קריטי */ }
-                                    await this.ensureGoogleDriveFolder();
-                                    await this.listGoogleDriveBackups();
-                                    resolve();
-                                }
-                            });
-                            this.googleDriveTokenClient.requestAccessToken({ prompt: this.googleDriveAccessToken ? '' : 'select_account consent' });
-                        });
+                        this._validDriveClientId();
+                        const firstTime = !this.config?.googleDrive?.connectedOnce;
+                        await this._requestDriveToken(firstTime ? 'select_account consent' : '');
+                        await this._afterDriveConnected();
                         Swal.fire({ icon: 'success', title: 'החיבור לגוגל דרייב הושלם', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
                     } catch (err) {
-                        Swal.fire('שגיאה בחיבור לגוגל דרייב', err.message || 'נסה שוב', 'error');
+                        const m = err.message || '';
+                        if (m === 'popup_closed' || m === 'access_denied') {
+                            Swal.fire({ icon: 'info', title: 'החיבור בוטל', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                        } else if (m === 'popup_failed_to_open') {
+                            Swal.fire('החלון נחסם', 'הדפדפן חסם את חלון ההתחברות של גוגל. יש לאפשר חלונות קופצים לאתר ולנסות שוב.', 'warning');
+                        } else {
+                            Swal.fire('שגיאה בחיבור לגוגל דרייב', m || 'נסה שוב', 'error');
+                        }
                     } finally {
                         this.googleDriveConnecting = false;
                     }
@@ -8047,46 +8129,45 @@
                     if (this.googleDriveAccessToken && window.google?.accounts?.oauth2) {
                         try { google.accounts.oauth2.revoke(this.googleDriveAccessToken, () => { }); } catch (e) { }
                     }
-                    this.googleDriveAccessToken = '';
-                    this.googleDriveConnected = false;
-                    this.googleDriveFiles = [];
-                    this.googleDriveUserEmail = '';
+                    this._clearDriveSession();
                     // התיקייה שייכת לחשבון הקודם - מנקים כדי שבחיבור הבא (גם לחשבון אחר) תיווצר/תימצא תיקייה בדרייב החדש
-                    if (this.config?.googleDrive && (this.config.googleDrive.folderId || this.config.googleDrive.connectedOnce)) {
+                    if (this.config?.googleDrive && (this.config.googleDrive.folderId || this.config.googleDrive.connectedOnce || this.config.googleDrive.userEmail)) {
                         this.config.googleDrive.folderId = '';
                         this.config.googleDrive.connectedOnce = false;
+                        this.config.googleDrive.userEmail = '';
                         this.saveConfigData();
                     }
                 },
 
-                // עוטף fetch עם הרשאת Bearer, ומטפל בתוקף שפג (401) ע"י ניסיון רענון שקט
+                // עוטף fetch עם הרשאת Bearer, ומחדש טוקן שפג תוקפו (באופן שקט אם אפשר)
                 async _driveFetch(url, options = {}) {
+                    const refresh = async () => {
+                        try { await this._requestDriveToken(''); }
+                        catch (e) {
+                            this.googleDriveConnected = false;
+                            this.googleDriveNeedsClick = true;
+                            throw new Error('פג תוקף החיבור לגוגל דרייב. יש ללחוץ "התחבר מחדש" ולנסות שוב.');
+                        }
+                    };
+                    if (!this.googleDriveAccessToken || Date.now() > this._driveTokenExpiry) await refresh();
                     const doFetch = async () => fetch(url, {
                         ...options,
                         headers: { ...(options.headers || {}), Authorization: `Bearer ${this.googleDriveAccessToken}` }
                     });
                     let res = await doFetch();
-                    if (res.status === 401 && this.googleDriveTokenClient) {
-                        await new Promise((resolve) => {
-                            this.googleDriveTokenClient.callback = async (resp) => {
-                                if (!resp.error) this.googleDriveAccessToken = resp.access_token;
-                                resolve();
-                            };
-                            this.googleDriveTokenClient.requestAccessToken({ prompt: '' });
-                        });
-                        res = await doFetch();
-                    }
+                    if (res.status === 401) { await refresh(); res = await doFetch(); }
                     if (!res.ok) {
                         let msg = 'שגיאת תקשורת עם גוגל דרייב';
                         try { const j = await res.json(); msg = j.error?.message || msg; } catch (e) { }
-                        throw new Error(msg);
+                        const err = new Error(msg); err.status = res.status;
+                        throw err;
                     }
                     const ct = res.headers.get('content-type') || '';
                     if (ct.includes('application/json')) return res.json();
                     return res.text();
                 },
 
-                // מוצא (או יוצר) את תיקיית הגיבויים בדרייב, ושומר את ה-ID בקונפיג
+                // מוצא (או יוצר) את תיקיית הגיבויים בדרייב, ושומר את ה-ID בקונפיג המשותף
                 async ensureGoogleDriveFolder() {
                     if (this.config.googleDrive.folderId) return this.config.googleDrive.folderId;
                     const folderName = this.config.googleDrive.folderName || 'גיבויי בית הכנסת';
@@ -8140,9 +8221,20 @@
                     if (!this.googleDriveConnected) return;
                     this.googleDriveLoadingFiles = true;
                     try {
-                        const folderId = await this.ensureGoogleDriveFolder();
-                        const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
-                        const res = await this._driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=createdTime desc&fields=files(id,name,createdTime,size)&pageSize=100`);
+                        const listIn = async (folderId) => {
+                            const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
+                            return this._driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=createdTime desc&fields=files(id,name,createdTime,size)&pageSize=100`);
+                        };
+                        let folderId = await this.ensureGoogleDriveFolder();
+                        let res;
+                        try { res = await listIn(folderId); }
+                        catch (e) {
+                            // התיקייה השמורה נמחקה / שייכת לחשבון אחר -> מאתרים או יוצרים מחדש פעם אחת
+                            if (e.status !== 404 && e.status !== 403) throw e;
+                            this.config.googleDrive.folderId = '';
+                            folderId = await this.ensureGoogleDriveFolder();
+                            res = await listIn(folderId);
+                        }
                         this.googleDriveFiles = (res.files || []);
                     } catch (err) {
                         Swal.fire('שגיאה בטעינת רשימת הגיבויים', err.message || 'נסה שוב', 'error');
@@ -8791,13 +8883,13 @@
 
     <script type="module">
         // Importing the necessary libraries from Google servers
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
         import {
             getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
             signInWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider, linkWithCredential, unlink
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+        } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-functions.js";
 
         // ===== DEMO MODE: Completely skipping Firebase initialization  =====
         if (!window.IS_DEMO) {
@@ -8836,5 +8928,4 @@
         // ===== END DEMO MODE =====
     </script>
 </body>
-
 </html>
