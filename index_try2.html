@@ -4771,7 +4771,7 @@
                         if (e.altKey && (e.key === 'g' || e.key === 'ע')) { e.preventDefault(); this.navigate('management'); }
                         if (e.altKey && (e.key === 'r' || e.key === 'ר')) { e.preventDefault(); this.navigate('reports'); }
                         if (e.altKey && (e.key === 's' || e.key === 'ד')) { e.preventDefault(); this.navigate('summary'); }
-                        if (e.altKey && (e.key === 'b' || e.key === 'נ')) { e.preventDefault(); this.navigate('backup'); }
+                        if (e.altKey && (e.key === 'b' || e.key === 'נ')) { e.preventDefault(); this.navigate('importexport'); }
                         if (e.altKey && (e.key === 'c' || e.key === 'ב')) { e.preventDefault(); this.navigate('funds'); }
                         if (e.altKey && e.key === '1') { e.preventDefault(); this.setTab('movements'); }
                         if (e.altKey && e.key === '2') { e.preventDefault(); this.setTab('commitments'); }
@@ -8959,13 +8959,13 @@
 
     <script type="module">
         // Importing the necessary libraries from Google servers
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
         import {
             getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
             signInWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider, linkWithCredential, unlink
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
+        } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-functions.js";
 
         // ===== DEMO MODE: Completely skipping Firebase initialization  =====
         if (!window.IS_DEMO) {
