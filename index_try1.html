@@ -2064,6 +2064,7 @@
                     data-tooltip="גיבוי/שחזור"
                     :style="view === 'importexport' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
                     <i class="fas fa-exchange-alt"></i> <span>גיבוי ושחזור</span>
+                    <span class="keyboard-shortcut">Alt+B</span>
                 </button>
                 <div class="sidebar-quick-actions">
                     <button @click="exportFullBackup('json')" class="sidebar-btn" title="גיבוי מהיר (JSON)">
@@ -4777,6 +4778,7 @@
                         if (e.altKey && (e.key === 'r' || e.key === 'ר')) { e.preventDefault(); this.navigate('reports'); }
                         if (e.altKey && (e.key === 's' || e.key === 'ד')) { e.preventDefault(); this.navigate('summary'); }
                         if (e.altKey && (e.key === 'c' || e.key === 'ב')) { e.preventDefault(); this.navigate('funds'); }
+                        if (e.altKey && (e.key === 'b' || e.key === 'נ')) { e.preventDefault(); this.navigate('importexport'); }
                         if (e.altKey && e.key === '1') { e.preventDefault(); this.setTab('movements'); }
                         if (e.altKey && e.key === '2') { e.preventDefault(); this.setTab('commitments'); }
                         if (e.altKey && e.key === '3') { e.preventDefault(); this.setTab('payments'); }
