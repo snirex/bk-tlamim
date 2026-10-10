@@ -8095,19 +8095,16 @@
                     this._driveAutoTried = true;
                     this._loadGoogleIdentityScript().catch(() => { });   // טעינה מוקדמת, כדי שהלחיצה הבאה תהיה מיידית
                     try {
+                        // רק שחזור שקט מהטוקן ששמור בלשונית הזו (בלי חלון גוגל).
+                        // כל בקשת טוקן חדשה מגוגל פותחת חלון קופץ, ולכן היא נעשית רק בלחיצה על "התחבר מחדש".
                         if (this._restoreDriveTokenFromSession()) {
                             await this._afterDriveConnected();
                             return;
                         }
-                        this.googleDriveConnecting = true;
-                        await this._requestDriveToken('none', 8000);       // חיבור שקט (עובד כשמחוברים לגוגל בדפדפן)
-                        await this._afterDriveConnected();
+                        this.googleDriveNeedsClick = true;
                     } catch (e) {
-                        // הדפדפן חסם חלון / נדרשת אינטראקציה - מציגים כפתור "התחבר מחדש" בלחיצה אחת
                         this.googleDriveConnected = false;
                         this.googleDriveNeedsClick = true;
-                    } finally {
-                        this.googleDriveConnecting = false;
                     }
                 },
 
