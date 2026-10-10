@@ -9,7 +9,6 @@
     * add google drive connection
     * Google connection details
         https://claude.ai/chat/a99473b9-e524-4caa-a4e9-ea3d52f2436a
-        https://claude.ai/chat/7040079e-2039-4efe-a283-024bd1839a3c
         https://gemini.google.com/app/e60de666d583fbf1?hl=he
     * addNewEntry - add toggle wether to jump to search mitpalel right after 'adding entry'
     -->
@@ -18,7 +17,7 @@
     <meta name="theme-color" content="#2c5f7d" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#2c5f7d" media="(prefers-color-scheme: dark)">
     
-    <!-- Early connections to Firebase/Google servers: saves time during the initial data load -->
+    <!-- חיבורים מוקדמים לשרתי Firebase/Google: חוסך זמן בטעינה הראשונית של הנתונים -->
     <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
@@ -2961,11 +2960,12 @@
                                             האתר יקבל גישה <b>רק לקבצים שהוא עצמו יוצר</b> בדרייב שלך, ולא לשאר הקבצים.
                                             אם גוגל מציגה הודעה שהאפליקציה "לא מאומתת": "Advanced" ← "Go to ... (unsafe)".
                                         </div>
-                                        <details class="mb-2" :open="!defaultGoogleClientId">
+                                        <details class="mb-2" :open="!defaultGoogleClientId" x-show="showAdvancedDriveSettings">
                                             <summary class="small text-muted" style="cursor:pointer;">הגדרה מתקדמת: Client ID משלי</summary>
                                             <label class="small fw-bold mb-1 mt-2">Google OAuth Client ID</label>
                                             <input type="text" x-model="config.googleDrive.clientId" dir="ltr"
-                                                class="form-control mb-2"
+                                                class="form-control mb-2" autocomplete="off" name="oauth-client-id-field"
+                                                autocapitalize="off" spellcheck="false" data-lpignore="true"
                                                 placeholder="xxxxxxxxxxxx.apps.googleusercontent.com"
                                                 @change="saveConfigData()">
                                             <div class="small text-muted">
@@ -2985,7 +2985,7 @@
                                             <span x-show="googleDriveConnecting"><i
                                                     class="fas fa-spinner fa-spin me-1"></i> מתחבר...</span>
                                         </button>
-                                        <div class="small text-muted mt-2">מזהה בשימוש:
+                                        <div class="small text-muted mt-2" x-show="showAdvancedDriveSettings">מזהה בשימוש:
                                             <span dir="ltr" x-text="effectiveGoogleClientId || '(לא הוגדר)'"></span>
                                             <span x-show="(config.googleDrive?.clientId || '').trim() && effectiveGoogleClientId === (config.googleDrive?.clientId || '').trim()">(מוגדר ידנית בהגדרות)</span>
                                             <span class="text-danger" x-show="(config.googleDrive?.clientId || '').trim() && effectiveGoogleClientId !== (config.googleDrive?.clientId || '').trim()">(הערך שהוזן ב"הגדרה מתקדמת" אינו Client ID תקין ולכן מתעלמים ממנו)</span>
@@ -4534,6 +4534,14 @@
                 // הדבק כאן פעם אחת את ה-Client ID המרכזי שלך (xxxx.apps.googleusercontent.com) - כל בתי הכנסת ישתמשו בו בלחיצה אחת
                 defaultGoogleClientId: '300451630668-ve7ohupjgtrjklc2gdr9ulbcaljsfsfm.apps.googleusercontent.com',
                 //old: '300451630668-h9evrtgafhq3q5a6ubjor6oehuh0l8au.apps.googleusercontent.com',
+				//---google drive compatability settings
+				//Advanced Drive settings (custom Client ID / ID in use) are displayed only to the developer: add ?dev=1 to the URL. 
+				// If the site lacks a built-in Client ID, always display them; otherwise, connection is impossible.
+                get showAdvancedDriveSettings() {
+                    try { if (new URLSearchParams(location.search).has('dev')) return true; } catch (e) { }
+                    return !this.defaultGoogleClientId;
+                },
+				//
                 get effectiveGoogleClientId() {
                     const custom = (this.config?.googleDrive?.clientId || '').replace(/[\s'"]/g, '');
                     const valid = /^\d{6,}-[a-z0-9]{20,}\.apps\.googleusercontent\.com$/i.test(custom);
@@ -7717,8 +7725,8 @@
                         if (wrapper) wrapper.classList.toggle('scrollable', this.getTableScroll("summary"));
                     }, 50);
                 },
-
-
+				
+				
                 // ═══ FUNDS MANAGEMENT ═══
 
                 // הערה: קופות (funds) נטענות אך ורק מ-Firestore (ב-_loadFromFirestore) או מנתוני
@@ -8928,4 +8936,5 @@
         // ===== END DEMO MODE =====
     </script>
 </body>
+
 </html>
