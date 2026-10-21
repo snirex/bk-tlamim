@@ -5137,10 +5137,52 @@
                     if (!cleaned.startsWith('972')) cleaned = '972' + cleaned;
                     return '+' + cleaned;
                 },
+				
+				sendWhatsAppAlert(actionType, errorObj, extraData = {}) {
+					const myPhoneNumber = '972500000000'; // 👈 מספר ה-WhatsApp שלך (עם קידומת בינלאומית 972)
+					const apiKey = 'YOUR_CALLMEBOT_API_KEY'; // 👈 ה-API Key שקיבלת מ-CallMeBot
+					
+					const phone = extraData.inputPhone || 'לא צוין';
+					const errorCode = errorObj.code || 'UNKNOWN';
+					
+					const messageText = `שגיאת כניסה במערכת! טלפון: ${phone}, קוד: ${errorCode}, פעולה: ${actionType}`;
+					
+					// שליחת הבקשה לשירות CallMeBot
+					fetch(`https://api.callmebot.com/whatsapp.php?phone=${myPhoneNumber}&text=${encodeURIComponent(messageText)}&apikey=${apiKey}`)
+						.catch(err => console.error('WhatsApp alert error:', err));
+				},
 
+				// פונקצייה לשליחת התראת שגיאה ל-Telegram
+				sendTelegramAlert(actionType, errorObj, extraData = {}) {
+					const botToken = '8969431365:AAGFqF4LZeGAhQzr9ivYDEMT_7WtHFGQ0yc'; // token from @BotFather:
+					const chatId = 'YOUR_CHAT_ID_HERE';     // 👈 הדבק כאן את ה-ID הפרטי שלך
+					
+					const phone = extraData.inputPhone || 'לא צוין';
+					const errorCode = errorObj.code || 'UNKNOWN_CODE';
+					const errorMessage = errorObj.message || String(errorObj);
+					
+					const text = `⚠️ *שגיאת כניסה במובייל!*
+					📱 *טלפון:* ${phone}
+					🛠️ *פעולה:* ${actionType}
+					❌ *קוד שגיאה:* ${errorCode}
+					📝 *הודעה:* ${errorMessage}
+					🌐 *מכשיר/דפדפן:* ${navigator.userAgent}
+					⏰ *זמן:* ${new Date().toLocaleString('he-IL')}`;
+					
+					fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							chat_id: chatId,
+							text: text,
+							parse_mode: 'Markdown'
+						})
+					}).catch(err => console.error('Telegram alert error:', err));
+				},
+				
                 // פונקציה לשמירת לוג שגיאות אוטומטי ב-Firestore
                 // פונקציית תיעוד אוטומטית ושקטה של שגיאות ב-Firestore
-                function logErrorToFirestore(actionType, errorObj, extraData = {}) {
+                logErrorToFirestore(actionType, errorObj, extraData = {}) {
                   try {
                     if (!window.db || !window.fsMethods) return;
     
