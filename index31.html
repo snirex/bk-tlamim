@@ -35,7 +35,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -2246,7 +2245,7 @@
                                             <input type="text" x-model="homeEntry[col.field]"
                                                 class="form-control form-control-sm home-entry-field" placeholder="...">
                                         </template>
-                                        <template x-if="col.type === 'list'" x-transition>
+                                        <template x-if="col.type === 'list' || col.field === 'purpose'" x-transition>
                                             <select x-model="homeEntry[col.field]"
                                                 class="form-select form-select-sm home-entry-field">
                                                 <option value="">בחר...</option>
@@ -2530,7 +2529,7 @@
                                 <template x-if="col.type === 'text'"><input type="text" x-model="newEntry[col.field]"
                                         class="form-control form-control-sm new-entry-field"
                                         placeholder="..."></template>
-                                <template x-if="col.type === 'list'" x-transition>
+                                <template x-if="col.type === 'list' || col.field === 'purpose'" x-transition>
                                     <select x-model="newEntry[col.field]"
                                         class="form-select form-select-sm new-entry-field"
                                         :id="col.field === 'purpose' ? 'newEntryPurpose' : ''">
@@ -3168,6 +3167,7 @@
                             </div>
                             <div class="section-body"
                                 :style="ui.movOpen ? 'max-height: 600px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+				<small style="color: var(--text-secondary);" class="d-block">סמן "למתפלל" כדי להציג את העמודה למי שנכנס באמצעות SMS.</small>
                                 <div class="list-group mb-2 mt-3">
                                     <template x-for="(col, index) in config.movementColumns" :key="col.columnId">
                                         <div class="list-group-item d-flex gap-2 p-2 align-items-center"
@@ -3180,6 +3180,12 @@
                                                     :class="index === config.movementColumns.length - 1 ? 'invisible' : ''"><i
                                                         class="fas fa-chevron-down"></i></span>
                                             </div>
+                                            <label class="form-check form-check-inline mb-0 flex-shrink-0" title="הצג עמודה זו למתפלל שנכנס באמצעות SMS">
+                                                <input class="form-check-input" type="checkbox"
+                                                    :checked="col.showToWorshipper !== false"
+                                                    @change="col.showToWorshipper = $event.target.checked; saveConfigData()">
+                                                <span class="small">למתפלל</span>
+                                            </label>
                                             <input type="text" x-model="col.title" class="form-control form-control-sm"
                                                 @change="saveConfigData()">
                                             <select x-model="col.type" class="form-select form-select-sm"
@@ -3194,8 +3200,7 @@
                                         </div>
                                     </template>
                                 </div>
-                                <small style="color: var(--text-secondary);" class="d-block">ניתן למחוק עמודות שאינן
-                                    קבועות. ערכים בעמודות שנמחקו יוצגו בסמל ⚠️</small>
+                                <small style="color: var(--text-secondary);" class="d-block">ניתן למחוק עמודות שאינן קבועות; ערכים בעמודות שנמחקו יוצגו בסמל ⚠️</small>
                             </div>
                         </div>
 
@@ -3370,88 +3375,6 @@
                                 </div>
                             </div>
                         </div>
-
-                    <!-- ══ הגדרות דיווח שגיאות ══ -->
-                    <div class="content-card">
-                        <div class="section-header" @click="ui.errorReportOpen = !ui.errorReportOpen">
-                            <h6 class="mb-0 fw-bold">🔔 דיווח שגיאות למייל (EmailJS)</h6>
-                            <i class="fas" :class="ui.errorReportOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                style="color: var(--text-secondary);"></i>
-                        </div>
-                        <div class="section-body"
-                            :style="ui.errorReportOpen ? 'max-height:900px;opacity:1;overflow:visible;' : 'max-height:0;opacity:0;overflow:hidden;'">
-                            <p class="small text-muted mt-2">
-                                כדי לקבל התראת מייל בכל שגיאת מערכת (למשל: כניסת מתפלל עם SMS נכשלה), הגדר חשבון
-                                <a href="https://www.emailjs.com" target="_blank">EmailJS</a> חינמי וציין כאן את פרטיו.
-                                <br>השלבים: הירשם ל-EmailJS ← צור Email Service ← צור Email Template עם המשתנים:
-                                <code>{{subject}}</code>, <code>{{action}}</code>, <code>{{error_code}}</code>,
-                                <code>{{error_message}}</code>, <code>{{timestamp}}</code>, <code>{{extra}}</code>.
-                            </p>
-                            <div class="row g-2 mt-1">
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label small fw-bold">Service ID</label>
-                                    <input type="text" x-model="config.emailjs.serviceId" dir="ltr"
-                                        class="form-control form-control-sm" placeholder="service_xxxxxxx">
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label small fw-bold">Template ID</label>
-                                    <input type="text" x-model="config.emailjs.templateId" dir="ltr"
-                                        class="form-control form-control-sm" placeholder="template_xxxxxxx">
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label small fw-bold">Public Key</label>
-                                    <input type="text" x-model="config.emailjs.publicKey" dir="ltr"
-                                        class="form-control form-control-sm" placeholder="xxxxxxxxxxxxxxxxxx">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label small fw-bold">מייל לקבלת דיווחי שגיאות</label>
-                                    <input type="email" x-model="config.errorNotificationEmail" dir="ltr"
-                                        class="form-control form-control-sm" placeholder="admin@example.com">
-                                </div>
-                                <div class="col-12">
-                                    <button class="btn btn-sm btn-outline-primary"
-                                        @click="logErrorToFirestore('TEST_EMAIL', {code:'TEST', message:'בדיקת שליחת מייל מהמערכת'}, {test: true}).then ? '' : ''; Swal.fire({icon:'info',title:'נשלח',text:'בדיקה נשלחה — בדוק את תיבת המייל שלך',confirmButtonText:'אישור'})">
-                                        <i class="fas fa-paper-plane me-1"></i> שלח מייל בדיקה
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- צפייה בדוחות שגיאות -->
-                            <hr class="my-3">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <h6 class="mb-0 fw-bold">📋 דוחות שגיאות שנרשמו</h6>
-                                <button class="btn btn-sm btn-outline-secondary"
-                                    @click="loadErrorLogs()">
-                                    <i class="fas fa-sync-alt me-1"></i> רענן
-                                </button>
-                            </div>
-                            <div x-show="!errorLogs || errorLogs.length === 0" class="text-muted small">אין שגיאות רשומות.</div>
-                            <div x-show="errorLogs && errorLogs.length > 0" style="max-height:300px;overflow-y:auto;">
-                                <table class="table table-sm table-bordered" style="font-size:0.8rem;">
-                                    <thead>
-                                        <tr>
-                                            <th>זמן</th>
-                                            <th>פעולה</th>
-                                            <th>קוד שגיאה</th>
-                                            <th>תיאור</th>
-                                            <th>פרטים</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <template x-for="log in errorLogs" :key="log.id">
-                                            <tr>
-                                                <td dir="ltr" x-text="log.timestamp ? new Date(log.timestamp).toLocaleString('he-IL') : ''"></td>
-                                                <td x-text="log.action"></td>
-                                                <td dir="ltr" x-text="log.errorCode"></td>
-                                                <td dir="ltr" style="max-width:200px;word-break:break-all;" x-text="log.errorMessage"></td>
-                                                <td style="max-width:150px;word-break:break-all;" x-text="log.extra ? JSON.stringify(log.extra) : ''"></td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
 
                     </div>
                 </div>
@@ -4556,7 +4479,6 @@
                 isAdminPreview: false, // true when an admin is previewing the worshipper view (not a real phone login)
                 worshipperMember: null,
                 worshipperTransactions: [],
-                errorLogs: [],
                 worshipperMovementColumns: [],
                 worshipperLoading: false,
 
@@ -4638,7 +4560,6 @@
                     fieldsOpen: false,
                     adminPhoneOpen: false,
                     googleDriveOpen: false,
-                    errorReportOpen: false,
                     homeSearchOpen: false,
                     homeAddOpen: false,
                     batchAddOpen: false,
@@ -4801,8 +4722,6 @@
                     synagogueName: '',
                     synagogueLogo: '',
                     tableScrollModes: {},
-                    errorNotificationEmail: '',
-                    emailjs: { serviceId: '', templateId: '', publicKey: '' },
                     worshipperColumns: [
                         { columnId: 'wor_date', title: 'תאריך', field: 'date', type: 'date', fixed: true },
                         { columnId: 'wor_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true },
@@ -5356,48 +5275,22 @@
                 // פונקציה לשמירת לוג שגיאות אוטומטי ב-Firestore
                 // פונקציית תיעוד אוטומטית ושקטה של שגיאות ב-Firestore
                 logErrorToFirestore(actionType, errorObj, extraData = {}) {
-                    const logData = {
-                        action: actionType,                              // סוג הפעולה (לדוגמה: PHONE_AUTH_SEND_SMS)
-                        errorCode: errorObj.code || 'UNKNOWN_CODE',     // קוד השגיאה הרשמי של Firebase
-                        errorMessage: errorObj.message || String(errorObj), // תיאור התקלה המלא
-                        userAgent: navigator.userAgent,                 // דגם הטלפון/המכשיר, מערכת ההפעלה והדפדפן
-                        url: window.location.href,                      // הכתובת/URL שבה התרחשה התקלה
-                        timestamp: new Date().toISOString(),            // הזמן המדויק שבו אירעה השגיאה
-                        extra: extraData                                // מכיל את פרטי המתפלל (מספר טלפון, שם אם קיים)
-                    };
-
-                    // שמירה ב-Firestore
                     try {
-                        if (window.db && window.fsMethods) {
-                            const errorRef = window.fsMethods.collection(window.db, 'error_logs');
-                            window.fsMethods.addDoc(errorRef, logData);
-                        }
+                        if (!window.db || !window.fsMethods) return;
+
+                        // שמירת רשומה חדשה באוסף error_logs
+                        const errorRef = window.fsMethods.collection(window.db, 'error_logs');
+                        window.fsMethods.addDoc(errorRef, {
+                            action: actionType,                              // סוג הפעולה (לדוגמה: PHONE_AUTH_SEND_SMS)
+                            errorCode: errorObj.code || 'UNKNOWN_CODE',     // קוד השגיאה הרשמי של Firebase
+                            errorMessage: errorObj.message || String(errorObj), // תיאור התקלה המלא
+                            userAgent: navigator.userAgent,                 // דגם הטלפון/המכשיר, מערכת ההפעלה והדפדפן
+                            url: window.location.href,                      // הכתובת/URL שבה התרחשה התקלה
+                            timestamp: new Date().toISOString(),            // הזמן המדויק שבו אירעה השגיאה
+                            extra: extraData                                // מכיל את פרטי המתפלל (מספר טלפון, שם אם קיים)
+                        });
                     } catch (e) {
                         console.error("Failed to write log to Firestore:", e);
-                    }
-
-                    // שליחת מייל דרך EmailJS אם מוגדר
-                    try {
-                        const ejs = this.config?.emailjs || {};
-                        const toEmail = this.config?.errorNotificationEmail || '';
-                        if (ejs.serviceId && ejs.templateId && ejs.publicKey && toEmail) {
-                            const extraStr = Object.keys(extraData).length
-                                ? Object.entries(extraData).map(([k, v]) => `${k}: ${v}`).join('\n')
-                                : '(ללא)';
-                            window.emailjs.send(ejs.serviceId, ejs.templateId, {
-                                to_email: toEmail,
-                                subject: `שגיאת מערכת: ${actionType}`,
-                                action: actionType,
-                                error_code: logData.errorCode,
-                                error_message: logData.errorMessage,
-                                timestamp: logData.timestamp,
-                                url: logData.url,
-                                user_agent: logData.userAgent,
-                                extra: extraStr
-                            }, { publicKey: ejs.publicKey }).catch(e => console.warn('EmailJS error:', e));
-                        }
-                    } catch (e) {
-                        console.warn("Failed to send error email:", e);
                     }
                 },
 
@@ -5539,13 +5432,11 @@
                         const result = await getMemberData({ memberUniqueId: member.memberUniqueId });
                         this.worshipperMember = result.data.member;
                         this.worshipperTransactions = result.data.transactions || [];
-                        // worshipperColumns: לבנות בדיוק כמו טבלת ריכוז תנועות של המנהל —
-                        // עדיפות: שרת > movementColumns (הגדרת המנהל לריכוז תנועות) > worshipperColumns > ברירת מחדל
-                        this.worshipperMovementColumns = result.data.worshipperColumns
-                            || (this.config.movementColumns && this.config.movementColumns.length ? this.config.movementColumns : null)
-                            || (this.config.worshipperColumns && this.config.worshipperColumns.length ? this.config.worshipperColumns : null)
-                            || result.data.movementColumns
-                            || this.defaultMovementColumns();
+                        // טבלת המתפלל נגזרת מעמודות "ריכוז תנועות" של המנהל, ורק עמודות שסומנו מוצגות.
+                        this.normalizeWorshipperColumnVisibility();
+                        this.worshipperMovementColumns = this.config.movementColumns
+                            .filter(col => col.showToWorshipper !== false)
+                            .map(col => ({ ...col }));
                         this.authStep = 'phone';
                         this.otpCode = '';
                     } catch (err) {
@@ -5721,7 +5612,10 @@
                     this.worshipperTransactions = this.transactions
                         .filter(t => t.memberId === member.memberUniqueId)
                         .map(t => this.toMovementRow(t));
-                    this.worshipperMovementColumns = this.config.movementColumns || this.config.worshipperColumns || this.defaultMovementColumns();
+                    this.normalizeWorshipperColumnVisibility();
+                    this.worshipperMovementColumns = this.config.movementColumns
+                        .filter(col => col.showToWorshipper !== false)
+                        .map(col => ({ ...col }));
                     // אם יש לו טלפון ויש עוד מתפללים על אותו טלפון - מציגים גם את
                     // סרגל המעבר, בדיוק כמו שיראה מתפלל אמיתי
                     this.matchedWorshippers = member.phone
@@ -5746,24 +5640,6 @@
                     this.worshipperMember = null;
                     this.worshipperTransactions = [];
                     this.matchedWorshippers = [];
-                },
-
-                async loadErrorLogs() {
-                    try {
-                        if (!window.db || !window.fsMethods) {
-                            Swal.fire({ icon: 'warning', title: 'לא מחובר', text: 'אין חיבור למסד הנתונים', confirmButtonText: 'אישור' });
-                            return;
-                        }
-                        const col = window.fsMethods.collection(window.db, 'error_logs');
-                        const q = window.fsMethods.query
-                            ? window.fsMethods.query(col, window.fsMethods.orderBy('timestamp', 'desc'), window.fsMethods.limit(50))
-                            : col;
-                        const snap = await window.fsMethods.getDocs(q);
-                        this.errorLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    } catch (e) {
-                        console.error('loadErrorLogs error', e);
-                        Swal.fire({ icon: 'error', title: 'שגיאה בטעינת לוגים', text: e.message || '', confirmButtonText: 'אישור' });
-                    }
                 },
 
                 toggleDarkMode() {
@@ -5944,7 +5820,7 @@
 
                 addColumn(type) {
                     const ts = Date.now();
-                    const col = { columnId: `col_${ts}`, title: 'עמודה חדשה', field: `field_${ts}`, type: 'text', fixed: false };
+                    const col = { columnId: `col_${ts}`, title: 'עמודה חדשה', field: `field_${ts}`, type: 'text', fixed: false, showToWorshipper: true };
                     this._getColArray(type).push(col);
                     this.saveConfigData();
                 },
@@ -6015,17 +5891,16 @@
                     const transaction = this.sanitize({ transactionId: Date.now(), memberId: this.homeEntry.memberId, transactionType: this.homeActiveTab, ...homeEntryFields });
                     this.transactions.unshift(transaction);
 
-                    // אם זו התחייבות לקופה
-                    if (this.homeActiveTab === 'commitments' && parsedHomePurpose.isFund && parsedHomePurpose.fundId) {
+                    // התחייבות מוסיפה לקופה; תשלום מקושר מפחית מהקופה.
+                    if (parsedHomePurpose.isFund && parsedHomePurpose.fundId) {
                         const member = this.members.find(m => m.memberUniqueId === this.homeEntry.memberId);
-                        this.addCommitmentToFund(
-                            parsedHomePurpose.label,
-                            Number(this.homeEntry.commitmentAmount),
-                            this.homeEntry.commitmentDate,
-                            this.homeEntry.memberId,
-                            member ? member.name : '',
-                            transaction.transactionId
-                        );
+                        if (this.homeActiveTab === 'commitments') {
+                            this.addCommitmentToFund(parsedHomePurpose.label, Number(this.homeEntry.commitmentAmount),
+                                this.homeEntry.commitmentDate, this.homeEntry.memberId, member ? member.name : '', transaction.transactionId);
+                        } else if (this.homeActiveTab === 'payments') {
+                            this.addPaymentToFund(parsedHomePurpose.fundId, Number(this.homeEntry.paymentAmount),
+                                this.homeEntry.paymentDate, this.homeEntry.memberId, member ? member.name : '', transaction.transactionId);
+                        }
                     }
 
                     this.saveTransactionsData();
@@ -6122,16 +5997,15 @@
                     const transaction = this.sanitize({ transactionId: Date.now(), memberId: this.selectedMember.memberUniqueId, transactionType: this.activeTab, ...entryFields });
                     this.transactions.unshift(transaction);
 
-                    // אם זו התחייבות לקופה
-                    if (this.activeTab === 'commitments' && parsedPurpose.isFund && parsedPurpose.fundId) {
-                        this.addCommitmentToFund(
-                            parsedPurpose.label,
-                            Number(this.newEntry.commitmentAmount),
-                            this.newEntry.commitmentDate,
-                            this.selectedMember.memberUniqueId,
-                            this.selectedMember.name,
-                            transaction.transactionId
-                        );
+                    // התחייבות מוסיפה לקופה; תשלום מקושר מפחית מהקופה.
+                    if (parsedPurpose.isFund && parsedPurpose.fundId) {
+                        if (this.activeTab === 'commitments') {
+                            this.addCommitmentToFund(parsedPurpose.label, Number(this.newEntry.commitmentAmount),
+                                this.newEntry.commitmentDate, this.selectedMember.memberUniqueId, this.selectedMember.name, transaction.transactionId);
+                        } else if (this.activeTab === 'payments') {
+                            this.addPaymentToFund(parsedPurpose.fundId, Number(this.newEntry.paymentAmount),
+                                this.newEntry.paymentDate, this.selectedMember.memberUniqueId, this.selectedMember.name, transaction.transactionId);
+                        }
                     }
 
                     // שמירת פרטי הפעולה לצורך הודעה/מעבר, לפני איפוס הטופס
@@ -6251,7 +6125,16 @@
 
 
                 // Data persistence — Firestore only (localStorage is never used for synagogue/congregant data)
+                // עמודות ריכוז תנועות: ברירת מחדל לתצוגת מתפלל היא הצגה, כדי לשמור תאימות להגדרות קיימות.
+                normalizeWorshipperColumnVisibility() {
+                    if (!Array.isArray(this.config.movementColumns)) this.config.movementColumns = this.defaultMovementColumns();
+                    this.config.movementColumns.forEach(col => {
+                        if (typeof col.showToWorshipper !== 'boolean') col.showToWorshipper = true;
+                    });
+                },
+
                 saveConfigData() {
+                    this.normalizeWorshipperColumnVisibility();
                     return this._saveToFirestore('config', this.config);
                 },
                 saveMembersData() {
@@ -6694,24 +6577,6 @@
                 async screenshotTable(containerId, filename) {
                     const el = document.getElementById(containerId);
                     if (!el) return;
-
-                    // בדיקת "אין נתונים" — טבלת Tabulator ריקה או אין שורות גוף
-                    const tabulatorEl = el.querySelector('.tabulator');
-                    if (tabulatorEl) {
-                        const rows = el.querySelectorAll('.tabulator-row');
-                        if (!rows || rows.length === 0) {
-                            Swal.fire({ icon: 'info', title: 'אין נתונים להצגה', confirmButtonText: 'אישור' });
-                            return;
-                        }
-                    } else {
-                        // טבלת HTML רגילה — בדוק שורות tbody
-                        const bodyRows = el.querySelectorAll('tbody tr');
-                        if (!bodyRows || bodyRows.length === 0) {
-                            Swal.fire({ icon: 'info', title: 'אין נתונים להצגה', confirmButtonText: 'אישור' });
-                            return;
-                        }
-                    }
-
                     Swal.fire({ title: 'מצלם טבלה...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
                         // Temporarily expand scrollable containers for full capture
@@ -6741,89 +6606,26 @@
                         });
 
                         await new Promise(r => setTimeout(r, 80));
-
-                        // קבע צבע רקע — תמיד לבן לקריאות מיטבית
-                        const bgColor = '#ffffff';
-
                         const canvas = await html2canvas(el, {
                             scale: 2,
                             useCORS: true,
-                            backgroundColor: bgColor,
+                            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--table-bg').trim() || '#fff',
                             logging: false,
                             width: el.scrollWidth,
                             height: el.scrollHeight,
                             windowWidth: el.scrollWidth + 100,
-                            onclone: (clonedDoc) => {
-                                const clonedEl = clonedDoc.getElementById(containerId);
-                                if (!clonedEl) return;
-
-                                // הרחב overflow לצילום מלא
-                                clonedEl.style.overflow = 'visible';
-                                clonedEl.style.height = 'auto';
-                                clonedEl.style.maxHeight = 'none';
-                                clonedEl.querySelectorAll('.tabulator, .tabulator-tableHolder').forEach(e => {
-                                    e.style.overflow = 'visible';
-                                    e.style.height = 'auto';
-                                    e.style.maxHeight = 'none';
-                                });
-
-                                // הסתר עמודות כפתורים (עריכה, מחיקה, עבור אל)
-                                // Tabulator: מסתיר עמודות לפי תוכן הכותרת / אייקונים
-                                const buttonFieldSelectors = [
-                                    '[tabulator-field="mov_delete"]',
-                                    '[tabulator-field="mov_goto"]',
-                                    '[tabulator-field="_orphan"]',
-                                    '[tabulator-field="edit"]',
-                                    '[tabulator-field="delete"]',
-                                    '[tabulator-field="actions"]'
-                                ];
-                                buttonFieldSelectors.forEach(sel => {
-                                    clonedEl.querySelectorAll(sel).forEach(cell => {
-                                        cell.style.display = 'none';
+                            onclone: (doc) => {
+                                const clonedEl = doc.getElementById(containerId);
+                                if (clonedEl) {
+                                    clonedEl.style.overflow = 'visible';
+                                    clonedEl.style.height = 'auto';
+                                    clonedEl.style.maxHeight = 'none';
+                                    clonedEl.querySelectorAll('.tabulator, .tabulator-tableHolder').forEach(e => {
+                                        e.style.overflow = 'visible';
+                                        e.style.height = 'auto';
+                                        e.style.maxHeight = 'none';
                                     });
-                                });
-                                // הסתר כותרות עמודות כפתורים לפי טקסט / אייקון trash/pencil
-                                clonedEl.querySelectorAll('.tabulator-col').forEach(col => {
-                                    const title = col.querySelector('.tabulator-col-title');
-                                    if (!title) return;
-                                    const txt = title.textContent.trim();
-                                    if (['מחק', 'עריכה', 'עבור אל', 'edit', 'delete', ''].includes(txt) &&
-                                        (title.querySelector('.fa-trash') || title.querySelector('.fa-pencil') ||
-                                         title.querySelector('.fa-edit') || txt === 'מחק' || txt === 'עריכה' || txt === 'עבור אל')) {
-                                        const field = col.getAttribute('tabulator-field') || '';
-                                        if (['mov_delete','mov_goto','_orphan','edit','delete','actions'].includes(field) || txt === 'מחק' || txt === 'עריכה' || txt === 'עבור אל') {
-                                            col.style.display = 'none';
-                                        }
-                                    }
-                                });
-
-                                // הסתר שורת פגינציה תחתונה (Page Size, Prev, Next וכו')
-                                clonedEl.querySelectorAll(
-                                    '.tabulator-footer, .tabulator-paginator, .tabulator-page-size'
-                                ).forEach(e => { e.style.display = 'none'; });
-
-                                // כפה צבעי טקסט כהים לקריאות (מניעת טקסט בהיר על רקע לבן)
-                                clonedDoc.documentElement.style.setProperty('--table-bg', '#ffffff');
-                                clonedDoc.documentElement.style.setProperty('--text-primary', '#212529');
-                                clonedDoc.documentElement.style.setProperty('--text-secondary', '#495057');
-                                clonedDoc.documentElement.style.setProperty('--border-color', '#dee2e6');
-                                clonedDoc.documentElement.style.setProperty('--table-header-bg', '#f8f9fa');
-                                // Tabulator specific overrides
-                                const style = clonedDoc.createElement('style');
-                                style.textContent = `
-                                    .tabulator { background: #ffffff !important; color: #212529 !important; border: 1px solid #dee2e6 !important; }
-                                    .tabulator-header { background: #f8f9fa !important; color: #212529 !important; border-bottom: 2px solid #dee2e6 !important; }
-                                    .tabulator-col { background: #f8f9fa !important; color: #212529 !important; border-right: 1px solid #dee2e6 !important; }
-                                    .tabulator-col-title { color: #212529 !important; font-weight: 600 !important; }
-                                    .tabulator-row { background: #ffffff !important; color: #212529 !important; border-bottom: 1px solid #dee2e6 !important; }
-                                    .tabulator-row.tabulator-row-even { background: #f8f9fa !important; }
-                                    .tabulator-cell { color: #212529 !important; border-right: 1px solid #dee2e6 !important; }
-                                    .tabulator-footer { display: none !important; }
-                                    table { background: #ffffff !important; color: #212529 !important; }
-                                    th { background: #f8f9fa !important; color: #212529 !important; }
-                                    td { color: #212529 !important; }
-                                `;
-                                clonedDoc.head.appendChild(style);
+                                }
                             }
                         });
 
@@ -6833,55 +6635,10 @@
                         tabHolderOrig.forEach(s => { s.el.style.overflow = s.overflow; s.el.style.height = s.height; s.el.style.maxHeight = s.maxHeight; });
 
                         Swal.close();
-
-                        // הצג תיבת בחירה: שמירה / שיתוף לוואטסאפ
-                        const dataUrl = canvas.toDataURL('image/png');
-                        const safeFilename = (filename || 'טבלה') + '_' + this.getTodayDate() + '.png';
-
-                        const { value: action } = await Swal.fire({
-                            title: 'הטבלה צולמה בהצלחה',
-                            icon: 'success',
-                            showCancelButton: true,
-                            showDenyButton: true,
-                            confirmButtonText: '<i class="fas fa-download me-1"></i> שמירה',
-                            denyButtonText: '<i class="fab fa-whatsapp me-1"></i> שיתוף בוואטסאפ',
-                            cancelButtonText: 'ביטול',
-                            confirmButtonColor: '#2c5f7d',
-                            denyButtonColor: '#25d366',
-                        });
-
-                        if (action === true) {
-                            // שמירה — הורדת PNG
-                            const link = document.createElement('a');
-                            link.download = safeFilename;
-                            link.href = dataUrl;
-                            link.click();
-                        } else if (action === false) {
-                            // שיתוף לוואטסאפ — ממיר ל-Blob ומשתף דרך Web Share API או פותח קישור וואטסאפ
-                            try {
-                                const blob = await (await fetch(dataUrl)).blob();
-                                const file = new File([blob], safeFilename, { type: 'image/png' });
-                                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                                    await navigator.share({ files: [file], title: filename || 'טבלה' });
-                                } else {
-                                    // Fallback: הורד ופתח וואטסאפ ווב
-                                    const link = document.createElement('a');
-                                    link.download = safeFilename;
-                                    link.href = dataUrl;
-                                    link.click();
-                                    setTimeout(() => { window.open('https://web.whatsapp.com', '_blank'); }, 800);
-                                }
-                            } catch (shareErr) {
-                                if (shareErr.name !== 'AbortError') {
-                                    // Fallback: שמור את הקובץ
-                                    const link = document.createElement('a');
-                                    link.download = safeFilename;
-                                    link.href = dataUrl;
-                                    link.click();
-                                }
-                            }
-                        }
-                        // ביטול — לא עושים כלום
+                        const link = document.createElement('a');
+                        link.download = (filename || 'טבלה') + '_' + this.getTodayDate() + '.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
                     } catch (e) {
                         Swal.close();
                         console.error('screenshot error', e);
@@ -6933,7 +6690,7 @@
                     this.funds.forEach(fund => {
                         (fund.history || []).forEach(h => {
                             const typeLabel = h.type === 'commitment' ? 'התחייבות'
-                                : h.type === 'addition' ? 'הוספה'
+                                : h.type === 'addition' ? 'הוספה' : h.type === 'payment' ? 'תשלום' 
                                     : h.type === 'reduction' ? 'הפחתה' : 'ריקון';
                             rows.push({
                                 transactionId: 'fund_' + h.id,
@@ -9427,7 +9184,7 @@
                 getFundUsageHistory() {
                     if (!this.selectedFund || !this.selectedFund.history) return [];
                     return [...this.selectedFund.history]
-                        .filter(h => h.type === 'reduction')
+                        .filter(h => h.type === 'reduction' || h.type === 'payment')
                         .reverse();
                 },
 
@@ -9438,9 +9195,6 @@
 
                 getPurposeOptions(type) {
                     const regular = this.getRegularPurposeOptions(type).map(v => ({ label: v, value: v, type: 'regular' }));
-                    if (type === 'payments') {//funds are only relevant for commitments
-                        return regular;
-                    }
                     const funds = this.getActiveFunds().map(f => ({
                         label: f.name,
                         value: `fund:${f.id}`,
@@ -9493,11 +9247,31 @@
                     this.saveFunds();
                 },
 
+                addPaymentToFund(fundId, amount, date, memberId, memberName, transactionId) {
+                    const fund = this.getFundById(fundId);
+                    if (!fund) return;
+                    if (!Array.isArray(fund.history)) fund.history = [];
+                    fund.history.push({
+                        id: Date.now().toString(),
+                        date: date || this.getTodayDate(),
+                        amount: Number(amount) || 0,
+                        memberName: memberName || '',
+                        memberId: memberId || '',
+                        type: 'payment',
+                        initiatedBy: memberName || '',
+                        transactionId: transactionId
+                    });
+                    fund.balance -= Number(amount) || 0;
+                    if (this.selectedFund && this.selectedFund.id === fund.id) this.selectedFund = { ...fund };
+                    this.saveFunds();
+                },
+
                 removeCommitmentFromFund(transactionId) {
                     this.funds.forEach(fund => {
                         const historyItem = fund.history.find(h => h.transactionId === transactionId);
                         if (historyItem) {
-                            fund.balance -= historyItem.amount;
+                            // התחייבות היא תוספת; תשלום הוא הפחתה. בהסרה מבטלים את השינוי המקורי.
+                            fund.balance += historyItem.type === 'payment' ? Number(historyItem.amount || 0) : -Number(historyItem.amount || 0);
                             fund.history = fund.history.filter(h => h.id !== historyItem.id);
 
                             // fix: Immediate update of the money amount
@@ -9527,7 +9301,9 @@
                     const oldAmount = historyItem.amount;
                     historyItem.amount = newAmount;
                     historyItem.date = newDate;
-                    fund.balance = fund.balance - oldAmount + newAmount;
+                    fund.balance = historyItem.type === 'payment'
+                        ? fund.balance + Number(oldAmount || 0) - Number(newAmount || 0)
+                        : fund.balance - Number(oldAmount || 0) + Number(newAmount || 0);
 
                     if (this.selectedFund && this.selectedFund.id === fund.id) {
                         this.selectedFund = { ...fund };
@@ -9541,7 +9317,7 @@
     <script type="module">
         // Importing the necessary libraries from Google servers
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { initializeFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+        import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
         import {
             getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
             signInWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider, linkWithCredential, unlink
@@ -9574,8 +9350,7 @@
             window.auth = auth;
             window.functions = functions;
             window.fsMethods = {
-                doc, setDoc, getDoc, collection, addDoc, getDocs, query, orderBy, limit,
-                signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
+                doc, setDoc, getDoc, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
                 signInWithPhoneNumber, RecaptchaVerifier, httpsCallable, PhoneAuthProvider, linkWithCredential, unlink
             };
 
