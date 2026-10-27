@@ -3277,15 +3277,13 @@
                                                     :class="index === config.movementColumns.length - 1 ? 'invisible' : ''"><i
                                                         class="fas fa-chevron-down"></i></span>
                                             </div>
-                                            <input type="text" x-model="col.title" class="form-control form-control-sm"
-                                                @change="saveConfigData()">
-                                            <label class="form-check form-check-inline m-0 text-nowrap"
-                                                title="קובע אם העמודה תוצג למתפלל שמתחבר באמצעות SMS">
-                                                <input type="checkbox" class="form-check-input"
-                                                    :checked="col.showToWorshipper !== false"
+                                            <label class="form-check form-check-inline m-0 text-nowrap" title="קובע אם העמודה תוצג למתפלל שמתחבר באמצעות SMS">
+                                                <input type="checkbox" class="form-check-input" :checked="col.showToWorshipper !== false"
                                                     @change="col.showToWorshipper = $event.target.checked; saveConfigData()">
                                                 <span class="form-check-label small">הצג למתפלל</span>
                                             </label>
+                                            <input type="text" x-model="col.title" class="form-control form-control-sm"
+                                                @change="saveConfigData()">                                            
                                             <select x-model="col.type" class="form-select form-select-sm"
                                                 @change="saveConfigData()" :disabled="col.fixed">
                                                 <option value="text">טקסט</option>
