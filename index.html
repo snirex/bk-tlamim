@@ -1635,6 +1635,98 @@
             padding-top: 0.5rem !important;
             padding-bottom: 0.5rem !important;
         }
+
+        /* ═══ CHANGELOG (מסך שינויים) ═══ */
+        .changelog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .changelog-item {
+            border: 1px solid var(--border-color);
+            border-right: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            background: var(--card-bg);
+        }
+
+        .changelog-item.is-latest {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .changelog-head {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .changelog-version {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--primary-color);
+        }
+
+        .changelog-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .changelog-latest-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.1rem 0.55rem;
+            border-radius: 999px;
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .changelog-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .changelog-points {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .changelog-points li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+            padding: 0.2rem 0;
+            line-height: 1.7;
+        }
+
+        .changelog-tag {
+            flex: 0 0 auto;
+            min-width: 52px;
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.05rem 0.5rem;
+            border-radius: 999px;
+        }
+
+        .changelog-tag.new {
+            background: rgba(25, 135, 84, 0.14);
+            color: #198754;
+        }
+
+        .changelog-tag.improve {
+            background: rgba(13, 110, 253, 0.14);
+            color: #0d6efd;
+        }
+
+        .changelog-tag.fix {
+            background: rgba(220, 53, 69, 0.14);
+            color: #dc3545;
+        }
+        /* ═══ endof CHANGELOG (מסך שינויים) ═══ */		
     </style>
 
 </head>
@@ -1671,9 +1763,9 @@
                 <div x-show="loginTab === 'worshipper'">
                     <div x-show="authStep === 'phone'">
                         <p class="text-center text-muted small">הזן מספר טלפון נייד לקבלת קוד אימות ב-SMS</p>
-                        <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr"
-                            placeholder="050-0000000" autocomplete="tel" inputmode="tel" name="phone"
-                            @keydown.enter="sendOtpCode()">
+                        <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr" 
+							placeholder="050-0000000" autocomplete="tel" inputmode="tel" name="phone" 
+							@focus="$event.target.select()" id="worshipperPhoneInput" @keydown.enter="sendOtpCode()">
 
                         <div id="recaptcha-container"></div>
                         <button @click="sendOtpCode()" class="btn-primary-custom w-100 justify-content-center mt-2"
@@ -1688,12 +1780,13 @@
                         </p>
                         <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold"
                             style="letter-spacing:6px; font-size:1.4rem;" placeholder="------" dir="ltr"
-                            autocomplete="one-time-code" inputmode="numeric" @keydown.enter="verifyOtpCode()">
+                            autocomplete="one-time-code" inputmode="numeric" name="otp" @input="onOtpInput()"
+                            @keydown.enter="verifyOtpCode()">
                         <button @click="verifyOtpCode()" class="btn-primary-custom w-100 justify-content-center"
                             style="font-size:1rem; padding: 0.75rem;">
                             <i class="fas fa-check-circle"></i> אימות ואישור
                         </button>
-                        <button @click="authStep = 'phone'; otpCode = ''"
+                        <button @click="stopWebOtp(); authStep = 'phone'; otpCode = ''"
                             class="btn btn-link text-decoration-none w-100 mt-2 text-muted small">
                             שינוי מספר טלפון
                         </button>
@@ -2120,6 +2213,14 @@
                         <div class="text-center mt-3" style="font-size: 0.8rem;">
                             <a href="privacy.html" target="_blank" class="text-muted text-decoration-none">
                                 <i class="fas fa-shield-alt me-1"></i> מדיניות פרטיות
+                            </a>
+                        </div>
+                        <div class="text-center mt-2" style="font-size: 0.8rem;">
+                            <a href="#view=changelog" @click="mobileMenuOpen = false"
+                                class="text-muted text-decoration-none"
+                                :class="view === 'changelog' ? 'fw-bold' : ''">
+                                <i class="fas fa-clipboard-list me-1"></i> היסטוריית שינויים
+                                <span dir="ltr" x-text="changelog.length ? 'v' + changelog[0].version : ''"></span>
                             </a>
                         </div>
                     </footer>
@@ -3701,6 +3802,39 @@
                 </div>
             </div>
 
+            <!-- ══════════════════════════ שינויים (Changelog) ══════════════════════════ -->
+            <div x-show="view === 'changelog'" x-cloak>
+                <div class="page-header">
+                    <h1 class="page-title mb-0"><i class="fas fa-clipboard-list"></i> שינויים ועדכוני גרסה</h1>
+                </div>
+                <div class="content-card">
+                    <template x-if="changelog.length === 0">
+                        <div class="text-center p-4" style="color: var(--text-secondary);">אין שינויים מתועדים</div>
+                    </template>
+                    <div class="changelog-list">
+                        <template x-for="(entry, i) in changelog" :key="entry.version">
+                            <div class="changelog-item" :class="i === 0 ? 'is-latest' : ''">
+                                <div class="changelog-head">
+                                    <span class="changelog-version" dir="ltr" x-text="'v' + entry.version"></span>
+                                    <span class="changelog-date" x-text="formatChangelogDate(entry.date)"></span>
+                                    <span class="changelog-latest-badge" x-show="i === 0">גרסה אחרונה</span>
+                                </div>
+                                <div class="changelog-title" x-show="entry.title" x-text="entry.title"></div>
+                                <ul class="changelog-points">
+                                    <template x-for="(pt, j) in entry.points" :key="j">
+                                        <li>
+                                            <span class="changelog-tag" :class="pt.type"
+                                                x-text="changelogTypeLabel(pt.type)"></span>
+                                            <span x-text="pt.text"></span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
             <!-- ═══════════════════════════════════════════════════════════════
                  FUNDS MANAGEMENT PAGE (דף ניהול קופות)
                  ═══════════════════════════════════════════════════════════════ -->
@@ -4542,6 +4676,47 @@
                 filteredHomeTransactions: [],
                 highlightedRowId: null,
                 dbLog: JSON.parse(localStorage.getItem('synagogue_dblog')) || [],
+
+                // ═══ רשימת שינויים (נכתבת ידנית על ידי המפתח בלבד) ═══
+                // להוספת גרסה חדשה: מוסיפים אובייקט חדש בראש המערך (מיד אחרי הסוגריים המרובעים הפותחים).
+                // הפריט הראשון תמיד מוצג למעלה ומסומן כ"גרסה אחרונה".
+                // type של כל נקודה: 'new' (חדש) | 'improve' (שיפור) | 'fix' (תיקון)
+                // הערכים הנוכחיים הם דוגמאות - להחליף בשינויים האמיתיים.
+                changelog: [
+                    {
+                        version: '1.0.2', date: '2026-10-27', title: 'כניסת מתפלל נוחה יותר',
+                        points: [
+                            { type: 'new', text: 'מסך "שינויים" חדש עם היסטוריית גרסאות' },
+                            { type: 'new', text: 'מספר הטלפון של המתפלל נטען אוטומטית בכניסה חוזרת' },
+                            { type: 'new', text: 'קוד ה-SMS מוזן אוטומטית ונשלח לאימות' }
+                        ]
+                    },
+                    {
+                        version: '1.0.1', date: '2026-10-15', title: 'טבלאות וייצוא',
+                        points: [
+                            { type: 'new', text: 'בחירה בין שמירה לשיתוף בייצוא PNG / PDF / Excel' },
+                            { type: 'improve', text: 'צילום טבלה ללא עמודות כפתורים וללא פס העימוד התחתון' },
+                            { type: 'fix', text: 'תשלום לקופה מופיע כעת בעמוד הקופה ומעדכן את היתרה' }
+                            { type: 'new', text: 'התחייבות לקופה מופיעה כעת בעמוד הקופה ומעדכן את היתרה' }
+                        ]
+                    },
+                    {
+                        version: '1.0.0', date: '2026-05-01', title: 'גרסה ראשונה',
+                        points: [
+                            { type: 'new', text: 'ניהול מתפללים, התחייבויות ותשלומים' },
+                            { type: 'new', text: 'דוחות וסיכום חובות' },
+                            { type: 'new', text: 'גיבוי ושחזור' }
+                        ]
+                    }
+                ],
+                changelogTypeLabel(type) {
+                    return ({ new: 'חדש', improve: 'שיפור', fix: 'תיקון' })[type] || 'שינוי';
+                },
+                formatChangelogDate(d) {
+                    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || '');
+                    return m ? `${m[3]}/${m[2]}/${m[1]}` : (d || '');
+                },
+                _lastAutoOtp: '',
                 debtorsTable: null,
                 //refresh from db - rotate icon
                 isRefreshing: false,
@@ -4800,6 +4975,13 @@
                         this.loginTab = 'worshipper';
                         this.authStep = 'phone';
                         setTimeout(() => { this.sendOtpCode(); }, 600);
+                    } else if (!window.IS_DEMO) {
+                        // טעינה אוטומטית של המספר שבו המתפלל התחבר בפעם הקודמת (נשמר רק במכשיר שלו)
+                        try {
+                            const savedPhone = localStorage.getItem('lastWorshipperPhone');
+                            if (savedPhone && !this.worshipperPhone) 
+								this.worshipperPhone = savedPhone;
+                        } catch (e) { }
                     }
 
                     this.resetEntry();
@@ -5343,6 +5525,8 @@
                         this.confirmationResult = confirmation;
                         Swal.close();
                         this.authStep = 'code';
+                        this._lastAutoOtp = '';
+                        this.startWebOtp();
 
                     } catch (err) {
                         console.error('sendOtpCode error:', err);
@@ -5364,11 +5548,49 @@
                     }
                 },
 
+                // הזנה אוטומטית של קוד ה-SMS (Web OTP API) - נתמך ב-Chrome באנדרואיד
+                startWebOtp() {
+                    this.stopWebOtp();
+                    if (!('OTPCredential' in window) || !navigator.credentials) return;
+                    try {
+                        // AbortController נשמר על window ולא בתוך state של Alpine (פרוקסי שובר את abort())
+                        window._otpAbort = new AbortController();
+                        navigator.credentials.get({ otp: { transport: ['sms'] }, signal: window._otpAbort.signal })
+                            .then(cred => {
+                                if (!cred || !cred.code || this.authStep !== 'code') return;
+                                this.otpCode = cred.code;
+                                this._lastAutoOtp = cred.code;
+                                this.verifyOtpCode();
+                            })
+                            .catch(() => { });
+                    } catch (e) { }
+                },
+
+                stopWebOtp() {
+                    if (window._otpAbort) {
+                        try { window._otpAbort.abort(); } catch (e) { }
+                        window._otpAbort = null;
+                    }
+                },
+
+                // קוד שהוזן/הודבק/הושלם אוטומטית מהמקלדת (iOS ו-Android) - נשלח לאימות ברגע שיש 6 ספרות
+                onOtpInput() {
+                    this.$nextTick(() => {
+                        this.otpCode = String(this.otpCode || '').replace(/\D/g, '').slice(0, 6);
+                        if (this.otpCode.length === 6 && this._lastAutoOtp !== this.otpCode) {
+                            this._lastAutoOtp = this.otpCode;
+                            this.verifyOtpCode();
+                        }
+                    });
+                },
+
                 async verifyOtpCode() {
                     if (!this.otpCode || this.otpCode.length !== 6) {
                         Swal.fire('שגיאה', 'נא להזין קוד אימות בן 6 ספרות', 'error');
                         return;
                     }
+
+                    this.stopWebOtp();
 
                     // שלב א': אימות הקוד מול Firebase Auth
                     Swal.fire({ title: 'מאמת קוד...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
@@ -5388,6 +5610,9 @@
                         Swal.close();
                         return;
                     }
+
+                    // כניסת מתפלל הצליחה - זוכרים את המספר במכשיר הזה לכניסה הבאה
+                    try { localStorage.setItem('lastWorshipperPhone', this.worshipperPhone); } catch (e) { }
 
                     // שלב ב': המשתמש כבר מחובר בהצלחה ל-Firebase Auth בשלב הזה.
                     // כל שגיאה מכאן ואילך היא לא "קוד שגוי" - היא בעיה בקריאה לשרת
@@ -5495,7 +5720,12 @@
                     this.worshipperTransactions = [];
                     this.worshipperMovementColumns = [];
                     this.matchedWorshippers = [];
-                    this.worshipperPhone = '';
+                    this.stopWebOtp();
+                    this._lastAutoOtp = '';
+                    try { this.worshipperPhone = localStorage.getItem('lastWorshipperPhone') || ''; } 
+					catch (e) { 
+						this.worshipperPhone = ''; 
+					}
                     this.otpCode = '';
                     this.authStep = 'phone';
                     window.location.hash = '';
