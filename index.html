@@ -2147,8 +2147,8 @@
                     </h1>
                 </div>
 
-                <!-- תזכורת חיבור לגוגל דרייב -->				
-                <template x-if="!window.IS_DEMO && isLoggedIn && !googleDriveConnected && Date.now() > driveBannerHiddenUntil">				
+                <!-- תזכורת חיבור לגוגל דרייב -->
+                <template x-if="!window.IS_DEMO && isLoggedIn && !googleDriveConnected && Date.now() > driveBannerHiddenUntil">
                     <div class="alert py-2 small mb-3 d-flex align-items-center gap-2 flex-wrap"
                         style="position:relative; padding-bottom:1.6rem !important;"
                         :class="config.googleDrive?.connectedOnce ? 'alert-info' : 'alert-warning'">
@@ -2798,8 +2798,7 @@
                     <button @click="exportToExcel('reportTable', 'דוח')" class="btn btn-sm btn-success">
                         <i class="fas fa-file-excel me-1"></i> Excel
                     </button>
-                    <button @click="screenshotTable('reportTable', 'דוח')"
-                        class="btn btn-sm btn-secondary" title="צלם תמונה של הטבלה המלאה">
+                    <button @click="screenshotTable('reportTable', 'דוח')" class="btn btn-sm btn-secondary" title="צלם תמונה של הטבלה המלאה">
                         <i class="fas fa-camera me-1"></i> צילום
                     </button>
                     <button @click="window.print()" class="btn btn-sm btn-dark">
@@ -2853,9 +2852,8 @@
                     </button>
                     <button @click="exportToExcel('summaryTable', 'סיכום_חובות')" class="btn btn-sm btn-success">
                         <i class="fas fa-file-excel"></i> Excel
-					</button>
-                    <button @click="screenshotTable('summaryTable', 'סיכום_חובות')"
-                        class="btn btn-sm btn-secondary" title="צלם תמונה של הטבלה המלאה">
+                    </button>
+                    <button @click="screenshotTable('summaryTable', 'סיכום_חובות')" class="btn btn-sm btn-secondary" title="צלם תמונה של הטבלה המלאה">
                         <i class="fas fa-camera"></i>
                     </button>
                     <button class="btn btn-sm btn-dark" onclick="window.print()">
@@ -2901,6 +2899,7 @@
                                             @change="loadSynagogueImage($event)">
                                         <div x-show="config.synagogueLogo" class="mt-2 d-flex align-items-center gap-2">
                                             <img :src="config.synagogueLogo"
+                                                @error="config.synagogueLogo = ''; saveConfigData();"
                                                 style="height:40px;width:40px;object-fit:cover;border:2px solid var(--border-color);">
                                             <button class="btn btn-sm btn-outline-danger"
                                                 @click="config.synagogueLogo = ''; saveConfigData();">
@@ -3195,9 +3194,12 @@
                                     קבועות. ערכים בעמודות שנמחקו יוצגו בסמל ⚠️</small>
                             </div>
                         </div>
-						
-                        <!-- שדות מתפלל -->
-                        <div class="content-card">
+
+                    </div>
+
+                    <div class="col-md-5">
+                        <!-- הגדרת שדות מתפלל -->
+                        <div class="content-card mb-3">
                             <div class="section-header" @click="ui.fieldsOpen = !ui.fieldsOpen">
                                 <h6 class="mb-0 fw-bold">הגדרת שדות מתפלל</h6>
                                 <i class="fas" :class="ui.fieldsOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
@@ -3227,10 +3229,6 @@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-
-                    <div class="col-md-5">
 
                         <!-- עריכת מתפלל -->
                         <div id="editingmember" x-show="editingMember" class="content-card mb-3"
@@ -4565,7 +4563,7 @@
                 // UI State
                 darkMode: localStorage.getItem('synagogue_dark_mode') === 'true',
                 ui: {
-                    synagogueOpen: true,
+                    synagogueOpen: false,
                     backupOpen: true,
                     debtorsCollapsed: true,
                     homeCollapsed: true,
@@ -4722,7 +4720,7 @@
                     memberFields: [
                         { fieldId: 'field_name', name: 'שם מלא', key: 'name', required: true },
                         { fieldId: 'field_nickname', name: 'כינוי', key: 'memberUniqueId', required: true },
-                        { fieldId: 'field_phone', name: 'טלפון', key: 'phone', required: false },
+                        { fieldId: 'field_phone', name: 'טלפון', key: 'phone', required: true },
                         { fieldId: 'field_email', name: 'אימייל', key: 'email', required: false }
                     ],
                     theme: {
@@ -7618,7 +7616,7 @@
                     // שליפת שם בית הכנסת והתאריך הנוכחי
                     const synagogueName = (this.config && this.config.synagogueName) ? this.config.synagogueName : 'ניהול בית הכנסת';
                     const currentDate = new Date().toLocaleDateString('he-IL');
-					
+
                     const memberNameForPdf = this.worshipperMember?.name || this.selectedMember?.name || '';
                     const isMemberMovementsPdf = /ריכוז[_ ]תנועות/.test(filename) && !!memberNameForPdf;
                     const pdfReportTitle = isMemberMovementsPdf
@@ -7646,8 +7644,8 @@
                         <div>${element.outerHTML}</div>
                     `;
 
-					//Set pdf contrast
-					//-----------
+                    //Set pdf contrast
+                    //-----------
                     // ניגודיות גבוהה ב-PDF: העתקת טבלאות Tabulator לא תישאר עם צבעי טקסט חלשים.
                     pdfContainer.querySelectorAll('.tabulator, .tabulator-table, .tabulator-row, .tabulator-cell, .tabulator-col, table, th, td')
                         .forEach(node => {
