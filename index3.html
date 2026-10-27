@@ -2187,12 +2187,6 @@
                     :style="view === 'dblog' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
                     <i class="fas fa-database"></i> <span>יומן נתונים</span>
                 </button>
-                <button @click="navigate('changelog'); mobileMenuOpen = false" class="sidebar-btn"
-                    data-tooltip="שינויים"
-                    :style="view === 'changelog' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
-                    <i class="fas fa-clipboard-list"></i> <span>שינויים</span>
-                    <span class="keyboard-shortcut" x-text="changelog.length ? 'v' + changelog[0].version : ''"></span>
-                </button>
                 <button @click="logout()" class="sidebar-btn"
                     style="margin-top: 0.5rem; border-color: #dc3545; color: #dc3545;">
                     <i class="fas fa-sign-out-alt"></i> <span>יציאה</span>
@@ -2219,6 +2213,14 @@
                         <div class="text-center mt-3" style="font-size: 0.8rem;">
                             <a href="privacy.html" target="_blank" class="text-muted text-decoration-none">
                                 <i class="fas fa-shield-alt me-1"></i> מדיניות פרטיות
+                            </a>
+                        </div>
+                        <div class="text-center mt-2" style="font-size: 0.8rem;">
+                            <a href="#view=changelog" @click="mobileMenuOpen = false"
+                                class="text-muted text-decoration-none"
+                                :class="view === 'changelog' ? 'fw-bold' : ''">
+                                <i class="fas fa-clipboard-list me-1"></i> היסטוריית שינויים
+                                <span dir="ltr" x-text="changelog.length ? 'v' + changelog[0].version : ''"></span>
                             </a>
                         </div>
                     </footer>
@@ -4682,7 +4684,7 @@
                 // הערכים הנוכחיים הם דוגמאות - להחליף בשינויים האמיתיים.
                 changelog: [
                     {
-                        version: '1.2.0', date: '2026-10-27', title: 'כניסת מתפלל נוחה יותר',
+                        version: '1.0.2', date: '2026-10-27', title: 'כניסת מתפלל נוחה יותר',
                         points: [
                             { type: 'new', text: 'מסך "שינויים" חדש עם היסטוריית גרסאות' },
                             { type: 'new', text: 'מספר הטלפון של המתפלל נטען אוטומטית בכניסה חוזרת' },
@@ -4690,7 +4692,7 @@
                         ]
                     },
                     {
-                        version: '1.1.0', date: '2026-10-15', title: 'טבלאות וייצוא',
+                        version: '1.0.1', date: '2026-10-15', title: 'טבלאות וייצוא',
                         points: [
                             { type: 'new', text: 'בחירה בין שמירה לשיתוף בייצוא PNG / PDF / Excel' },
                             { type: 'improve', text: 'צילום טבלה ללא עמודות כפתורים וללא פס העימוד התחתון' },
