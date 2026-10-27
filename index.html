@@ -3016,7 +3016,7 @@
                         <!-- כניסת מנהל בטלפון (OTP) -->
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.adminPhoneOpen = !ui.adminPhoneOpen">
-                                <h6 class="mb-0 fw-bold">🔐 אפשרויות כניסה למנהל</h6>
+                                <h6 class="mb-0 fw-bold">🔐 כניסה מהירה עם קוד SMS (למנהל)</h6>
                                 <i class="fas" :class="ui.adminPhoneOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
                                     style="color: var(--text-secondary);"></i>
                             </div>
@@ -3158,6 +3158,46 @@
                             </div>
                         </div>
 
+                        <!-- עמודות ריכוז תנועות -->
+                        <div class="content-card">
+                            <div class="section-header" @click="ui.movOpen = !ui.movOpen">
+                                <h6 class="mb-0 fw-bold">עמודות ריכוז תנועות</h6>
+                                <i class="fas" :class="ui.movOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
+                                    style="color: var(--text-secondary);"></i>
+                            </div>
+                            <div class="section-body"
+                                :style="ui.movOpen ? 'max-height: 600px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                <div class="list-group mb-2 mt-3">
+                                    <template x-for="(col, index) in config.movementColumns" :key="col.columnId">
+                                        <div class="list-group-item d-flex gap-2 p-2 align-items-center"
+                                            style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">
+                                            <div class="d-flex flex-column">
+                                                <span class="move-btn" @click="moveColumn('movement', index, -1)"
+                                                    :class="index === 0 ? 'invisible' : ''"><i
+                                                        class="fas fa-chevron-up"></i></span>
+                                                <span class="move-btn" @click="moveColumn('movement', index, 1)"
+                                                    :class="index === config.movementColumns.length - 1 ? 'invisible' : ''"><i
+                                                        class="fas fa-chevron-down"></i></span>
+                                            </div>
+                                            <input type="text" x-model="col.title" class="form-control form-control-sm"
+                                                @change="saveConfigData()">
+                                            <select x-model="col.type" class="form-select form-select-sm"
+                                                @change="saveConfigData()" :disabled="col.fixed">
+                                                <option value="text">טקסט</option>
+                                                <option value="money">כסף</option>
+                                                <option value="date">תאריך</option>
+                                            </select>
+                                            <button @click="deleteColumn('movement', index)" class="btn btn-sm"
+                                                :class="col.fixed ? 'text-secondary' : 'text-danger'"
+                                                :disabled="col.fixed"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </template>
+                                </div>
+                                <small style="color: var(--text-secondary);" class="d-block">ניתן למחוק עמודות שאינן
+                                    קבועות. ערכים בעמודות שנמחקו יוצגו בסמל ⚠️</small>
+                            </div>
+                        </div>
+
                         <!-- עמודות התחייבויות -->
                         <div class="content-card">
                             <div class="section-header" @click="ui.obOpen = !ui.obOpen">
@@ -3253,46 +3293,6 @@
                                 </div>
                                 <button @click="addColumn('payment')" class="btn btn-sm btn-outline-success"><i
                                         class="fas fa-plus me-1"></i>הוסף עמודה</button>
-                            </div>
-                        </div>
-
-                        <!-- עמודות ריכוז תנועות -->
-                        <div class="content-card">
-                            <div class="section-header" @click="ui.movOpen = !ui.movOpen">
-                                <h6 class="mb-0 fw-bold">עמודות ריכוז תנועות</h6>
-                                <i class="fas" :class="ui.movOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
-                            </div>
-                            <div class="section-body"
-                                :style="ui.movOpen ? 'max-height: 600px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
-                                <div class="list-group mb-2 mt-3">
-                                    <template x-for="(col, index) in config.movementColumns" :key="col.columnId">
-                                        <div class="list-group-item d-flex gap-2 p-2 align-items-center"
-                                            style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">
-                                            <div class="d-flex flex-column">
-                                                <span class="move-btn" @click="moveColumn('movement', index, -1)"
-                                                    :class="index === 0 ? 'invisible' : ''"><i
-                                                        class="fas fa-chevron-up"></i></span>
-                                                <span class="move-btn" @click="moveColumn('movement', index, 1)"
-                                                    :class="index === config.movementColumns.length - 1 ? 'invisible' : ''"><i
-                                                        class="fas fa-chevron-down"></i></span>
-                                            </div>
-                                            <input type="text" x-model="col.title" class="form-control form-control-sm"
-                                                @change="saveConfigData()">
-                                            <select x-model="col.type" class="form-select form-select-sm"
-                                                @change="saveConfigData()" :disabled="col.fixed">
-                                                <option value="text">טקסט</option>
-                                                <option value="money">כסף</option>
-                                                <option value="date">תאריך</option>
-                                            </select>
-                                            <button @click="deleteColumn('movement', index)" class="btn btn-sm"
-                                                :class="col.fixed ? 'text-secondary' : 'text-danger'"
-                                                :disabled="col.fixed"><i class="fas fa-trash"></i></button>
-                                        </div>
-                                    </template>
-                                </div>
-                                <small style="color: var(--text-secondary);" class="d-block">ניתן למחוק עמודות שאינן
-                                    קבועות. ערכים בעמודות שנמחקו יוצגו בסמל ⚠️</small>
                             </div>
                         </div>
 
@@ -5409,6 +5409,48 @@
                     return '+' + cleaned;
                 },
 
+                sendWhatsAppAlert(actionType, errorObj, extraData = {}) {
+                    const myPhoneNumber = '972500000000'; // 👈 מספר ה-WhatsApp שלך (עם קידומת בינלאומית 972)
+                    const apiKey = 'YOUR_CALLMEBOT_API_KEY'; // 👈 ה-API Key שקיבלת מ-CallMeBot
+
+                    const phone = extraData.inputPhone || 'לא צוין';
+                    const errorCode = errorObj.code || 'UNKNOWN';
+
+                    const messageText = `שגיאת כניסה במערכת! טלפון: ${phone}, קוד: ${errorCode}, פעולה: ${actionType}`;
+
+                    // שליחת הבקשה לשירות CallMeBot
+                    fetch(`https://api.callmebot.com/whatsapp.php?phone=${myPhoneNumber}&text=${encodeURIComponent(messageText)}&apikey=${apiKey}`)
+                        .catch(err => console.error('WhatsApp alert error:', err));
+                },
+
+                // פונקצייה לשליחת התראת שגיאה ל-Telegram
+                sendTelegramAlert(actionType, errorObj, extraData = {}) {
+                    const botToken = '8969431365:AAGFqF4LZeGAhQzr9ivYDEMT_7WtHFGQ0yc'; // token from @BotFather:
+                    const chatId = 'YOUR_CHAT_ID_HERE';     // 👈 הדבק כאן את ה-ID הפרטי שלך
+
+                    const phone = extraData.inputPhone || 'לא צוין';
+                    const errorCode = errorObj.code || 'UNKNOWN_CODE';
+                    const errorMessage = errorObj.message || String(errorObj);
+
+                    const text = `⚠️ *שגיאת כניסה במובייל!*
+					📱 *טלפון:* ${phone}
+					🛠️ *פעולה:* ${actionType}
+					❌ *קוד שגיאה:* ${errorCode}
+					📝 *הודעה:* ${errorMessage}
+					🌐 *מכשיר/דפדפן:* ${navigator.userAgent}
+					⏰ *זמן:* ${new Date().toLocaleString('he-IL')}`;
+
+                    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: text,
+                            parse_mode: 'Markdown'
+                        })
+                    }).catch(err => console.error('Telegram alert error:', err));
+                },
+
                 // פונקציה לשמירת לוג שגיאות אוטומטי ב-Firestore
                 // פונקציית תיעוד אוטומטית ושקטה של שגיאות ב-Firestore
                 logErrorToFirestore(actionType, errorObj, extraData = {}) {
@@ -5491,7 +5533,7 @@
                         Swal.close();
 
                         // 🟢 תיעוד אוטומטי ב-Firestore של כל הפרטים על המתפלל והשגיאה
-                        this.logErrorToFirestore('PHONE_AUTH_SEND_SMS', err, {
+                        logErrorToFirestore('PHONE_AUTH_SEND_SMS', err, {
                             inputPhone: this.worshipperPhone,   // מספר הטלפון כפי שהקליד המתפלל
                             formattedPhone: phoneFormatted      // המספר בפורמט הבינלאומי שנשלח ל-Firebase
                         });
@@ -9555,7 +9597,7 @@
     <script type="module">
         // Importing the necessary libraries from Google servers
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { initializeFirestore, doc, setDoc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+        import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
         import {
             getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
             signInWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider, linkWithCredential, unlink
@@ -9589,8 +9631,7 @@
             window.functions = functions;
             window.fsMethods = {
                 doc, setDoc, getDoc, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
-                signInWithPhoneNumber, RecaptchaVerifier, httpsCallable, PhoneAuthProvider, linkWithCredential, unlink,
-                collection, addDoc
+                signInWithPhoneNumber, RecaptchaVerifier, httpsCallable, PhoneAuthProvider, linkWithCredential, unlink
             };
 
             console.log("snir - Firebase initialized successfully");
