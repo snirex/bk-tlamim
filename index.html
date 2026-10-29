@@ -3029,7 +3029,7 @@
                         <!-- כניסת מנהל בטלפון (OTP) -->
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.adminPhoneOpen = !ui.adminPhoneOpen">
-                                <h6 class="mb-0 fw-bold">🔐 כניסה מהירה עם קוד SMS (למנהל)</h6>
+                                <h6 class="mb-0 fw-bold">🔐 אפשרויות כניסה למנהל</h6>
                                 <i class="fas" :class="ui.adminPhoneOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
                                     style="color: var(--text-secondary);"></i>
                             </div>
@@ -3192,8 +3192,13 @@
                                                     :class="index === config.movementColumns.length - 1 ? 'invisible' : ''"><i
                                                         class="fas fa-chevron-down"></i></span>
                                             </div>
+                                            <label class="form-check form-check-inline m-0 text-nowrap" title="קובע אם העמודה תוצג למתפלל שמתחבר באמצעות SMS">
+                                                <input type="checkbox" class="form-check-input" :checked="col.showToWorshipper !== false"
+                                                    @change="col.showToWorshipper = $event.target.checked; saveConfigData()">
+                                                <span class="form-check-label small">הצג למתפלל</span>
+                                            </label>
                                             <input type="text" x-model="col.title" class="form-control form-control-sm"
-                                                @change="saveConfigData()">
+                                                @change="saveConfigData()">                                            
                                             <select x-model="col.type" class="form-select form-select-sm"
                                                 @change="saveConfigData()" :disabled="col.fixed">
                                                 <option value="text">טקסט</option>
@@ -4899,11 +4904,11 @@
                         { columnId: 'pay_amount', title: 'סכום', field: 'paymentAmount', type: 'money', fixed: true }
                     ],
                     movementColumns: [
-                        { columnId: 'mov_date', title: 'תאריך', field: 'date', type: 'date', fixed: true },
-                        { columnId: 'mov_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true },
-                        { columnId: 'mov_paymentAmount', title: 'תשלום בפועל', field: 'paymentAmount', type: 'money', fixed: true },
-                        { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false },
-                        { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false }
+                        { columnId: 'mov_date', title: 'תאריך', field: 'date', type: 'date', fixed: true, showToWorshipper: true },
+                        { columnId: 'mov_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true, showToWorshipper: true },
+                        { columnId: 'mov_paymentAmount', title: 'תשלום בפועל', field: 'paymentAmount', type: 'money', fixed: true, showToWorshipper: true },
+                        { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false, showToWorshipper: true },
+                        { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false, showToWorshipper: true }
                     ],
                     memberFields: [
                         { fieldId: 'field_name', name: 'שם מלא', key: 'name', required: true },
@@ -5421,49 +5426,7 @@
                     if (!cleaned.startsWith('972')) cleaned = '972' + cleaned;
                     return '+' + cleaned;
                 },
-
-                sendWhatsAppAlert(actionType, errorObj, extraData = {}) {
-                    const myPhoneNumber = '972500000000'; // 👈 מספר ה-WhatsApp שלך (עם קידומת בינלאומית 972)
-                    const apiKey = 'YOUR_CALLMEBOT_API_KEY'; // 👈 ה-API Key שקיבלת מ-CallMeBot
-
-                    const phone = extraData.inputPhone || 'לא צוין';
-                    const errorCode = errorObj.code || 'UNKNOWN';
-
-                    const messageText = `שגיאת כניסה במערכת! טלפון: ${phone}, קוד: ${errorCode}, פעולה: ${actionType}`;
-
-                    // שליחת הבקשה לשירות CallMeBot
-                    fetch(`https://api.callmebot.com/whatsapp.php?phone=${myPhoneNumber}&text=${encodeURIComponent(messageText)}&apikey=${apiKey}`)
-                        .catch(err => console.error('WhatsApp alert error:', err));
-                },
-
-                // פונקצייה לשליחת התראת שגיאה ל-Telegram
-                sendTelegramAlert(actionType, errorObj, extraData = {}) {
-                    const botToken = '8969431365:AAGFqF4LZeGAhQzr9ivYDEMT_7WtHFGQ0yc'; // token from @BotFather:
-                    const chatId = 'YOUR_CHAT_ID_HERE';     // 👈 הדבק כאן את ה-ID הפרטי שלך
-
-                    const phone = extraData.inputPhone || 'לא צוין';
-                    const errorCode = errorObj.code || 'UNKNOWN_CODE';
-                    const errorMessage = errorObj.message || String(errorObj);
-
-                    const text = `⚠️ *שגיאת כניסה במובייל!*
-					📱 *טלפון:* ${phone}
-					🛠️ *פעולה:* ${actionType}
-					❌ *קוד שגיאה:* ${errorCode}
-					📝 *הודעה:* ${errorMessage}
-					🌐 *מכשיר/דפדפן:* ${navigator.userAgent}
-					⏰ *זמן:* ${new Date().toLocaleString('he-IL')}`;
-
-                    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: chatId,
-                            text: text,
-                            parse_mode: 'Markdown'
-                        })
-                    }).catch(err => console.error('Telegram alert error:', err));
-                },
-
+                
                 // פונקציה לשמירת לוג שגיאות אוטומטי ב-Firestore
                 // פונקציית תיעוד אוטומטית ושקטה של שגיאות ב-Firestore
                 logErrorToFirestore(actionType, errorObj, extraData = {}) {
@@ -5680,11 +5643,11 @@
 
                 defaultMovementColumns() {
                     return [
-                        { columnId: 'mov_date', title: 'תאריך', field: 'date', type: 'date', fixed: true },
-                        { columnId: 'mov_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true },
-                        { columnId: 'mov_paymentAmount', title: 'תשלום בפועל', field: 'paymentAmount', type: 'money', fixed: true },
-                        { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false },
-                        { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false }
+                        { columnId: 'mov_date', title: 'תאריך', field: 'date', type: 'date', fixed: true, showToWorshipper: true },
+                        { columnId: 'mov_commitmentAmount', title: 'סכום התחייבות', field: 'commitmentAmount', type: 'money', fixed: true, showToWorshipper: true },
+                        { columnId: 'mov_paymentAmount', title: 'תשלום בפועל', field: 'paymentAmount', type: 'money', fixed: true, showToWorshipper: true },
+                        { columnId: 'mov_paymentType', title: 'סוג תשלום', field: 'paymentType', type: 'text', fixed: false, showToWorshipper: true },
+                        { columnId: 'mov_reference', title: 'אסמכתא', field: 'reference', type: 'text', fixed: false, showToWorshipper: true }
                     ];
                 },
 
@@ -5848,7 +5811,7 @@
                     this.worshipperTransactions = this.transactions
                         .filter(t => t.memberId === member.memberUniqueId)
                         .map(t => this.toMovementRow(t));
-                    this.worshipperMovementColumns = this.config.movementColumns || this.defaultMovementColumns();
+                    this.worshipperMovementColumns = (this.config.movementColumns || this.defaultMovementColumns()).filter(col => col.showToWorshipper !== false);
                     // אם יש לו טלפון ויש עוד מתפללים על אותו טלפון - מציגים גם את
                     // סרגל המעבר, בדיוק כמו שיראה מתפלל אמיתי
                     this.matchedWorshippers = member.phone
@@ -6785,74 +6748,63 @@
                     const win = window.open('', '_blank');
                     if (win) { win.document.write(html); win.document.close(); }
                 },
-                // ===== פופאפ בחירה אחרי יצירת קובץ: שמירה / שיתוף ב-WhatsApp / ביטול =====
-                _shareTargetMember(containerId) {
-                    if (containerId === 'worshipperTableContainer') return this.worshipperMember || null;
-                    if (containerId === 'movementsTable' || containerId === 'mainTable') return this.selectedMember || null;
-                    return null; // דוחות/סיכומים וכו' - אין מתפלל ספציפי
-                },
-                _saveBlob(blob, filename) {
+                // ===== שיתוף / שמירה של קבצי ייצוא (PNG / PDF / Excel) =====
+                downloadBlob(blob, filename) {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
-                    a.href = url; a.download = filename;
-                    document.body.appendChild(a); a.click(); a.remove();
-                    setTimeout(() => URL.revokeObjectURL(url), 2000);
-                },
-                async _shareBlobWhatsapp(blob, filename, phone) {
-                    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-                    const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
-                    // נייד: חלון השיתוף של המכשיר (בוחרים WhatsApp ואת איש הקשר - אפשר לשלוח את הקובץ עצמו)
-                    if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try {
-                            await navigator.share({ files: [file], title: filename });
-                        } catch (e) {
-                            if (!e || e.name !== 'AbortError') console.error('share error', e);
-                        }
-                        return;
-                    }
-                    // מחשב: שמירת הקובץ + פתיחת שיחת WhatsApp עם המתפלל (wa.me לא מאפשר צירוף קובץ אוטומטי)
-                    this._saveBlob(blob, filename);
-                    window.open(phone ? this.formatWhatsappLink(phone) : 'https://wa.me/', '_blank');
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'הקובץ נשמר במחשב',
-                        text: 'נפתחה שיחת WhatsApp. צרף את הקובץ מתיקיית ההורדות (גרירה לחלון השיחה או כפתור הצירוף) ושלח.',
-                        confirmButtonText: 'הבנתי'
-                    });
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
                 },
                 async deliverFile(blob, filename, opts = {}) {
-                    const member = opts.member || null;
-                    const phone = member && member.phone ? String(member.phone) : '';
-                    const who = member && member.name
-                        ? `<div style="margin-top:8px;font-size:.9rem;">שיתוף ל: <b>${this.escapeHtml(member.name)}</b>${phone ? ' <span dir="ltr">(' + this.escapeHtml(phone) + ')</span>' : ' <span class="text-danger">(אין מספר טלפון)</span>'}</div>`
-                        : '';
-                    const res = await Swal.fire({
-                        title: 'מה לעשות עם הקובץ?',
-                        html: `<div dir="rtl" style="word-break:break-all;font-size:.85rem;opacity:.75;">${this.escapeHtml(filename)}</div>${who}`,
-                        icon: 'question',
+                    const icon = opts.icon || 'fa-file';
+                    const kind = opts.kindLabel || 'הקובץ';
+                    const file = new File([blob], filename, { type: blob.type });
+                    const canShareFiles = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
+                    await Swal.fire({
+                        title: opts.title || 'מה לעשות עם ' + kind + '?',
+                        html: `<div style="font-size:2.2rem;margin-bottom:6px;"><i class="fas ${icon}"></i></div>
+                               <div style="direction:ltr;word-break:break-all;opacity:.8;font-size:.85rem;">${this.escapeHtml(filename)}</div>`,
+                        showConfirmButton: true,
                         showDenyButton: true,
                         showCancelButton: true,
-                        confirmButtonText: '<i class="fas fa-save"></i> שמירת הקובץ',
-                        denyButtonText: '<i class="fab fa-whatsapp"></i> שיתוף ב-WhatsApp',
+                        confirmButtonText: '<i class="fas fa-share-alt"></i> שתף',
+                        denyButtonText: '<i class="fas fa-download"></i> שמור',
                         cancelButtonText: 'ביטול',
                         confirmButtonColor: '#198754',
-                        denyButtonColor: '#25D366'
+                        denyButtonColor: '#0d6efd',
+                        allowOutsideClick: false,
+                        // preConfirm רץ ישירות בתוך לחיצת המשתמש - נדרש כדי ש-navigator.share יעבוד (במיוחד ב-iOS/Safari)
+                        preConfirm: async () => {
+                            if (!canShareFiles) {
+                                Swal.showValidationMessage('שיתוף קבצים אינו נתמך במכשיר/דפדפן זה. לחץ "שמור" ושתף ידנית מהקובץ שנשמר.');
+                                return false;
+                            }
+                            try {
+                                await navigator.share({ files: [file], title: filename });
+                                return true;
+                            } catch (e) {
+                                if (e && e.name === 'AbortError') return false; // המשתמש סגר את חלון השיתוף - נשאר בחלון הבחירה
+                                console.error('share error', e);
+                                Swal.showValidationMessage('השיתוף נכשל: ' + (e.message || e));
+                                return false;
+                            }
+                        },
+                        didOpen: () => {
+                            // במכשירים ללא תמיכה בשיתוף קבצים - מציגים את הכפתור כמושבת
+                            if (!canShareFiles) {
+                                const c = Swal.getConfirmButton();
+                                if (c) { c.disabled = true; c.title = 'שיתוף קבצים אינו נתמך במכשיר זה'; }
+                            }
+                        }
+                    }).then(r => {
+                        if (r.isDenied) {
+                            this.downloadBlob(blob, filename);
+                        }
                     });
-                    if (res.isConfirmed) this._saveBlob(blob, filename);
-                    else if (res.isDenied) await this._shareBlobWhatsapp(blob, filename, phone);
-                    // ביטול / סגירה: לא עושים כלום
-                },
-                _tabulatorToXlsxBlob(table, sheetName) {
-                    const cols = table.getColumns().filter(c => c.getField() && c.isVisible());
-                    const rows = table.getData('active').map(r => {
-                        const o = {};
-                        cols.forEach(c => { o[c.getDefinition().title || c.getField()] = r[c.getField()]; });
-                        return o;
-                    });
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), sheetName);
-                    return new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })],
-                        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 },
                 async screenshotTable(containerId, filename) {
                     const el = document.getElementById(containerId);
@@ -6915,10 +6867,9 @@
                         tabHolderOrig.forEach(s => { s.el.style.overflow = s.overflow; s.el.style.height = s.height; s.el.style.maxHeight = s.maxHeight; });
 
                         Swal.close();
-                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                        if (!blob) throw new Error('יצירת התמונה נכשלה');
-                        await this.deliverFile(blob, (filename || 'טבלה') + '_' + this.getTodayDate() + '.png',
-                            { member: this._shareTargetMember(containerId) });
+                        const pngBlob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+                        if (!pngBlob) throw new Error('יצירת התמונה נכשלה');
+                        await this.deliverFile(pngBlob, (filename || 'טבלה') + '_' + this.getTodayDate() + '.png', { icon: 'fa-image', kindLabel: 'התמונה' });
                     } catch (e) {
                         Swal.close();
                         console.error('screenshot error', e);
@@ -7892,23 +7843,30 @@
                 // Export functions
                 async exportToExcel(tableId, filename) {
                     if (!this.currentTable) { Swal.fire('שגיאה', 'אין טבלה לייצוא', 'error'); return; }
-                    const xlsxMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                    const fname = `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`;
-                    const sheetName = String(filename || 'גיליון').replace(/[^\p{L}\p{N}_ ()\-]/gu, ' ').slice(0, 31);
-                    let blob = null;
+                    const fullName = `${filename}_${this.selectedMember.name}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    const table = this.currentTable;
+                    // תפיסת קובץ ה-Excel ש-Tabulator מייצר (במקום הורדה אוטומטית)
+                    // ב-Tabulator 5 האפשרות downloadReady הוצאה משימוש; downloadEncoder מחליפה אותה (החזרת false מבטלת את ההורדה האוטומטית)
+                    const origEncoder = table.options.downloadEncoder;
+                    let captured = null;
+                    table.options.downloadEncoder = (data, mimeType) => {
+                        captured = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        return false;
+                    };
                     try {
-                        // 5 = interceptCallback של Tabulator: מקבלים את הקובץ במקום להורידו מיד
-                        this.currentTable.download('xlsx', fname, { sheetName }, 'active', (data) => {
-                            blob = new Blob([data], { type: xlsxMime });
-                        });
-                    } catch (e) { console.error('tabulator xlsx error', e); }
-                    if (!blob) {
-                        try { blob = this._tabulatorToXlsxBlob(this.currentTable, sheetName); }
-                        catch (e) { console.error(e); Swal.fire('שגיאה', 'אירעה שגיאה בהפקת קובץ ה-Excel', 'error'); return; }
+                        table.download("xlsx", fullName, { sheetName: filename });
+                    } finally {
+                        table.options.downloadEncoder = origEncoder;
                     }
-                    await this.deliverFile(blob, fname, { member: this._shareTargetMember(tableId) });
+                    if (!captured) {
+                        // גיבוי: אם לא הצלחנו לתפוס את הקובץ - הורדה רגילה
+                        table.download("xlsx", fullName, { sheetName: filename });
+                        return;
+                    }
+                    await this.deliverFile(captured, fullName, { icon: 'fa-file-excel', kindLabel: 'קובץ ה-Excel' });
                 },
-                exportWorshipperToExcel() {
+                
+                async exportWorshipperToExcel() {
                     if (!this.worshipperTransactions || this.worshipperTransactions.length === 0) {
                         Swal.fire('שגיאה', 'אין נתונים לייצוא', 'error');
                         return;
@@ -7930,9 +7888,9 @@
                     const ws = XLSX.utils.json_to_sheet(rows);
                     XLSX.utils.book_append_sheet(wb, ws, "ריכוז תנועות");
                     const filename = `ריכוז_תנועות_${this.worshipperMember?.name || 'מתפלל'}_${new Date().toISOString().split('T')[0]}.xlsx`;
-                    const blob = new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })],
-                        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                    this.deliverFile(blob, filename, { member: this._shareTargetMember('worshipperTableContainer') });
+                    const xlsxBytes = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const xlsxBlob = new Blob([xlsxBytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    await this.deliverFile(xlsxBlob, filename, { icon: 'fa-file-excel', kindLabel: 'קובץ ה-Excel' });
                 },
                 exportToPDF(tableId, filename) {
                     const element = document.getElementById(tableId);
@@ -8018,7 +7976,7 @@
                     html2pdf().set(options).from(pdfContainer).outputPdf('blob').then(async (pdfBlob) => {
                         document.body.removeChild(pdfContainer); // הסרת האלמנט הזמני
                         Swal.close();
-                        await this.deliverFile(pdfBlob, options.filename, { member: this._shareTargetMember(tableId) });
+                        await this.deliverFile(pdfBlob, options.filename, { icon: 'fa-file-pdf', kindLabel: 'קובץ ה-PDF' });
                     }).catch(err => {
                         if (document.body.contains(pdfContainer)) {
                             document.body.removeChild(pdfContainer);
