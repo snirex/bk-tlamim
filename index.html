@@ -511,9 +511,9 @@
             transform: translateY(0);
         }
 
-        .dashed {
+        .content-card.card-hl {
             border: 2px dashed var(--primary-color);
-            background: rgba(44, 95, 125, 0.03);
+            background: color-mix(in srgb, var(--primary-color) 4%, transparent);
         }
 
         .page-title {
@@ -615,12 +615,20 @@
 
         .section-body {
             overflow: hidden;
+            max-height: 1000px;
             transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* panels that must not clip dropdowns / tables while open */
+        .section-body.section-visible:not(.collapsed) {
+            overflow: visible;
+            max-height: 2000px;
         }
 
         .section-body.collapsed {
             max-height: 0 !important;
             opacity: 0;
+            overflow: hidden;
         }
 
         /* ═══ FORMS ═══ */
@@ -1727,6 +1735,94 @@
             color: #dc3545;
         }
         /* ═══ endof CHANGELOG (מסך שינויים) ═══ */		
+
+        /* ═══════════════════════════════════════════════════════════════
+           SHARED CLASSES (replace the former inline style="" attributes)
+           ═══════════════════════════════════════════════════════════════ */
+
+        /* — text colour / background / font-size / misc utilities — */
+        .c-sec { color: var(--text-secondary) !important; }
+        .c-pri { color: var(--primary-color) !important; }
+        .c-acc { color: var(--accent-color) !important; }
+        .c-txt { color: var(--text-primary) !important; }
+        .c-green { color: #28a745 !important; }
+        .c-google { color: #4285F4 !important; }
+        .bg-main { background-color: var(--bg-main); }
+        .bg-pri { background-color: var(--primary-color) !important; }
+        .bg-green { background-color: #28a745 !important; }
+        .fs-xs { font-size: 0.75rem !important; }
+        .fs-sm { font-size: 0.85rem !important; }
+        .pointer { cursor: pointer; }
+        .flex-1 { flex: 1; min-width: 0; }
+        .mw-field { max-width: 260px; }
+        .border-top, .border-bottom { border-color: var(--border-color) !important; }
+
+        /* — form pieces — */
+        .lbl { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
+        .sec-title { margin-bottom: 1rem; color: var(--primary-color); font-weight: 600; }
+        .inp-lg { font-size: 1rem; padding: 0.75rem; }
+        .otp { letter-spacing: 6px; font-size: 1.4rem; }
+        .ta-v { min-height: 70px; resize: vertical; }
+        .btn-xs { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+        .btn-compact { padding: 0.5rem 0.65rem; border-radius: 7px; }
+        .alert-x {
+            position: absolute; left: 8px; bottom: 4px; padding: 0 4px;
+            background: none; border: none; line-height: 1;
+            font-size: 1.1rem; color: inherit; opacity: .6; cursor: pointer;
+        }
+
+        /* — scroll boxes — */
+        .scroll-y { max-height: 260px; overflow-y: auto; }
+        .scroll-y.sm { max-height: 140px; }
+        .scroll-y.lg { max-height: 400px; }
+        .scroll-y.tall { max-height: 70vh; }
+
+        /* — funds screen — */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .fund-box {
+            padding: 0.75rem; background: var(--bg-main);
+            border-radius: 8px; border: 1px solid var(--border-color);
+        }
+        .ft { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .ft th, .ft td { padding: 0.75rem; text-align: right; }
+        .ft th { font-weight: 600; }
+        .ft thead tr { background: var(--bg-main); border-bottom: 2px solid var(--border-color); }
+        .ft tbody tr { border-bottom: 1px solid var(--border-color); }
+
+        /* — header / login / layout — */
+        .logo-img { width: 32px; height: 32px; object-fit: cover; }
+        .logo-img-lg { width: 40px; height: 40px; border: 2px solid var(--border-color); }
+        .login-card.login-wide { max-width: 720px; width: 95%; }
+        .btn.login-tab-on { border-bottom: 2px solid var(--primary-color); }
+        .main-content.main-readonly { margin-right: 0; padding: 2rem; }
+        .sidebar-btn.active {
+            background: var(--primary-color); color: #fff; border-color: var(--primary-color);
+        }
+
+        /* — db log — */
+        .log-time { min-width: 145px; }
+        .log-type { min-width: 60px; }
+        .log-err { background: rgba(220, 53, 69, 0.07); }
+
+        /* — table cell action marks (created from JS) — */
+        .row-confirm-btn, .row-cancel-btn {
+            cursor: pointer; font-weight: bold; font-size: 1.1rem;
+        }
+        .row-confirm-btn { color: #28a745; margin-left: 4px; }
+        .row-cancel-btn { color: #dc3545; }
+
+        /* — PDF export header (html2pdf) — */
+        .pdf-fixed {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+            background: #fff; color: #222; text-align: center; direction: rtl;
+            font: bold 14px Arial, sans-serif; letter-spacing: 0.2px; word-spacing: 3px;
+            padding: 6px 0; border-bottom: 1px solid #ccc;
+        }
+        .pdf-head { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #2c5f7d; padding-bottom: 10px; }
+        .pdf-h2 { margin: 0; color: #2c5f7d; font-size: 22px; font-weight: bold; }
+        .pdf-h3 { margin: 5px 0 0; color: #333; font-size: 18px; }
+        .pdf-sub { margin-top: 5px; font-size: 13px; color: #666; }
+
     </style>
 
 </head>
@@ -1746,15 +1842,12 @@
                 </h1>
 
                 <!-- ═══ לשוניות: מתפלל / מנהל ═══ -->
-                <div class="d-flex mb-3" style="border-bottom: 1px solid var(--border-color);">
+                <div class="d-flex mb-3 border-bottom">
                     <button type="button" @click="loginTab = 'worshipper'; authStep = 'phone'"
-                        class="btn btn-sm flex-fill" :class="loginTab === 'worshipper' ? 'fw-bold' : 'text-muted'"
-                        :style="loginTab === 'worshipper' ? 'border-bottom: 2px solid var(--primary-color); border-radius:0;' : 'border-radius:0;'">
+                        class="btn btn-sm flex-fill rounded-0" :class="loginTab === 'worshipper' ? 'fw-bold login-tab-on' : 'text-muted'">
                         <i class="fas fa-user"></i> כניסת מתפלל
                     </button>
-                    <button type="button" @click="loginTab = 'admin'" class="btn btn-sm flex-fill"
-                        :class="loginTab === 'admin' ? 'fw-bold' : 'text-muted'"
-                        :style="loginTab === 'admin' ? 'border-bottom: 2px solid var(--primary-color); border-radius:0;' : 'border-radius:0;'">
+                    <button type="button" @click="loginTab = 'admin'" class="btn btn-sm flex-fill rounded-0" :class="loginTab === 'admin' ? 'fw-bold login-tab-on' : 'text-muted'">
                         <i class="fas fa-user-shield"></i> כניסת מנהל
                     </button>
                 </div>
@@ -1768,22 +1861,19 @@
 							@focus="$event.target.select()" id="worshipperPhoneInput" @keydown.enter="sendOtpCode()">
 
                         <div id="recaptcha-container"></div>
-                        <button @click="sendOtpCode()" class="btn-primary-custom w-100 justify-content-center mt-2"
-                            style="font-size:1rem; padding: 0.75rem;">
+                        <button @click="sendOtpCode()" class="btn-primary-custom w-100 justify-content-center mt-2 inp-lg">
                             <i class="fas fa-paper-plane"></i> שלח קוד אימות
                         </button>
                     </div>
 
                     <div x-show="authStep === 'code'">
                         <p class="text-center text-muted small">הזן את הקוד בן 6 הספרות שנשלח למספר
-                            <strong x-text="worshipperPhone" dir="ltr" style="unicode-bidi:embed;"></strong>
+                            <strong x-text="worshipperPhone" dir="ltr"></strong>
                         </p>
-                        <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold"
-                            style="letter-spacing:6px; font-size:1.4rem;" placeholder="------" dir="ltr"
+                        <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold otp" placeholder="------" dir="ltr"
                             autocomplete="one-time-code" inputmode="numeric" name="otp" @input="onOtpInput()"
                             @keydown.enter="verifyOtpCode()">
-                        <button @click="verifyOtpCode()" class="btn-primary-custom w-100 justify-content-center"
-                            style="font-size:1rem; padding: 0.75rem;">
+                        <button @click="verifyOtpCode()" class="btn-primary-custom w-100 justify-content-center inp-lg">
                             <i class="fas fa-check-circle"></i> אימות ואישור
                         </button>
                         <button @click="stopWebOtp(); authStep = 'phone'; otpCode = ''"
@@ -1794,7 +1884,7 @@
 
                     <div x-show="authStep === 'select'">
                         <h6 class="text-center mb-3">נמצאו כמה חשבונות המקושרים למספר זה:</h6>
-                        <div class="list-group mb-2" style="max-height:260px; overflow-y:auto;">
+                        <div class="list-group mb-2 scroll-y">
                             <template x-for="m in matchedWorshippers" :key="m.memberUniqueId">
                                 <button type="button" @click="selectWorshipperAccount(m)"
                                     class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
@@ -1817,33 +1907,28 @@
 
                     <input type="password" x-ref="passInput" x-model="loginForm.pass" class="login-input"
                         placeholder="סיסמה" @keydown.enter="login()">
-                    <button @click="login()" class="btn-primary-custom w-100 justify-content-center"
-                        style="font-size:1rem; padding: 0.75rem;">
+                    <button @click="login()" class="btn-primary-custom w-100 justify-content-center inp-lg">
                         <i class="fas fa-sign-in-alt"></i> כניסה למערכת
                     </button>
-                    <div style="text-align: center;" class="mt-2"><a href="?demo=1">כנס למצב הדגמה</a></div>
+                    <div class="mt-2 text-center"><a href="?demo=1">כנס למצב הדגמה</a></div>
                 </div>
             </div>
 
             <!-- ═══ פתרון 2 ו-3: הסבר ציבורי על האפליקציה ומטרתה (מיועד לסורק של גוגל) ═══ -->
             <!-- ═══ הסבר ציבורי על האפליקציה (אקורדיון מתקפל) ═══ -->
-            <div class="login-card mt-3" style="max-width: 400px; padding: 1.25rem;">
+            <div class="login-card mt-3 p-3">
                 <!-- כותרת לחיצה לפתיחה/סגירה -->
-                <div @click="ui.aboutOpen = !ui.aboutOpen" class="d-flex justify-content-between align-items-center"
-                    style="cursor: pointer; user-select: none;">
-                    <h2 class="h6 fw-bold mb-0" style="color: var(--primary-color);">
+                <div @click="ui.aboutOpen = !ui.aboutOpen" class="d-flex justify-content-between align-items-center pointer user-select-none">
+                    <h2 class="h6 fw-bold mb-0 c-pri">
                         <i class="fas fa-info-circle me-1"></i> אודות המערכת
                     </h2>
-                    <i class="fas" :class="ui.aboutOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                        style="color: var(--text-secondary); font-size: 0.85rem;"></i>
+                    <i class="fas c-sec fs-sm" :class="ui.aboutOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                 </div>
 
                 <!-- התוכן המוסתר שמתרחב באנימציה -->
-                <div class="section-body"
-                    :style="ui.aboutOpen ? 'max-height: 300px; opacity: 1; margin-top: 0.75rem;' : 'max-height: 0; opacity: 0; margin-top: 0;'"
-                    style="overflow: hidden; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;">
+                <div class="section-body" :class="{ collapsed: !ui.aboutOpen }">
 
-                    <p class="small text-muted mb-2 text-center">
+                    <p class="small text-muted mt-3 mb-2 text-center">
                         מערכת ניהול בית הכנסת מיועדת לניהול שוטף של קהילת בית הכנסת, מעקב התחייבויות, גביית תשלומים,
                         ניהול קופות
                         וצפייה אישית של המתפללים במצב חשבונם.
@@ -1869,8 +1954,8 @@
 
     <!-- ═══ מסך מתפלל (קריאה בלבד, הנתונים שלו בלבד) ═══ -->
     <div x-show="appReady && worshipperMode" x-cloak :class="appVisible ? 'app-fade-enter-active' : 'app-fade-enter'">
-        <div class="login-screen" style="align-items:flex-start; padding-top:3rem;">
-            <div class="login-card" style="max-width:720px; width:95%;">
+        <div class="login-screen align-items-start pt-5">
+            <div class="login-card login-wide">
 
                 <!-- באנר תצוגה מקדימה (רק למנהל שנכנס דרך כפתור תצוגה מקדימה) -->
                 <template x-if="isAdminPreview">
@@ -1880,7 +1965,7 @@
                     </div>
                 </template>
                 <div class="text-center mb-3">
-                    <h3 class="fw-bold" style="color: var(--primary-color);"
+                    <h3 class="fw-bold c-pri"
                         x-text="config.synagogueName || 'ניהול בית הכנסת'"></h3>
                     <h5 class="text-muted mb-0">
                         <i class="fas fa-user-circle me-1"></i>
@@ -1935,8 +2020,7 @@
                                     <template x-for="t in worshipperTransactions" :key="t.transactionId">
                                         <tr>
                                             <template x-for="col in worshipperMovementColumns" :key="col.columnId">
-                                                <td :class="col.type === 'money' ? 'money-ltr' : ''"
-                                                    :style="col.field === 'difference' ? (t.difference > 0 ? 'color:#dc3545; font-weight:600;' : (t.difference < 0 ? 'color:#28a745; font-weight:600;' : '')) : ''"
+                                                <td :class="[col.type === 'money' ? 'money-ltr' : '', col.field === 'difference' ? (t.difference > 0 ? 'text-danger fw-semibold' : (t.difference < 0 ? 'c-green fw-semibold' : '')) : '']"
                                                     x-text="col.field === 'difference'
                                                         ? (t.difference > 0 ? '-₪' + Math.abs(t.difference).toLocaleString() : (t.difference < 0 ? '+₪' + Math.abs(t.difference).toLocaleString() : '₪0'))
                                                         : getWorshipperCellValue(t, col)">
@@ -1986,15 +2070,14 @@
 
         <!-- HEADER -->
         <header class="app-header no-print">
-            <button class="mobile-menu-toggle btn btn-sm"
-                style="background: var(--primary-color); color: white; border: none; border-radius: 7px; padding: 0.4rem 0.7rem;"
+            <button class="mobile-menu-toggle btn btn-sm btn-primary-custom btn-compact"
                 @click.stop="mobileMenuOpen = !mobileMenuOpen" x-show="!readOnlyMode">
                 <i class="fas fa-bars"></i>
             </button>
 
             <div class="app-logo">
                 <template x-if="config.synagogueLogo">
-                    <img :src="config.synagogueLogo" style="height:32px;width:32px;object-fit:cover;">
+                    <img class="logo-img" :src="config.synagogueLogo">
                 </template>
                 <template x-if="!config.synagogueLogo">
                     <i class="fas fa-synagogue"></i>
@@ -2008,7 +2091,7 @@
             </div>
 
             <div class="header-actions">
-                <div class="header-quick-actions d-flex align-items-center" style="gap:0.5rem;" x-show="!readOnlyMode">
+                <div class="header-quick-actions d-flex align-items-center gap-2" x-show="!readOnlyMode">
                     <button class="theme-toggle" @click="exportFullBackup('json')"
                         title="גיבוי מהיר (הורדת JSON בלחיצה אחת)">
                         <i class="fas fa-cloud-upload-alt"></i>
@@ -2021,7 +2104,7 @@
                         <span class="d-none d-sm-inline">שחזור מהיר</span>
                     </button>
                 </div>
-                <input type="file" id="quickRestoreFileInput" style="display:none" accept=".json,.xlsx,.xls,.txt,.csv"
+                <input class="d-none" type="file" id="quickRestoreFileInput" accept=".json,.xlsx,.xls,.txt,.csv"
                     @change="restoreFullBackup('quickRestoreFileInput')">
 
                 <button class="theme-toggle" @click="toggleDarkMode()">
@@ -2060,12 +2143,11 @@
                             $nextTick(() => focusWorshipperItem(0));
                         }"
                         @keydown.tab.prevent="if(quickAdd) { $nextTick(() => $refs.quickAddName?.focus()); } else if(filteredMembers.length > 0) { $nextTick(() => focusWorshipperItem(0)); }">
-                    <button class="btn-primary-custom" style="padding: 0.5rem 0.65rem; border-radius: 7px;"
+                    <button class="btn-primary-custom btn-compact"
                         @click="if(!quickAdd) { nm.name = memberSearch; memberSearch = ''; } quickAdd = !quickAdd; $nextTick(() => $refs.quickAddName?.focus());">
                         <i class="fas fa-user-plus"></i>
                     </button>
-                    <button class="btn-primary-custom"
-                        style="padding: 0.5rem 0.65rem; border-radius: 7px; background: #28a745;"
+                    <button class="btn-primary-custom btn-compact bg-green"
                         @click="importFromContacts()" title="ייבא מאנשי קשר" x-show="contactPickerSupported">
                         <i class="fas fa-address-book"></i>
                     </button>
@@ -2078,16 +2160,14 @@
                             placeholder="שם מלא *"
                             @keydown.enter="if(nm.name.trim() !== '') $refs.quickAddNickname.focus()">
                         <button x-show="nm.name" @click="nm.name = ''" type="button"
-                            class="btn position-absolute top-50 end-0 translate-middle-y border-0"
-                            style="color: var(--text-secondary);">&times;</button>
+                            class="btn position-absolute top-50 end-0 translate-middle-y border-0 c-sec">&times;</button>
                     </div>
                     <div class="position-relative mb-2">
                         <input type="text" x-ref="quickAddNickname" x-model="nm.nickname"
                             class="form-control form-control-sm" placeholder="כינוי (עברית/אנגלית, רווחים OK)"
                             @keydown.enter="if(nm.name.trim() !== '') { addMember(); quickAdd = false; $nextTick(() => document.getElementById('memberSearch').focus()); }">
                         <button x-show="nm.nickname" @click="nm.nickname = ''" type="button"
-                            class="btn position-absolute top-50 end-0 translate-middle-y border-0"
-                            style="color: var(--text-secondary);">&times;</button>
+                            class="btn position-absolute top-50 end-0 translate-middle-y border-0 c-sec">&times;</button>
                     </div>
                     <button
                         @click="addMember(); quickAdd = false; $nextTick(() => document.getElementById('memberSearch').focus());"
@@ -2101,12 +2181,10 @@
                 <div class="sidebar-section-title d-flex align-items-center justify-content-between w-100">
                     <div class="d-flex align-items-center gap-1">
                         <i class="fas fa-users"></i> <span>רשימת מתפללים</span>
-                        <span
-                            style="background: var(--primary-color); color: white; font-size: 0.7rem; padding: 1px 6px; border-radius: 10px;"
+                        <span class="badge rounded-pill bg-pri"
                             x-text="members.length"></span>
                     </div>
-                    <button @click="refreshMembers()" class="btn btn-sm p-0 border-0"
-                        style="color: var(--text-secondary); margin-right: auto;" title="רענן נתונים">
+                    <button @click="refreshMembers()" class="btn btn-sm p-0 border-0 c-sec ms-auto" title="רענן נתונים">
                         <i class="fas fa-sync-alt" :class="isRefreshing ? 'fa-spin' : ''"></i>
                     </button>
                 </div>
@@ -2120,9 +2198,9 @@
                             @keydown.arrow-down.prevent="focusWorshipperItem(mIdx + 1)"
                             @keydown.arrow-up.prevent="mIdx === 0 ? $nextTick(() => document.getElementById('memberSearch').focus()) : focusWorshipperItem(mIdx - 1)"
                             @keydown.escape.prevent="$nextTick(() => document.getElementById('memberSearch').focus())">
-                            <div style="min-width:0; flex:1;">
-                                <div class="fw-medium" x-text="m.name" style="font-size: 0.9rem;"></div>
-                                <div style="font-size: 0.72rem; opacity: 0.7;" x-show="m.nickname" x-text="m.nickname">
+                            <div class="flex-1">
+                                <div class="fw-medium fs-sm" x-text="m.name"></div>
+                                <div class="fs-xs opacity-75" x-show="m.nickname" x-text="m.nickname">
                                 </div>
                             </div>
                             <div x-data="{}" x-init="$nextTick(() => {})">
@@ -2135,14 +2213,12 @@
                                             x-text="Math.abs(getMemberBalance(m.memberUniqueId)).toLocaleString()"></span></span>
                                 </template>
                                 <template x-if="getMemberBalance(m.memberUniqueId) === 0">
-                                    <span class="worshipper-balance money-ltr"
-                                        style="color: var(--text-secondary);">0₪</span>
+                                    <span class="worshipper-balance money-ltr c-sec">0₪</span>
                                 </template>
                             </div>
                         </div>
                     </template>
-                    <div id="listOfWorshipper" x-show="filteredMembers.length === 0" class="p-3 text-center"
-                        style="color: var(--text-secondary); font-size: 0.85rem;">
+                    <div id="listOfWorshipper" x-show="filteredMembers.length === 0" class="p-3 text-center c-sec fs-sm">
                         אין מתפללים
                     </div>
                 </div>
@@ -2152,30 +2228,30 @@
             <div class="sidebar-section">
                 <div class="sidebar-section-title"><i class="fas fa-compass"></i> ניווט</div>
                 <button @click="navigate('home'); mobileMenuOpen = false" class="sidebar-btn" data-tooltip="דף הבית"
-                    :style="view === 'home' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
+                    :class="{ active: view === 'home' }">
                     <i class="fas fa-home"></i> <span>דף הבית</span>
                     <span class="keyboard-shortcut">Alt+H</span>
                 </button>
                 <button @click="navigate('reports'); mobileMenuOpen = false" class="sidebar-btn" data-tooltip="דוחות"
-                    :style="view === 'reports' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
+                    :class="{ active: view === 'reports' }">
                     <i class="fas fa-file-alt"></i> <span>דוחות</span>
                     <span class="keyboard-shortcut">Alt+R</span>
                 </button>
                 <button @click="navigate('summary'); mobileMenuOpen = false" class="sidebar-btn"
                     data-tooltip="סיכום חובות"
-                    :style="view === 'summary' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
+                    :class="{ active: view === 'summary' }">
                     <i class="fas fa-chart-bar"></i> <span>סיכום חובות</span>
                     <span class="keyboard-shortcut">Alt+S</span>
                 </button>
                 <button @click="navigate('funds'); mobileMenuOpen = false" class="sidebar-btn" data-tooltip="קופות"
-                    :style="view === 'funds' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
+                    :class="{ active: view === 'funds' }">
                     <i class="fas fa-piggy-bank"></i> <span>קופות</span>
                     <span class="keyboard-shortcut">Alt+C</span>
                 </button>
 
                 <button @click="navigate('importexport'); mobileMenuOpen = false" class="sidebar-btn"
                     data-tooltip="גיבוי/שחזור"
-                    :style="view === 'importexport' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
+                    :class="{ active: view === 'importexport' }">
                     <i class="fas fa-exchange-alt"></i> <span>גיבוי ושחזור</span>
                     <span class="keyboard-shortcut">Alt+B</span>
                 </button>
@@ -2191,23 +2267,22 @@
 
                 <button @click="navigate('management'); mobileMenuOpen = false" class="sidebar-btn"
                     data-tooltip="הגדרות"
-                    :style="view === 'management' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
+                    :class="{ active: view === 'management' }">
                     <i class="fas fa-cog"></i> <span>הגדרות</span>
                     <span class="keyboard-shortcut">Alt+G</span>
                 </button>
                 <button @click="navigate('dblog'); mobileMenuOpen = false" class="sidebar-btn"
                     data-tooltip="יומן פעולות DB"
-                    :style="view === 'dblog' ? 'background: var(--primary-color); color: white; border-color: var(--primary-color);' : ''">
+                    :class="{ active: view === 'dblog' }">
                     <i class="fas fa-database"></i> <span>יומן נתונים</span>
                 </button>
-                <button @click="logout()" class="sidebar-btn"
-                    style="margin-top: 0.5rem; border-color: #dc3545; color: #dc3545;">
+                <button @click="logout()" class="sidebar-btn mt-2 text-danger border-danger">
                     <i class="fas fa-sign-out-alt"></i> <span>יציאה</span>
                 </button>
-                <div class="sidebar-section-title" style="font-size:0.8rem; word-break:break-all;"
+                <div class="sidebar-section-title fs-sm text-break"
                     x-text="adminEmail || 'חיפוש מתפלל'">
                 </div>
-                <div class="sidebar-section-title" style="font-size:0.8rem; word-break:break-all;">
+                <div class="sidebar-section-title fs-sm text-break">
                     <footer class="py-4 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
                         <p>נבנה על ידי <span class="font-bold text-indigo-600 dark:text-indigo-400">שניר אלגבסי</span> ©
                             2026</p>
@@ -2223,12 +2298,12 @@
                             <a href="mailto:elsnir@gmail.com" class="hover:text-indigo-500 transition font-medium">צור
                                 קשר</a>
                         </div>
-                        <div class="text-center mt-3" style="font-size: 0.8rem;">
+                        <div class="text-center mt-3 fs-sm">
                             <a href="privacy.html" target="_blank" class="text-muted text-decoration-none">
                                 <i class="fas fa-shield-alt me-1"></i> מדיניות פרטיות
                             </a>
                         </div>
-                        <div class="text-center mt-2" style="font-size: 0.8rem;">
+                        <div class="text-center mt-2 fs-sm">
                             <a href="#view=changelog" @click="mobileMenuOpen = false"
                                 class="text-muted text-decoration-none"
                                 :class="view === 'changelog' ? 'fw-bold' : ''">
@@ -2242,8 +2317,7 @@
         </aside>
 
         <!-- ═══ MAIN CONTENT ═══ -->
-        <main class="main-content" :class="sidebarCollapsed && !readOnlyMode ? 'sidebar-collapsed' : ''"
-            :style="readOnlyMode ? 'margin-right: 0; padding: 2rem;' : ''">
+        <main class="main-content" :class="[sidebarCollapsed && !readOnlyMode ? 'sidebar-collapsed' : '', readOnlyMode ? 'main-readonly' : '']">
 
             <!-- Readonly Banner -->
             <div x-show="readOnlyMode" class="readonly-banner">
@@ -2263,11 +2337,9 @@
 
                 <!-- תזכורת חיבור לגוגל דרייב -->
                 <template x-if="!window.IS_DEMO && isLoggedIn && !googleDriveConnected && Date.now() > driveBannerHiddenUntil">
-                    <div class="alert py-2 small mb-3 d-flex align-items-center gap-2 flex-wrap"
-                        style="position:relative; padding-bottom:1.6rem !important;"
+                    <div class="alert py-2 small mb-3 d-flex align-items-center gap-2 flex-wrap position-relative pb-4"
                         :class="config.googleDrive?.connectedOnce ? 'alert-info' : 'alert-warning'">
-                        <button type="button" @click="dismissDriveBanner()" title="הסתר ל-30 יום" aria-label="הסתר ל-30 יום"
-                            style="position:absolute; left:8px; bottom:4px; background:none; border:none; padding:0 4px; line-height:1; font-size:1.1rem; color:inherit; opacity:.6; cursor:pointer;"
+                        <button class="alert-x" type="button" @click="dismissDriveBanner()" title="הסתר ל-30 יום" aria-label="הסתר ל-30 יום"
                             onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.6">&times;</button>
                         <span><i class="fab fa-google me-1"></i>
                             <span x-show="!dataLoaded" class="text-muted">בודק את חיבור הגיבוי לגוגל דרייב...</span>
@@ -2299,11 +2371,11 @@
 
                 <!-- Stats -->
                 <div class="stat-card">
-                    <div class="stat-value" style="color:#fff; direction:rtl; text-align: center"
+                    <div class="stat-value text-white text-center"
                         x-text="window.IS_DEMO ? 'בית הכנסת - מצב הדגמה' : config.synagogueName">
                     </div>
                 </div>
-                <div class="stats-grid" style="margin-top: 20px;">
+                <div class="stats-grid mt-3">
                     <div class="stat-card">
                         <div class="stat-label">סה"כ מתפללים</div>
                         <div class="stat-value" x-text="members.length"></div>
@@ -2313,13 +2385,11 @@
                 <!-- הוספת תנועה מהירה -->
                 <div class="content-card no-print" x-show="!readOnlyMode">
                     <div class="section-header" @click="ui.homeAddOpen = !ui.homeAddOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2"
-                                style="color: var(--primary-color);"></i>הוסף התחייבות / תשלום</h6>
-                        <i class="fas" :class="ui.homeAddOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                            style="color: var(--text-secondary);"></i>
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2 c-pri"></i>הוסף התחייבות / תשלום</h6>
+                        <i class="fas c-sec" :class="ui.homeAddOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.homeAddOpen ? 'max-height: 350px; opacity: 1;' : 'max-height: 0; opacity: 0;'"
+                        :class="{ collapsed: !ui.homeAddOpen }"
                         x-init="$watch('ui.homeAddOpen', v => { if(v) $nextTick(() => _attachHomeEntryEnterNav()) })">
                         <div class="mt-3">
                             <div class="custom-tabs">
@@ -2393,13 +2463,11 @@
                 <!-- Batch הוספה -->
                 <div class="content-card no-print" x-show="!readOnlyMode">
                     <div class="section-header" @click="ui.batchTxOpen = !ui.batchTxOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-layer-group me-2"
-                                style="color: var(--accent-color);"></i>הוספה מרוכזת</h6>
-                        <i class="fas" :class="ui.batchTxOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                            style="color: var(--text-secondary);"></i>
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-layer-group me-2 c-acc"></i>הוספה מרוכזת</h6>
+                        <i class="fas c-sec" :class="ui.batchTxOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.batchTxOpen ? 'max-height: 500px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                        :class="{ collapsed: !ui.batchTxOpen }">
                         <div class="mt-3">
                             <div class="d-flex gap-2 mb-2">
                                 <button class="btn btn-sm"
@@ -2409,19 +2477,18 @@
                                     :class="batchTxType==='payments' ? 'btn-success' : 'btn-outline-success'"
                                     @click="batchTxType='payments'; batchTxString=''">תשלומים</button>
                             </div>
-                            <div class="alert alert-light mb-2"
-                                style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">
+                            <div class="alert alert-light mb-2">
                                 <strong>פורמט:</strong>
                                 <ul>
                                     <li> שורה אחת לכל תנועה —<br>
                                         <code
-                                            :style="batchActiveToken === 0 ? 'text-decoration:underline; font-weight:700;' : ''">שם מתפלל</code><code>,</code>
+                                            :class="batchActiveToken === 0 ? 'text-decoration-underline fw-bold' : ''">שם מתפלל</code><code>,</code>
                                         <template
                                             x-for="(col, ci) in (batchTxType==='commitments' ? config.commitmentColumns : config.paymentColumns)"
                                             :key="col.columnId">
                                             <span>
                                                 <code
-                                                    :style="batchActiveToken === ci + 1 ? 'text-decoration:underline; font-weight:700;' : ''"
+                                                    :class="batchActiveToken === ci + 1 ? 'text-decoration-underline fw-bold' : ''"
                                                     x-text="col.title"></code>
                                                 <code>,</code>
                                             </span>
@@ -2452,14 +2519,13 @@
                 <div class="content-card no-print">
                     <div class="section-header"
                         @click="ui.debtorsCollapsed = !ui.debtorsCollapsed; if (!ui.debtorsCollapsed) $nextTick(() => renderDebtorsTable())">
-                        <h6 class="fw-bold mb-0" style="color: #dc3545;">
+                        <h6 class="fw-bold mb-0 text-danger">
                             <i class="fas fa-exclamation-circle me-1"></i> מתפללים ביתרת חובה
                         </h6>
-                        <i class="fas" :class="ui.debtorsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"
-                            style="color: var(--text-secondary);"></i>
+                        <i class="fas c-sec" :class="ui.debtorsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
                     </div>
-                    <div class="section-body"
-                        :style="ui.debtorsCollapsed ? 'max-height: 0; opacity: 0; overflow: hidden;' : 'max-height: 2000px; opacity: 1; overflow: visible;'">
+                    <div class="section-body section-visible"
+                        :class="{ collapsed: ui.debtorsCollapsed }">
                         <!-- טבלת מתפללים ביתרת חובה -->
                         <div class="table-toolbar no-print">
                             <button class="table-scroll-btn" @click="openFullPageTable('debtors')">
@@ -2488,11 +2554,10 @@
                             </button>
                         </div>
 
-                        <h6 class="fw-bold mb-2 mt-4" style="color: #dc3545; display:none;"></h6>
                         <div>
                             <input type="text" x-model="debtorsSearch" @input="renderDebtorsTable()"
                                 class="form-control form-control-sm mb-2 no-print" placeholder="🔍 חיפוש מתפלל...">
-                            <div id="debtorsTable" class="content-card p-0" style="overflow: hidden;"></div>
+                            <div id="debtorsTable" class="content-card p-0 overflow-hidden"></div>
                         </div>
                     </div>
                 </div>
@@ -2501,13 +2566,12 @@
                     <!-- תנועות אחרונות -->
                     <div class="section-header no-print"
                         @click="ui.homeCollapsed = !ui.homeCollapsed; if (!ui.homeCollapsed) $nextTick(() => renderHomePage())">
-                        <h6 class="fw-bold mb-0" style="color: var(--primary-color);"><i
+                        <h6 class="fw-bold mb-0 c-pri"><i
                                 class="fas fa-history me-1"></i> תנועות אחרונות</h6>
-                        <i class="fas" :class="ui.homeCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"
-                            style="color: var(--text-secondary);"></i>
+                        <i class="fas c-sec" :class="ui.homeCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
                     </div>
-                    <div class="section-body"
-                        :style="ui.homeCollapsed ? 'max-height: 0; opacity: 0; overflow: hidden;' : 'max-height: 600px; opacity: 1; overflow: visible;'">
+                    <div class="section-body section-visible"
+                        :class="{ collapsed: ui.homeCollapsed }">
                         <div class="table-toolbar no-print">
                             <button class="table-scroll-btn" @click="openFullPageTable('home')">
                                 <i class="fas fa-expand"></i> מסך מלא
@@ -2534,7 +2598,7 @@
                         </div>
                         <input type="text" x-model="homeSearch" @input="renderHomePage()"
                             class="form-control form-control-sm mb-2 no-print" placeholder="🔍 חיפוש מתפלל / מטרה...">
-                        <div id="homeTable" class="content-card p-0" style="overflow: hidden;"></div>
+                        <div id="homeTable" class="content-card p-0 overflow-hidden"></div>
                     </div>
                 </div>
             </div>
@@ -2545,18 +2609,17 @@
                 <div class="member-header-card">
                     <div>
                         <h2 x-text="selectedMember?.name"></h2>
-                        <!-- <div x-show="selectedMember?.nickname && selectedMember?.nickname !== selectedMember?.name" style="opacity:.75;font-size:.85rem;" x-text="selectedMember?.name"></div> -->
+                        <!-- <div class="opacity-75 fs-sm" x-show="selectedMember?.nickname && selectedMember?.nickname !== selectedMember?.name" x-text="selectedMember?.name"></div> -->
 
                         <!-- פרטים משניים - ייעלמו באנימציה בזמן גלילה -->
-                        <div class="collapsible-info" style="opacity:.85;font-size:.9rem; margin-top: 0.25rem;">
+                        <div class="collapsible-info opacity-75 fs-sm mt-1">
                             <i class="fa-solid fa-id-card"></i>
-                            <span style="margin-right:.5rem;opacity:.7;" x-text="selectedMember?.nickname"></span>
+                            <span class="ms-2 opacity-75" x-text="selectedMember?.nickname"></span>
 
                             <div x-show="selectedMember?.phone">
                                 <i class="fa fa-phone"></i>
-                                <a :href="selectedMember ? formatWhatsappLink(selectedMember.phone) : '#'"
-                                    style="color: white; text-decoration: none;">
-                                    <span x-text="selectedMember?.phone" style="margin-right:.5rem;"></span>
+                                <a class="text-white text-decoration-none" :href="selectedMember ? formatWhatsappLink(selectedMember.phone) : '#'">
+                                    <span class="ms-2" x-text="selectedMember?.phone"></span>
                                 </a>
                             </div>
                         </div>
@@ -2620,11 +2683,10 @@
 
                 <!-- Add Form - inline first-row style -->
                 <div x-show="['commitments', 'payments'].includes(activeTab) && !readOnlyMode"
-                    class="content-card no-print"
-                    style="border: 2px dashed var(--primary-color); background: rgba(44,95,125,0.03);">
+                    class="content-card no-print card-hl">
                     <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="fas fa-plus-circle" style="color: var(--primary-color);"></i>
-                        <span class="fw-bold small" style="color: var(--primary-color);">שורה חדשה — הוסף <span
+                        <i class="fas fa-plus-circle c-pri"></i>
+                        <span class="fw-bold small c-pri">שורה חדשה — הוסף <span
                                 x-text="activeTab === 'commitments' ? 'התחייבות' : 'תשלום'"></span></span>
                     </div>
                     <div class="row g-2 align-items-end" id="newEntryForm">
@@ -2676,14 +2738,14 @@
                             </div>
                         </template>
                         <div class="col-md-auto d-flex flex-column align-items-center">
-                            <label class="small fw-bold mb-1 text-nowrap" style="font-size: 0.7rem; cursor: pointer;"
+                            <label class="small fw-bold mb-1 text-nowrap fs-xs pointer"
                                 @click="jumpToMemberAfterAdd = !jumpToMemberAfterAdd"
                                 :title="jumpToMemberAfterAdd ? 'לאחר הוספה יעבור לחיפוש מתפלל' : 'לאחר הוספה יחזור לשדה מטרה/אופן תשלום'">
                                 מעבר למתפלל הבא
                             </label>
                             <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                    x-model="jumpToMemberAfterAdd" id="jumpToMemberToggle" style="cursor: pointer;">
+                                <input class="form-check-input pointer" type="checkbox" role="switch"
+                                    x-model="jumpToMemberAfterAdd" id="jumpToMemberToggle">
                             </div>
                         </div>
                         <div class="col-md-auto">
@@ -2696,14 +2758,12 @@
 
                 <!-- Edit Member Details -->
                 <div x-show="activeTab === 'edit' && selectedMember" class="content-card">
-                    <h5 class="fw-bold mb-3"><i class="fas fa-user-edit me-2"
-                            style="color: var(--primary-color);"></i>עריכת פרטי מתפלל</h5>
+                    <h5 class="fw-bold mb-3"><i class="fas fa-user-edit me-2 c-pri"></i>עריכת פרטי מתפלל</h5>
                     <div class="row g-3">
                         <!-- memberUniqueId: read-only -->
                         <div class="col-md-6">
                             <label class="small fw-bold mb-1">מזהה ייחודי</label>
-                            <div class="form-control"
-                                style="background: var(--bg-main); color: var(--text-secondary); font-family: monospace;"
+                            <div class="form-control font-monospace"
                                 x-text="selectedMember?.memberUniqueId"></div>
                         </div>
                         <!-- nickname: editable -->
@@ -2760,11 +2820,11 @@
                     </button>
                 </div>
                 <div x-show="activeTab !== 'edit' && activeTab !== 'movements'">
-                    <div id="mainTable" class="content-card p-0" style="overflow: hidden;"></div>
+                    <div id="mainTable" class="content-card p-0 overflow-hidden"></div>
                 </div>
 
                 <div x-show="activeTab === 'movements'" x-cloak>
-                    <div id="movementsTable" class="content-card p-0" style="overflow: hidden;"></div>
+                    <div id="movementsTable" class="content-card p-0 overflow-hidden"></div>
                 </div>
             </div>
 
@@ -2785,9 +2845,9 @@
                                     class="btn position-absolute top-50 end-0 translate-middle-y border-0">&times;</button>
                             </div>
                             <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="reportExactMatch"
-                                    x-model="reportParams.exactMatch" style="cursor: pointer;">
-                                <label class="form-check-label small" for="reportExactMatch" style="cursor: pointer;">
+                                <input class="form-check-input pointer" type="checkbox" role="switch" id="reportExactMatch"
+                                    x-model="reportParams.exactMatch">
+                                <label class="form-check-label small pointer" for="reportExactMatch">
                                     <span
                                         x-text="reportParams.exactMatch ? 'חיפוש לפי התאמה מדויקת' : 'חיפוש לפי הכלה (מכיל את הטקסט)'"></span>
                                 </label>
@@ -2827,19 +2887,17 @@
                             </div>
                         </div>
                         <div class="col-md-12 p-0">
-                            <div class="content-card mb-0" style="padding: 0.5rem;">
+                            <div class="content-card mb-0 p-2">
                                 <div class="section-header"
                                     @click="ui.reportsParamsCollapsed = !ui.reportsParamsCollapsed">
-                                    <h6 class="fw-bold mb-0" style="color: var(--primary-color);">
-                                        <i class="fas fa-users me-1"></i> בחר מתפללים <small class="fw-normal"
-                                            style="color: var(--text-secondary);">(ריק = הכל)</small>
+                                    <h6 class="fw-bold mb-0 c-pri">
+                                        <i class="fas fa-users me-1"></i> בחר מתפללים <small class="fw-normal c-sec">(ריק = הכל)</small>
                                     </h6>
-                                    <i class="fas"
-                                        :class="ui.reportsParamsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"
-                                        style="color: var(--text-secondary);"></i>
+                                    <i class="fas c-sec"
+                                        :class="ui.reportsParamsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
                                 </div>
-                                <div class="section-body"
-                                    :style="ui.reportsParamsCollapsed ? 'max-height: 0; opacity: 0; overflow: hidden;' : 'max-height: 600px; opacity: 1; overflow: visible;'">
+                                <div class="section-body section-visible"
+                                    :class="{ collapsed: ui.reportsParamsCollapsed }">
                                     <div class="position-relative mt-2">
                                         <input type="text" x-model="reportMemberSearch"
                                             class="form-control form-control-sm yellow-bg" placeholder="חיפוש מתפלל...">
@@ -2870,7 +2928,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12 border-top pt-3" style="border-color: var(--border-color) !important;">
+                        <div class="col-md-12 border-top pt-3">
                             <div class="d-flex gap-2 align-items-center">
                                 <input type="text" x-model="reportParams.saveName" class="form-control yellow-bg"
                                     placeholder="שם הדוח (לשמירה)">
@@ -2923,10 +2981,10 @@
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-columns me-1"></i> עמודות
                         </button>
-                        <ul class="dropdown-menu p-2" style="min-width: 160px;">
+                        <ul class="dropdown-menu p-2">
                             <template x-for="cd in reportColumnDefs" :key="cd.field">
                                 <li>
-                                    <label class="dropdown-item d-flex align-items-center gap-2" style="cursor:pointer;"
+                                    <label class="dropdown-item d-flex align-items-center gap-2 pointer"
                                         @click.stop>
                                         <input type="checkbox" :checked="cd.visible !== false"
                                             @change="toggleReportColumn(cd.field)">
@@ -2938,7 +2996,7 @@
                     </div>
                 </div>
 
-                <div id="reportTable" class="content-card p-0" style="overflow: hidden;"></div>
+                <div id="reportTable" class="content-card p-0 overflow-hidden"></div>
             </div>
 
             <!-- ══════════════════════════ סיכום חובות ══════════════════════════ -->
@@ -2976,13 +3034,12 @@
                 </div>
                 <input type="text" x-model="summarySearch" @input="renderGlobalSummary()"
                     class="form-control form-control-sm mb-2 no-print" placeholder="🔍 חיפוש מתפלל...">
-                <div id="summaryTable" class="content-card p-0" style="overflow: hidden;"></div>
+                <div id="summaryTable" class="content-card p-0 overflow-hidden"></div>
             </div>
             <div x-show="view === 'management'" x-cloak>
                 <div class="page-header">
                     <h1 class="page-title mb-0"><i class="fas fa-cog"></i> הגדרות מערכת</h1>
-                    <button @click="resetAllData()" class="btn btn-sm btn-outline-danger no-print"
-                        style="display: none;">
+                    <button @click="resetAllData()" class="btn btn-sm btn-outline-danger no-print d-none">
                         <i class="fas fa-trash me-1"></i> איפוס כל הנתונים
                     </button>
                 </div>
@@ -2994,11 +3051,10 @@
                         <div class="content-card">
                             <div class="section-header" @click="ui.synagogueOpen = !ui.synagogueOpen">
                                 <h6 class="mb-0 fw-bold">🏛️ שם בית הכנסת ותמונה</h6>
-                                <i class="fas" :class="ui.synagogueOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <i class="fas c-sec" :class="ui.synagogueOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.synagogueOpen ? 'max-height: 260px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.synagogueOpen }">
                                 <div class="row g-3 mt-1 align-items-center">
                                     <div class="col-md-6">
                                         <label class="small fw-bold mb-1">שם בית הכנסת</label>
@@ -3012,9 +3068,8 @@
                                         <input type="file" accept="image/*" class="form-control form-control-sm"
                                             @change="loadSynagogueImage($event)">
                                         <div x-show="config.synagogueLogo" class="mt-2 d-flex align-items-center gap-2">
-                                            <img :src="config.synagogueLogo"
-                                                @error="config.synagogueLogo = ''; saveConfigData();"
-                                                style="height:40px;width:40px;object-fit:cover;border:2px solid var(--border-color);">
+                                            <img class="logo-img logo-img-lg" :src="config.synagogueLogo"
+                                                @error="config.synagogueLogo = ''; saveConfigData();">
                                             <button class="btn btn-sm btn-outline-danger"
                                                 @click="config.synagogueLogo = ''; saveConfigData();">
                                                 <i class="fas fa-trash"></i> הסר תמונה
@@ -3030,11 +3085,10 @@
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.adminPhoneOpen = !ui.adminPhoneOpen">
                                 <h6 class="mb-0 fw-bold">🔐 אפשרויות כניסה למנהל</h6>
-                                <i class="fas" :class="ui.adminPhoneOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <i class="fas c-sec" :class="ui.adminPhoneOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.adminPhoneOpen ? 'max-height: 400px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.adminPhoneOpen }">
                                 <p class="small text-muted mt-2">
                                     קישור מספר טלפון לחשבון המנהל שלך מאפשר להיכנס גם דרך לשונית "מתפלל"
                                     במסך הכניסה, עם קוד SMS במקום סיסמה. זה חד-פעמי - אחרי הקישור, הזנת
@@ -3055,8 +3109,7 @@
                                     <div>
                                         <div x-show="adminLinkStep === 'phone'"
                                             class="d-flex gap-2 flex-wrap align-items-center">
-                                            <input type="tel" x-model="adminLinkPhone" class="form-control"
-                                                style="max-width:220px;" dir="ltr" autocomplete="tel"
+                                            <input type="tel" x-model="adminLinkPhone" class="form-control mw-field" dir="ltr" autocomplete="tel"
                                                 placeholder="050-0000000">
                                             <button class="btn btn-sm btn-primary" @click="sendAdminPhoneLinkOtp()">
                                                 <i class="fas fa-paper-plane"></i> שלח קוד
@@ -3066,7 +3119,7 @@
                                         <div x-show="adminLinkStep === 'code'"
                                             class="d-flex gap-2 flex-wrap align-items-center mt-2">
                                             <input type="text" x-model="adminLinkCode" maxlength="6"
-                                                class="form-control" style="max-width:140px;" dir="ltr"
+                                                class="form-control mw-field" dir="ltr"
                                                 autocomplete="one-time-code" inputmode="numeric" placeholder="------">
                                             <button class="btn btn-sm btn-success" @click="confirmAdminPhoneLinkOtp()">
                                                 <i class="fas fa-check"></i> אישור קישור
@@ -3083,11 +3136,10 @@
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.googleDriveOpen = !ui.googleDriveOpen">
                                 <h6 class="mb-0 fw-bold">☁️ חיבור לגוגל דרייב (גיבוי אוטומטי)</h6>
-                                <i class="fas" :class="ui.googleDriveOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <i class="fas c-sec" :class="ui.googleDriveOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.googleDriveOpen ? 'max-height: 700px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.googleDriveOpen }">
                                 <p class="small text-muted mt-2">
                                     חיבור זה מאפשר לגבות בלחיצה אחת ישירות לגוגל דרייב שלך, לצפות בכל הגיבויים
                                     שנעשו, לשחזר מהם או למחוק אותם — הכל מלשונית "גיבוי ושחזור".
@@ -3113,7 +3165,7 @@
                                         </div>
                                         <details class="mb-2" :open="!defaultGoogleClientId"
                                             x-show="showAdvancedDriveSettings">
-                                            <summary class="small text-muted" style="cursor:pointer;">הגדרה מתקדמת:
+                                            <summary class="small text-muted pointer">הגדרה מתקדמת:
                                                 Client ID משלי</summary>
                                             <label class="small fw-bold mb-1 mt-2">Google OAuth Client ID</label>
                                             <input type="text" x-model="config.googleDrive.clientId" dir="ltr"
@@ -3175,15 +3227,13 @@
                         <div class="content-card">
                             <div class="section-header" @click="ui.movOpen = !ui.movOpen">
                                 <h6 class="mb-0 fw-bold">עמודות ריכוז תנועות</h6>
-                                <i class="fas" :class="ui.movOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <i class="fas c-sec" :class="ui.movOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.movOpen ? 'max-height: 600px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.movOpen }">
                                 <div class="list-group mb-2 mt-3">
                                     <template x-for="(col, index) in config.movementColumns" :key="col.columnId">
-                                        <div class="list-group-item d-flex gap-2 p-2 align-items-center"
-                                            style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">
+                                        <div class="list-group-item d-flex gap-2 p-2 align-items-center">
                                             <div class="d-flex flex-column">
                                                 <span class="move-btn" @click="moveColumn('movement', index, -1)"
                                                     :class="index === 0 ? 'invisible' : ''"><i
@@ -3211,7 +3261,7 @@
                                         </div>
                                     </template>
                                 </div>
-                                <small style="color: var(--text-secondary);" class="d-block">ניתן למחוק עמודות שאינן
+                                <small class="d-block c-sec">ניתן למחוק עמודות שאינן
                                     קבועות. ערכים בעמודות שנמחקו יוצגו בסמל ⚠️</small>
                             </div>
                         </div>
@@ -3220,15 +3270,13 @@
                         <div class="content-card">
                             <div class="section-header" @click="ui.obOpen = !ui.obOpen">
                                 <h6 class="mb-0 fw-bold">עמודות התחייבויות</h6>
-                                <i class="fas" :class="ui.obOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <i class="fas c-sec" :class="ui.obOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.obOpen ? 'max-height: 600px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.obOpen }">
                                 <div class="list-group mb-2 mt-3">
                                     <template x-for="(col, index) in config.commitmentColumns" :key="col.columnId">
-                                        <div class="list-group-item p-2"
-                                            style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">
+                                        <div class="list-group-item p-2">
                                             <div class="d-flex gap-2 align-items-center">
                                                 <div class="d-flex flex-column">
                                                     <span class="move-btn" @click="moveColumn('commitment', index, -1)"
@@ -3269,15 +3317,13 @@
                         <div class="content-card">
                             <div class="section-header" @click="ui.payOpen = !ui.payOpen">
                                 <h6 class="mb-0 fw-bold">עמודות תשלומים</h6>
-                                <i class="fas" :class="ui.payOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <i class="fas c-sec" :class="ui.payOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.payOpen ? 'max-height: 600px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.payOpen }">
                                 <div class="list-group mb-2 mt-3">
                                     <template x-for="(col, index) in config.paymentColumns" :key="col.columnId">
-                                        <div class="list-group-item p-2"
-                                            style="background: var(--bg-main); border-color: var(--border-color); color: var(--text-primary);">
+                                        <div class="list-group-item p-2">
                                             <div class="d-flex gap-2 align-items-center">
                                                 <div class="d-flex flex-column">
                                                     <span class="move-btn" @click="moveColumn('payment', index, -1)"
@@ -3321,11 +3367,10 @@
                         <div class="content-card mb-3">
                             <div class="section-header" @click="ui.fieldsOpen = !ui.fieldsOpen">
                                 <h6 class="mb-0 fw-bold">הגדרת שדות מתפלל</h6>
-                                <i class="fas" :class="ui.fieldsOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <i class="fas c-sec" :class="ui.fieldsOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.fieldsOpen ? 'max-height: 400px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.fieldsOpen }">
                                 <div class="mt-3">
                                     <template x-for="(f, i) in config.memberFields" :key="f.fieldId">
                                         <div class="d-flex gap-2 mb-2 align-items-center">
@@ -3350,8 +3395,7 @@
                         </div>
 
                         <!-- עריכת מתפלל -->
-                        <div id="editingmember" x-show="editingMember" class="content-card mb-3"
-                            style="border: 2px solid var(--primary-color); background: rgba(44,95,125,0.05);" x-cloak
+                        <div id="editingmember" x-show="editingMember" class="content-card mb-3 card-hl" x-cloak
                             x-transition>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="mb-0 fw-bold">עריכת מתפלל</h5>
@@ -3360,8 +3404,7 @@
                             <!-- memberUniqueId - read only display -->
                             <div class="mb-2">
                                 <label class="small fw-bold mb-1">מזהה ייחודי (לא ניתן לשינוי)</label>
-                                <div class="form-control form-control-sm"
-                                    style="background: var(--bg-main); color: var(--text-secondary); font-family: monospace;"
+                                <div class="form-control form-control-sm font-monospace"
                                     x-text="editingMember?.memberUniqueId"></div>
                             </div>
                             <!-- nickname - editable -->
@@ -3388,13 +3431,11 @@
                         <!-- Batch הוספת מתפללים -->
                         <div class="content-card mb-3">
                             <div class="section-header" @click="ui.batchAddOpen = !ui.batchAddOpen">
-                                <h6 class="mb-0 fw-bold"><i class="fas fa-file-import me-2"
-                                        style="color: var(--primary-color);"></i>הוספת רשימת מתפללים</h6>
-                                <i class="fas" :class="ui.batchAddOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                                    style="color: var(--text-secondary);"></i>
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-file-import me-2 c-pri"></i>הוספת רשימת מתפללים</h6>
+                                <i class="fas c-sec" :class="ui.batchAddOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
-                                :style="ui.batchAddOpen ? 'max-height: 300px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+                                :class="{ collapsed: !ui.batchAddOpen }">
                                 <div class="mt-3">
                                     <div class="alert alert-info py-2 small mb-3">שם מלא,כינוי,טלפון. (נקודה בין
                                         מתפללים)
@@ -3411,21 +3452,18 @@
 
                         <!-- רשימת מתפללים לעריכה -->
                         <div class="content-card">
-                            <h6 class="fw-bold mb-3"><i class="fas fa-users me-2"
-                                    style="color: var(--primary-color);"></i>רשימת מתפללים לעריכה</h6>
+                            <h6 class="fw-bold mb-3"><i class="fas fa-users me-2 c-pri"></i>רשימת מתפללים לעריכה</h6>
                             <input type="text" x-model="membersSearch" class="form-control form-control-sm mb-2"
                                 placeholder="🔍 חיפוש מתפלל...">
-                            <div style="max-height: 400px; overflow-y: auto;">
+                            <div class="scroll-y lg">
                                 <div class="list-group list-group-flush">
                                     <template
                                         x-for="m in members.filter(m => !membersSearch || (m.name||'').includes(membersSearch) || (m.memberUniqueId||'').includes(membersSearch))"
                                         :key="m.memberUniqueId">
-                                        <div class="list-group-item d-flex justify-content-between align-items-center p-2"
-                                            style="background: transparent; border-color: var(--border-color); color: var(--text-primary);">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
                                             <div>
-                                                <div class="fw-medium" x-text="m.name || m.nickname"
-                                                    style="font-size: 0.9rem;"></div>
-                                                <small style="color: var(--text-secondary);"
+                                                <div class="fw-medium fs-sm" x-text="m.name || m.nickname"></div>
+                                                <small class="c-sec"
                                                     x-text="'#' + m.nickname + (m.memberUniqueId ? ' · ' + m.memberUniqueId : '')"></small>
                                             </div>
                                             <div class="d-flex gap-1">
@@ -3457,19 +3495,16 @@
                 <!-- גיבוי מלא -->
                 <div class="content-card mb-3">
                     <div class="section-header" @click="ui.backupOpen = !ui.backupOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-download-alt me-2"
-                                style="color:var(--primary-color);"></i>גיבוי מערכת מלא
-                            <small class="fw-normal d-block d-sm-inline"
-                                style="color: var(--text-secondary); font-size: 0.75rem;" x-show="lastBackupTime">
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-download-alt me-2 c-pri"></i>גיבוי מערכת מלא
+                            <small class="fw-normal d-block d-sm-inline c-sec fs-xs" x-show="lastBackupTime">
                                 <span class="d-none d-sm-inline"> — </span>גיבוי אחרון: <span
                                     x-text="lastBackupTime"></span>
                             </small>
                         </h6>
-                        <i class="fas" :class="ui.backupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                            style="color:var(--text-secondary);"></i>
+                        <i class="fas c-sec" :class="ui.backupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.backupOpen ? 'max-height:900px;opacity:1;' : 'max-height:0;opacity:0;'">
+                        :class="{ collapsed: !ui.backupOpen }">
                         <div class="mt-3 d-flex gap-2 flex-wrap mb-3">
                             <button @click="previewBackup('json')" class="btn btn-outline-primary btn-sm"><i
                                     class="fas fa-file-code me-1"></i>גיבוי JSON</button>
@@ -3481,7 +3516,7 @@
                         <!-- Preview area -->
                         <div x-show="backupPreviewText !== null">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <small class="fw-bold" style="color: var(--text-secondary);">תצוגה מקדימה — ניתן לערוך
+                                <small class="fw-bold c-sec">תצוגה מקדימה — ניתן לערוך
                                     לפני הורדה</small>
                                 <div class="d-flex gap-2">
                                     <button @click="downloadBackupPreview()" class="btn btn-sm btn-primary">
@@ -3493,30 +3528,27 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea x-model="backupPreviewText" class="form-control batch-textarea" rows="10"
-                                style="font-size: 0.8rem; direction: ltr;"></textarea>
+                            <textarea dir="ltr" x-model="backupPreviewText" class="form-control batch-textarea fs-sm" rows="10"></textarea>
                         </div>
                         <small class="text-muted d-block mt-2">גיבוי מלא כולל את כל המתפללים, ההתחייבויות, התשלומים,
                             הקופות וההגדרות</small>
 
                         <!-- היסטוריית 5 הגיבויים האחרונים -->
-                        <div x-show="backupHistory.length > 0" class="mt-3 pt-2 border-top"
-                            style="border-color: var(--border-color) !important;">
+                        <div x-show="backupHistory.length > 0" class="mt-3 pt-2 border-top">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <small class="fw-bold" style="color: var(--text-secondary);">5 הגיבויים
+                                <small class="fw-bold c-sec">5 הגיבויים
                                     האחרונים:</small>
                                 <button @click="clearBackupHistory()"
-                                    class="btn btn-sm btn-link text-danger p-0 text-decoration-none"
-                                    style="font-size: 0.8rem;">
+                                    class="btn btn-sm btn-link text-danger p-0 text-decoration-none fs-sm">
                                     <i class="fas fa-trash-alt me-1"></i>נקה היסטוריה
                                 </button>
                             </div>
-                            <div style="max-height: 140px; overflow-y: auto;">
+                            <div class="scroll-y sm">
                                 <ul class="list-unstyled mb-0 small">
                                     <template x-for="(item, idx) in backupHistory" :key="idx">
                                         <li class="py-1 px-2"
-                                            :style="idx % 2 === 0 ? 'background: var(--bg-main);' : ''">
-                                            <i class="fas fa-check-circle me-1" style="color:#28a745;"></i>
+                                            :class="{ 'bg-main': idx % 2 === 0 }">
+                                            <i class="fas fa-check-circle me-1 c-green"></i>
                                             <span x-text="item.time"></span>
                                         </li>
                                     </template>
@@ -3529,13 +3561,12 @@
                 <!-- גיבוי לגוגל דרייב -->
                 <div class="content-card mb-3">
                     <div class="section-header" @click="ui.googleDriveBackupOpen = !ui.googleDriveBackupOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2" style="color:#4285F4;"></i>גיבוי
+                        <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2 c-google"></i>גיבוי
                             לגוגל דרייב</h6>
-                        <i class="fas" :class="ui.googleDriveBackupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                            style="color:var(--text-secondary);"></i>
+                        <i class="fas c-sec" :class="ui.googleDriveBackupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="section-body"
-                        :style="ui.googleDriveBackupOpen ? 'max-height:900px;opacity:1;overflow:visible;' : 'max-height:0;opacity:0;overflow:hidden;'">
+                    <div class="section-body section-visible"
+                        :class="{ collapsed: !ui.googleDriveBackupOpen }">
                         <template x-if="!googleDriveConnected">
                             <div
                                 class="alert alert-secondary py-2 small mt-2 mb-0 d-flex align-items-center gap-2 flex-wrap">
@@ -3589,13 +3620,13 @@
                                 <div x-show="googleDriveFiles.length === 0 && !googleDriveLoadingFiles"
                                     class="text-muted small">אין עדיין גיבויים בתיקייה בדרייב.</div>
 
-                                <div style="max-height: 260px; overflow-y: auto;" x-show="googleDriveFiles.length > 0">
+                                <div class="scroll-y" x-show="googleDriveFiles.length > 0">
                                     <ul class="list-unstyled mb-0 small">
                                         <template x-for="(f, idx) in googleDriveFiles" :key="f.id">
                                             <li class="py-2 px-2 d-flex justify-content-between align-items-center flex-wrap gap-2"
-                                                :style="idx % 2 === 0 ? 'background: var(--bg-main);' : ''">
+                                                :class="{ 'bg-main': idx % 2 === 0 }">
                                                 <div>
-                                                    <i class="fas fa-file-alt me-1" style="color:#4285F4;"></i>
+                                                    <i class="fas fa-file-alt me-1 c-google"></i>
                                                     <span x-text="f.name"></span>
                                                     <span class="text-muted"
                                                         x-text="' · ' + formatDriveFileDate(f.createdTime) + ' · ' + formatDriveFileSize(f.size)"></span>
@@ -3622,50 +3653,44 @@
                 <!-- שחזור מלא -->
                 <div class="content-card mb-3">
                     <div class="section-header" @click="ui.restoreOpen = !ui.restoreOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-upload-alt me-2"
-                                style="color:#dc3545;"></i>שחזור מערכת מלא
-                            <small class="fw-normal d-block d-sm-inline"
-                                style="color: var(--text-secondary); font-size: 0.75rem;" x-show="lastRestoreTime">
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-upload-alt me-2 text-danger"></i>שחזור מערכת מלא
+                            <small class="fw-normal d-block d-sm-inline c-sec fs-xs" x-show="lastRestoreTime">
                                 <span class="d-none d-sm-inline"> — </span>שחזור אחרון: <span
                                     x-text="lastRestoreTime"></span>
                             </small>
                         </h6>
-                        <i class="fas" :class="ui.restoreOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                            style="color:var(--text-secondary);"></i>
+                        <i class="fas c-sec" :class="ui.restoreOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.restoreOpen ? 'max-height:600px;opacity:1;' : 'max-height:0;opacity:0;'">
+                        :class="{ collapsed: !ui.restoreOpen }">
                         <div class="mt-3">
                             <div class="alert alert-warning py-2 small"><i
                                     class="fas fa-exclamation-triangle me-1"></i>שחזור יחליף מיידית בבסיס הנתונים את
                                 <strong>כל הנתונים הקיימים</strong>. פעולה זו בלתי הפיכה!
                             </div>
                             <div class="d-flex gap-2 flex-wrap align-items-center">
-                                <input type="file" id="restoreFileInput" class="form-control form-control-sm"
-                                    style="max-width:320px;" accept=".json,.xlsx,.xls,.txt,.csv">
+                                <input type="file" id="restoreFileInput" class="form-control form-control-sm mw-field" accept=".json,.xlsx,.xls,.txt,.csv">
                                 <button @click="restoreFullBackup()" class="btn btn-danger btn-sm"><i
                                         class="fas fa-undo me-1"></i>שחזר מקובץ</button>
                             </div>
                             <small class="text-muted d-block mt-1">תומך בקבצי JSON (גיבוי מלא) או Batch (txt)</small>
 
                             <!-- היסטוריית 5 השחזורים האחרונים -->
-                            <div x-show="restoreHistory.length > 0" class="mt-3 pt-2 border-top"
-                                style="border-color: var(--border-color) !important;">
+                            <div x-show="restoreHistory.length > 0" class="mt-3 pt-2 border-top">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="fw-bold" style="color: var(--text-secondary);">5 השחזורים
+                                    <small class="fw-bold c-sec">5 השחזורים
                                         האחרונים:</small>
                                     <button @click="clearRestoreHistory()"
-                                        class="btn btn-sm btn-link text-danger p-0 text-decoration-none"
-                                        style="font-size: 0.8rem;">
+                                        class="btn btn-sm btn-link text-danger p-0 text-decoration-none fs-sm">
                                         <i class="fas fa-trash-alt me-1"></i>נקה היסטוריה
                                     </button>
                                 </div>
-                                <div style="max-height: 140px; overflow-y: auto;">
+                                <div class="scroll-y sm">
                                     <ul class="list-unstyled mb-0 small">
                                         <template x-for="(item, idx) in restoreHistory" :key="idx">
                                             <li class="py-1 px-2"
-                                                :style="idx % 2 === 0 ? 'background: var(--bg-main);' : ''">
-                                                <i class="fas fa-undo me-1" style="color:#dc3545;"></i>
+                                                :class="{ 'bg-main': idx % 2 === 0 }">
+                                                <i class="fas fa-undo me-1 text-danger"></i>
                                                 <span x-text="item.time"></span>
                                             </li>
                                         </template>
@@ -3679,13 +3704,11 @@
                 <!-- ייצוא מסונן -->
                 <div class="content-card mb-3">
                     <div class="section-header" @click="ui.filteredExportOpen = !ui.filteredExportOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-filter me-2"
-                                style="color:var(--accent-color);"></i>ייצוא מסונן</h6>
-                        <i class="fas" :class="ui.filteredExportOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                            style="color:var(--text-secondary);"></i>
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-filter me-2 c-acc"></i>ייצוא מסונן</h6>
+                        <i class="fas c-sec" :class="ui.filteredExportOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.filteredExportOpen ? 'max-height:500px;opacity:1;' : 'max-height:0;opacity:0;'">
+                        :class="{ collapsed: !ui.filteredExportOpen }">
                         <div class="mt-3 row g-3">
                             <div class="col-md-6">
                                 <label class="small fw-bold mb-1">סוג תנועה</label>
@@ -3727,13 +3750,12 @@
                 <!-- ייבוא נתונים -->
                 <div class="content-card mb-3">
                     <div class="section-header" @click="ui.importOpen = !ui.importOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-file-import me-2" style="color:#28a745;"></i>ייבוא
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-file-import me-2 c-green"></i>ייבוא
                             נתונים</h6>
-                        <i class="fas" :class="ui.importOpen ? 'fa-chevron-up' : 'fa-chevron-down'"
-                            style="color:var(--text-secondary);"></i>
+                        <i class="fas c-sec" :class="ui.importOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
                     <div class="section-body"
-                        :style="ui.importOpen ? 'max-height:500px;opacity:1;' : 'max-height:0;opacity:0;'">
+                        :class="{ collapsed: !ui.importOpen }">
                         <div class="mt-3">
                             <div class="custom-tabs">
                                 <button class="custom-tab" :class="ieImportTab==='json' ? 'active' : ''"
@@ -3767,8 +3789,7 @@
                             </div>
                             <!-- Batch -->
                             <div x-show="ieImportTab==='batch'" class="mt-2">
-                                <div class="alert alert-light small mb-2"
-                                    style="background:var(--bg-main);border-color:var(--border-color);color:var(--text-primary);">
+                                <div class="alert alert-light small mb-2">
                                     <strong>פורמט Batch:</strong> שורת כותרת <code>commitments</code> או
                                     <code>payments</code>, ואז שורות נתונים עם פסיק<br>
                                     דוגמה: <code>commitments</code><br><code>ישראל כהן,2024-01-15,תרומה,500</code>
@@ -3792,27 +3813,25 @@
                         <button @click="dbLog = []; localStorage.removeItem('synagogue_dblog')"
                             class="btn btn-sm btn-outline-danger">
                             <i class="fas fa-trash me-1"></i>נקה יומן</button>
-                        <p style="margin:10px 0;">
+                        <p class="my-3">
                             <button @click="refreshMembers()" class="btn btn-sm btn-outline-success">
                                 <i class="fas fa-sync-alt me-1"></i>טען נתונים</button>
                     </div>
                 </div>
                 <div class="content-card">
                     <template x-if="dbLog.length === 0">
-                        <div class="text-center p-4" style="color: var(--text-secondary);">אין פעולות מתועדות</div>
+                        <div class="text-center p-4 c-sec">אין פעולות מתועדות</div>
                     </template>
                     <template x-if="dbLog.length > 0">
-                        <div style="max-height: 70vh; overflow-y: auto; font-size: 0.85rem;">
+                        <div class="scroll-y tall fs-sm">
                             <template x-for="(entry, i) in dbLog" :key="i">
-                                <div style="border-bottom: 1px solid var(--border-color); padding: 0.5rem 0.75rem; display: flex; gap: 1rem; align-items: flex-start;"
-                                    :style="entry.status === 'error' ? 'background: rgba(220,53,69,0.07);' : (entry.status === 'ok' ? '' : '')">
-                                    <span style="color: var(--text-secondary); white-space: nowrap; min-width: 145px;"
+                                <div class="border-bottom d-flex gap-3 align-items-start px-3 py-2" :class="{ 'log-err': entry.status === 'error' }">
+                                    <span class="c-sec text-nowrap log-time"
                                         x-text="entry.time"></span>
                                     <span
-                                        :style="entry.status === 'error' ? 'color:#dc3545;' : 'color: var(--primary-color);'"
-                                        style="min-width:60px;"
+                                        :class="entry.status === 'error' ? 'text-danger' : 'c-pri'" class="log-type"
                                         x-text="entry.status === 'error' ? '❌ שגיאה' : '✅ הצלחה'"></span>
-                                    <span x-text="entry.msg" style="color: var(--text-primary);"></span>
+                                    <span class="c-txt" x-text="entry.msg"></span>
                                 </div>
                             </template>
                         </div>
@@ -3827,7 +3846,7 @@
                 </div>
                 <div class="content-card">
                     <template x-if="changelog.length === 0">
-                        <div class="text-center p-4" style="color: var(--text-secondary);">אין שינויים מתועדים</div>
+                        <div class="text-center p-4 c-sec">אין שינויים מתועדים</div>
                     </template>
                     <div class="changelog-list">
                         <template x-for="(entry, i) in changelog" :key="entry.version">
@@ -3875,35 +3894,31 @@
                         <div>
                             <!-- קופות קיימות + הוספת קופה חדשה (מוטמעת) -->
                             <div class="content-card">
-                                <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                <h5 class="sec-title">
                                     <i class="fas fa-list"></i> קופות קיימות
                                 </h5>
                                 <template x-if="funds.length === 0">
-                                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                    <div class="text-center p-4 c-sec">
                                         אין קופות.
                                         <br />
                                         הוסף קופה חדשה למעלה.
                                     </div>
                                 </template>
                                 <template x-if="funds.length > 0">
-                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <div class="d-flex flex-column gap-2">
                                         <template x-for="fund in funds" :key="fund.id">
-                                            <div
-                                                style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
-                                                <div style="flex: 1; cursor: pointer;" @click="selectFund(fund.id)">
-                                                    <div style="font-weight: 600;">
+                                            <div class="fund-box d-flex align-items-center justify-content-between">
+                                                <div class="flex-1 pointer" @click="selectFund(fund.id)">
+                                                    <div class="fw-semibold">
                                                         <span x-text="fund.name"></span>
                                                     </div>
-                                                    <div
-                                                        style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                                                        יתרה: <span
-                                                            style="direction: ltr; display: inline-block; font-weight: 600;"
-                                                            :style="{ color: fundSignedColor(fund.balance) }"
+                                                    <div class="fs-sm c-sec mt-1">
+                                                        יתרה: <span class="money-ltr d-inline-block fw-semibold"
+                                                        :class="fundSignedClass(fund.balance)"
                                                             x-text="fundSignedText(fund.balance)"></span>
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-sm btn-danger" @click="deleteFund(fund.id)"
-                                                    style="margin-left: 0.5rem;">
+                                                <button class="btn btn-sm btn-danger me-2" @click="deleteFund(fund.id)">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
@@ -3922,20 +3937,17 @@
                                     <div class="ios-accordion-body">
                                         <div class="ios-accordion-body-inner">
                                             <div class="ios-accordion-body-content">
-                                                <div style="margin-bottom: 0.75rem;">
-                                                    <label
-                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">שם
+                                                <div class="mb-3">
+                                                    <label class="lbl">שם
                                                         קופה:</label>
                                                     <input type="text" x-model="newFundName" class="search-input">
                                                     <!-- placeholder="למשל: קופת גמח" -->
                                                 </div>
-                                                <div style="margin-bottom: 1rem;">
-                                                    <label
-                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">הערות:</label>
-                                                    <textarea x-model="newFundNotes" class="search-input"
-                                                        style="min-height: 70px; resize: vertical;"></textarea>
+                                                <div class="mb-3">
+                                                    <label class="lbl">הערות:</label>
+                                                    <textarea x-model="newFundNotes" class="search-input ta-v"></textarea>
                                                 </div>
-                                                <button class="btn btn-primary btn-sm" style="width: 100%;"
+                                                <button class="btn btn-primary btn-sm w-100"
                                                     @click="addFund()">
                                                     <i class="fas fa-plus"></i> הוסף קופה
                                                 </button>
@@ -3948,38 +3960,34 @@
                         </div>
 
                         <!-- ═══ מטרות תשלום — רשימה גלובלית, משותפת לכל הקופות ═══ -->
-                        <div style="margin-top: 1.5rem;">
+                        <div class="mt-4">
                             <!-- מטרות תשלום קיימות + הוספת מטרת תשלום חדשה (מוטמעת) -->
                             <div class="content-card">
-                                <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                                <h5 class="sec-title">
                                     <i class="fas fa-list"></i> מטרות תשלום קיימות
                                 </h5>
                                 <template x-if="paymentPurposes.length === 0">
-                                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                    <div class="text-center p-4 c-sec">
                                         אין מטרות תשלום.
                                         <br />
                                         הוסף מטרת תשלום חדשה למעלה.
                                     </div>
                                 </template>
                                 <template x-if="paymentPurposes.length > 0">
-                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <div class="d-flex flex-column gap-2">
                                         <template x-for="purpose in paymentPurposes" :key="purpose.id">
-                                            <div
-                                                style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);">
-                                                <div style="flex: 1; cursor: pointer;"
+                                            <div class="fund-box d-flex align-items-center justify-content-between">
+                                                <div class="flex-1 pointer"
                                                     @click="selectPurpose(purpose.id)">
-                                                    <div style="font-weight: 600;">
+                                                    <div class="fw-semibold">
                                                         <span x-text="purpose.name"></span>
                                                     </div>
-                                                    <div
-                                                        style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                                                        התקבל בסה"כ: <span
-                                                            style="direction: ltr; display: inline-block; color: var(--primary-color); font-weight: 600;">₪<span
+                                                    <div class="fs-sm c-sec mt-1">
+                                                        התקבל בסה"כ: <span class="money-ltr d-inline-block c-pri fw-semibold">₪<span
                                                                 x-text="Number(getPurposeCumulative(purpose.id, purpose.startDate, getTodayDate())).toLocaleString()"></span></span>
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-sm btn-danger" @click="deletePurpose(purpose.id)"
-                                                    style="margin-left: 0.5rem;">
+                                                <button class="btn btn-sm btn-danger me-2" @click="deletePurpose(purpose.id)">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
@@ -3997,27 +4005,23 @@
                                     <div class="ios-accordion-body">
                                         <div class="ios-accordion-body-inner">
                                             <div class="ios-accordion-body-content">
-                                                <div style="margin-bottom: 0.75rem;">
-                                                    <label
-                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">שם
+                                                <div class="mb-3">
+                                                    <label class="lbl">שם
                                                         מטרת תשלום:</label>
                                                     <input type="text" x-model="newPurposeName" class="search-input">
                                                     <!-- placeholder="למשל: שובה ישראל" -->
                                                 </div>
-                                                <div style="margin-bottom: 0.75rem;">
-                                                    <label
-                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">תאריך
+                                                <div class="mb-3">
+                                                    <label class="lbl">תאריך
                                                         התחלה:</label>
                                                     <input type="date" x-model="newPurposeStartDate"
                                                         class="search-input">
                                                 </div>
-                                                <div style="margin-bottom: 1rem;">
-                                                    <label
-                                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">הערות:</label>
-                                                    <textarea x-model="newPurposeNotes" class="search-input"
-                                                        style="min-height: 70px; resize: vertical;"></textarea>
+                                                <div class="mb-3">
+                                                    <label class="lbl">הערות:</label>
+                                                    <textarea x-model="newPurposeNotes" class="search-input ta-v"></textarea>
                                                 </div>
-                                                <button class="btn btn-primary btn-sm" style="width: 100%;"
+                                                <button class="btn btn-primary btn-sm w-100"
                                                     @click="addPurpose()">
                                                     <i class="fas fa-plus"></i> הוסף מטרת תשלום
                                                 </button>
@@ -4035,37 +4039,29 @@
                 <template x-if="selectedFund">
                     <div>
                         <!-- תיבה: פרטי קופה -->
-                        <div class="content-card" style="margin-bottom: 1.5rem;">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                                <div style="flex: 1;">
+                        <div class="content-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="flex-1">
                                     <!-- שם קופה -->
                                     <template x-if="fundEditingId !== selectedFund.id">
                                         <div>
-                                            <h5 x-text="selectedFund.name"
-                                                style="color: var(--primary-color); margin-bottom: 0.5rem;"></h5>
+                                            <h5 class="c-pri mb-2" x-text="selectedFund.name"></h5>
                                         </div>
                                     </template>
                                     <!-- עריכת שם קופה -->
                                     <template x-if="fundEditingId === selectedFund.id">
                                         <div>
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">שם
+                                            <label class="lbl c-sec">שם
                                                 קופה:</label>
-                                            <input type="text" x-model="fundEditingName" class="search-input"
-                                                style="margin-bottom: 0.5rem;">
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">הערות:</label>
-                                            <textarea x-model="fundEditingNotes" class="search-input"
-                                                style="min-height: 60px; resize: vertical; margin-bottom: 0.5rem;"></textarea>
-                                            <span
-                                                style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                            <input type="text" x-model="fundEditingName" class="search-input mb-2">
+                                            <label class="lbl c-sec">הערות:</label>
+                                            <textarea x-model="fundEditingNotes" class="search-input ta-v mb-2"></textarea>
+                                            <span class="fs-sm c-sec mb-2">
                                                 נוצרה ב:</span>
-                                            <span
-                                                style="font-size: 0.85rem; font-weight: 600; color: var(--primary-color);">
+                                            <span class="fs-sm fw-semibold c-pri">
                                                 <span x-text="formatDate(selectedFund.createdAt)"></span>
                                             </span>
-                                            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                                            <div class="d-flex gap-2 mt-3">
                                                 <button class="btn btn-sm btn-success" @click="saveEditFund()">
                                                     <i class="fas fa-check"></i> שמור
                                                 </button>
@@ -4077,7 +4073,7 @@
                                     </template>
                                 </div>
                                 <!-- כפתורי עריכה -->
-                                <div style="display: flex; gap: 0.5rem; margin-right: auto;">
+                                <div class="d-flex gap-2 ms-auto">
                                     <template x-if="fundEditingId !== selectedFund.id">
                                         <button class="btn btn-sm btn-info" @click="startEditFund(selectedFund.id)">
                                             <i class="fas fa-edit"></i> עריכה
@@ -4087,23 +4083,19 @@
                             </div>
 
                             <!-- סטטיסטיקות -->
-                            <div style="display: grid; grid-template-columns: repeat(2, 2fr); gap: 1rem;">
-                                <div
-                                    style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                                    <div
-                                        style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <div class="grid-2">
+                                <div class="fund-box text-center p-3">
+                                    <div class="fs-sm c-sec mb-2">
                                         יתרה בקופה</div>
-                                    <div style="font-size: 1.5rem; font-weight: 700; direction: ltr;"
-                                        :style="{ color: fundSignedColor(selectedFund.balance) }"
+                                    <div class="fs-4 fw-bold money-ltr"
+                                        :class="fundSignedClass(selectedFund.balance)"
                                         x-text="fundSignedText(selectedFund.balance)">
                                     </div>
                                 </div>
-                                <div
-                                    style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-                                    <div
-                                        style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                <div class="fund-box text-center p-3">
+                                    <div class="fs-sm c-sec mb-2">
                                         פרטי הקופה:</div>
-                                    <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary-color);">
+                                    <div class="fs-5 fw-semibold c-pri">
                                         <span x-text="selectedFund.notes || 'אין פרטים'"></span>
                                     </div>
                                 </div>
@@ -4111,7 +4103,7 @@
                         </div>
 
                         <!-- כפתורים לפעולות -->
-                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                        <div class="d-flex gap-2 mb-4">
                             <button class="btn btn-success btn-sm" @click="addFundAddition()">
                                 <i class="fas fa-plus-circle"></i> הוסף כסף לקופה
                             </button>
@@ -4121,64 +4113,58 @@
                         </div>
 
                         <!-- תיבה: כסף נכנס -->
-                        <div class="content-card" style="margin-bottom: 1.5rem;">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-arrow-circle-down" style="color: #28a745;"></i> כסף נכנס
+                        <div class="content-card">
+                            <h5 class="sec-title">
+                                <i class="fas fa-arrow-circle-down c-green"></i> כסף נכנס
                             </h5>
                             <template x-if="getFundIncomingHistory().length === 0">
-                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                <div class="text-center p-4 c-sec">
                                     אין פעולות של כסף נכנס בקופה זו.
                                 </div>
                             </template>
                             <template x-if="getFundIncomingHistory().length > 0">
-                                <div style="overflow-x: auto;">
-                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                                        <thead
-                                            style="background: var(--bg-main); border-bottom: 2px solid var(--border-color);">
+                                <div class="overflow-x-auto">
+                                    <table class="ft">
+                                        <thead>
                                             <tr>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">תאריך
+                                                <th>תאריך
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">שם
+                                                <th>שם
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">סכום
+                                                <th class="text-center">סכום
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">סוג
+                                                <th>סוג
                                                     פעולה</th>
-                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">
+                                                <th class="text-center">
                                                     פעולות</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <template x-for="history in getFundIncomingHistory()" :key="history.id">
-                                                <tr style="border-bottom: 1px solid var(--border-color);">
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                <tr>
+                                                    <td>
                                                         <span x-text="formatDate(history.date)"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                    <td>
                                                         <span x-text="history.memberName || 'ללא יוזם'"></span>
-                                                        <div x-show="history.desc"
-                                                            style="font-size: 0.8rem; color: var(--text-secondary);"
+                                                        <div class="fs-sm c-sec" x-show="history.desc"
                                                             x-text="history.desc"></div>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 600;"
-                                                        :style="{ color: fundSignedColor(history.amount) }"
+                                                    <td class="text-center money-ltr fw-semibold"
+                                                        :class="fundSignedClass(history.amount)"
                                                         x-text="fundSignedText(history.amount)">
                                                     </td>
-                                                    <td
-                                                        style="padding: 0.75rem; text-align: right; font-weight: 600; color: #28a745;">
+                                                    <td class="fw-semibold c-green">
                                                         <span x-show="history.type === 'commitment'">התחייבות</span>
                                                         <span x-show="history.type === 'addition'">הוספה</span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: center;">
-                                                        <div
-                                                            style="display: flex; gap: 0.25rem; justify-content: center;">
+                                                    <td class="text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
                                                             <button class="btn btn-xs btn-info"
-                                                                style="padding: 0.3rem 0.6rem; font-size: 0.75rem;"
                                                                 @click="editFundOperation(history.id)">
                                                                 <i class="fas fa-edit"></i>
                                                             </button>
                                                             <button class="btn btn-xs btn-danger"
-                                                                style="padding: 0.3rem 0.6rem; font-size: 0.75rem;"
                                                                 @click="deleteFundOperation(history.id)">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
@@ -4193,59 +4179,55 @@
                         </div>
 
                         <!-- תיבה: תשלומים לקופה (מינוס) -->
-                        <div class="content-card" style="margin-bottom: 1.5rem;">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-hand-holding-usd" style="color: #dc3545;"></i> תשלומים לקופה
+                        <div class="content-card">
+                            <h5 class="sec-title">
+                                <i class="fas fa-hand-holding-usd text-danger"></i> תשלומים לקופה
                             </h5>
                             <template x-if="getFundPaymentsHistory().length === 0">
-                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                <div class="text-center p-4 c-sec">
                                     אין תשלומים לקופה זו.
                                 </div>
                             </template>
                             <template x-if="getFundPaymentsHistory().length > 0">
-                                <div style="overflow-x: auto;">
-                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                                        <thead
-                                            style="background: var(--bg-main); border-bottom: 2px solid var(--border-color);">
+                                <div class="overflow-x-auto">
+                                    <table class="ft">
+                                        <thead>
                                             <tr>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">תאריך
+                                                <th>תאריך
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">שם
+                                                <th>שם
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">סכום
+                                                <th class="text-center">סכום
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                <th>
                                                     פרטי תשלום</th>
-                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">
+                                                <th class="text-center">
                                                     פעולות</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <template x-for="history in getFundPaymentsHistory()" :key="history.id">
-                                                <tr style="border-bottom: 1px solid var(--border-color);">
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                <tr>
+                                                    <td>
                                                         <span x-text="formatDate(history.date)"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                    <td>
                                                         <span x-text="history.memberName || '—'"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 600; color: #dc3545;">
+                                                    <td class="text-center money-ltr fw-semibold text-danger">
                                                         −₪<span x-text="Number(history.amount).toLocaleString()"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                    <td>
                                                         <span
                                                             x-text="[history.paymentMethod, history.reference ? ('אסמכתא ' + history.reference) : ''].filter(Boolean).join(' | ') || '—'"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: center;">
-                                                        <div
-                                                            style="display: flex; gap: 0.25rem; justify-content: center;">
+                                                    <td class="text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
                                                             <button class="btn btn-xs btn-info"
-                                                                style="padding: 0.3rem 0.6rem; font-size: 0.75rem;"
                                                                 @click="editFundOperation(history.id)">
                                                                 <i class="fas fa-edit"></i>
                                                             </button>
                                                             <button class="btn btn-xs btn-danger"
-                                                                style="padding: 0.3rem 0.6rem; font-size: 0.75rem;"
                                                                 @click="deleteFundOperation(history.id)">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
@@ -4261,58 +4243,53 @@
 
                         <!-- תיבה: ניצול כסף מהקופה -->
                         <div class="content-card">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-arrow-circle-up" style="color: #dc3545;"></i> ניצול כסף מהקופה
+                            <h5 class="sec-title">
+                                <i class="fas fa-arrow-circle-up text-danger"></i> ניצול כסף מהקופה
                             </h5>
                             <template x-if="getFundUsageHistory().length === 0">
-                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                <div class="text-center p-4 c-sec">
                                     אין פעולות ניצול בקופה זו.
                                 </div>
                             </template>
                             <template x-if="getFundUsageHistory().length > 0">
-                                <div style="overflow-x: auto;">
-                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                                        <thead
-                                            style="background: var(--bg-main); border-bottom: 2px solid var(--border-color);">
+                                <div class="overflow-x-auto">
+                                    <table class="ft">
+                                        <thead>
                                             <tr>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">תאריך
+                                                <th>תאריך
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">סכום
+                                                <th class="text-center">סכום
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                <th>
                                                     מטרת תשלום</th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                <th>
                                                     פרטים</th>
-                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">
+                                                <th class="text-center">
                                                     פעולות</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <template x-for="history in getFundUsageHistory()" :key="history.id">
-                                                <tr style="border-bottom: 1px solid var(--border-color);">
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                <tr>
+                                                    <td>
                                                         <span x-text="formatDate(history.date)"></span>
                                                     </td>
-                                                    <td
-                                                        style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 600; color: #dc3545;">
+                                                    <td class="text-center money-ltr fw-semibold text-danger">
                                                         −₪<span x-text="Number(history.amount).toLocaleString()"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                    <td>
                                                         <span x-text="history.purposeName || '—'"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                    <td>
                                                         <span x-text="history.details || '—'"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: center;">
-                                                        <div
-                                                            style="display: flex; gap: 0.25rem; justify-content: center;">
+                                                    <td class="text-center">
+                                                        <div class="d-flex gap-1 justify-content-center">
                                                             <button class="btn btn-xs btn-info"
-                                                                style="padding: 0.3rem 0.6rem; font-size: 0.75rem;"
                                                                 @click="editFundOperation(history.id)">
                                                                 <i class="fas fa-edit"></i>
                                                             </button>
                                                             <button class="btn btn-xs btn-danger"
-                                                                style="padding: 0.3rem 0.6rem; font-size: 0.75rem;"
                                                                 @click="deleteFundOperation(history.id)">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
@@ -4332,35 +4309,27 @@
                 <template x-if="selectedPurpose">
                     <div>
                         <!-- תיבה: פרטי מטרת תשלום -->
-                        <div class="content-card" style="margin-bottom: 1.5rem;">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                                <div style="flex: 1;">
+                        <div class="content-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="flex-1">
                                     <!-- שם מטרת תשלום -->
                                     <template x-if="purposeEditingId !== selectedPurpose.id">
                                         <div>
-                                            <h5 x-text="selectedPurpose.name"
-                                                style="color: var(--primary-color); margin-bottom: 0.5rem;"></h5>
+                                            <h5 class="c-pri mb-2" x-text="selectedPurpose.name"></h5>
                                         </div>
                                     </template>
                                     <!-- עריכת מטרת תשלום -->
                                     <template x-if="purposeEditingId === selectedPurpose.id">
                                         <div>
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">שם
+                                            <label class="lbl c-sec">שם
                                                 מטרת תשלום:</label>
-                                            <input type="text" x-model="purposeEditingName" class="search-input"
-                                                style="margin-bottom: 0.5rem;">
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">תאריך
+                                            <input type="text" x-model="purposeEditingName" class="search-input mb-2">
+                                            <label class="lbl c-sec">תאריך
                                                 התחלה:</label>
-                                            <input type="date" x-model="purposeEditingStartDate" class="search-input"
-                                                style="margin-bottom: 0.5rem;">
-                                            <label
-                                                style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary);">הערות:</label>
-                                            <textarea x-model="purposeEditingNotes" class="search-input"
-                                                style="min-height: 60px; resize: vertical; margin-bottom: 0.5rem;"></textarea>
-                                            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                                            <input type="date" x-model="purposeEditingStartDate" class="search-input mb-2">
+                                            <label class="lbl c-sec">הערות:</label>
+                                            <textarea x-model="purposeEditingNotes" class="search-input ta-v mb-2"></textarea>
+                                            <div class="d-flex gap-2 mt-3">
                                                 <button class="btn btn-sm btn-success" @click="saveEditPurpose()">
                                                     <i class="fas fa-check"></i> שמור
                                                 </button>
@@ -4372,7 +4341,7 @@
                                     </template>
                                 </div>
                                 <!-- כפתורי עריכה -->
-                                <div style="display: flex; gap: 0.5rem; margin-right: auto;">
+                                <div class="d-flex gap-2 ms-auto">
                                     <template x-if="purposeEditingId !== selectedPurpose.id">
                                         <button class="btn btn-sm btn-info"
                                             @click="startEditPurpose(selectedPurpose.id)">
@@ -4382,38 +4351,34 @@
                                 </div>
                             </div>
                             <template x-if="purposeEditingId !== selectedPurpose.id">
-                                <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                <div class="fs-sm c-sec">
                                     <span x-show="selectedPurpose.notes" x-text="selectedPurpose.notes"></span>
-                                    <div style="margin-top: 0.5rem;">תאריך התחלה: <b><span
+                                    <div class="mt-2">תאריך התחלה: <b><span
                                                 x-text="formatDate(selectedPurpose.startDate)"></span></b></div>
                                 </div>
                             </template>
                         </div>
 
                         <!-- תיבה: סכום מצטבר -->
-                        <div class="content-card" style="margin-bottom: 1.5rem;">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
+                        <div class="content-card">
+                            <h5 class="sec-title">
                                 <i class="fas fa-coins"></i> סכום מצטבר
                             </h5>
-                            <div
-                                style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
+                            <div class="d-flex gap-3 align-items-end flex-wrap mb-3">
                                 <div>
-                                    <label
-                                        style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">מתאריך:</label>
+                                    <label class="lbl">מתאריך:</label>
                                     <input type="date" x-model="purposeRangeFrom" class="search-input">
                                 </div>
                                 <div>
-                                    <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">עד
+                                    <label class="lbl">עד
                                         תאריך:</label>
                                     <input type="date" x-model="purposeRangeTo" class="search-input">
                                 </div>
                             </div>
-                            <div
-                                style="padding: 1rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color); text-align: center; max-width: 260px;">
-                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            <div class="fund-box text-center p-3 mw-field">
+                                <div class="fs-sm c-sec mb-2">
                                     סה"כ בטווח שנבחר</div>
-                                <div
-                                    style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); direction: ltr;">
+                                <div class="fs-4 fw-bold c-pri money-ltr">
                                     ₪<span
                                         x-text="Number(getPurposeCumulative(selectedPurpose.id, purposeRangeFrom, purposeRangeTo)).toLocaleString()"></span>
                                 </div>
@@ -4422,46 +4387,44 @@
 
                         <!-- תיבה: היסטוריית קבלת כספים -->
                         <div class="content-card">
-                            <h5 style="margin-bottom: 1rem; color: var(--primary-color); font-weight: 600;">
-                                <i class="fas fa-arrow-circle-down" style="color: #28a745;"></i> כסף שהתקבל ממטרת תשלום
+                            <h5 class="sec-title">
+                                <i class="fas fa-arrow-circle-down c-green"></i> כסף שהתקבל ממטרת תשלום
                                 זו
                             </h5>
                             <template x-if="getPurposeHistoryRows(selectedPurpose.id).length === 0">
-                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                <div class="text-center p-4 c-sec">
                                     אין עדיין פעולות ניצול המקושרות למטרת תשלום זו.
                                 </div>
                             </template>
                             <template x-if="getPurposeHistoryRows(selectedPurpose.id).length > 0">
-                                <div style="overflow-x: auto;">
-                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                                        <thead
-                                            style="background: var(--bg-main); border-bottom: 2px solid var(--border-color);">
+                                <div class="overflow-x-auto">
+                                    <table class="ft">
+                                        <thead>
                                             <tr>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">תאריך
+                                                <th>תאריך
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                <th>
                                                     מקופה</th>
-                                                <th style="padding: 0.75rem; text-align: center; font-weight: 600;">סכום
+                                                <th class="text-center">סכום
                                                 </th>
-                                                <th style="padding: 0.75rem; text-align: right; font-weight: 600;">
+                                                <th>
                                                     פרטים</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <template x-for="row in getPurposeHistoryRows(selectedPurpose.id)"
                                                 :key="row.id">
-                                                <tr style="border-bottom: 1px solid var(--border-color);">
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                <tr>
+                                                    <td>
                                                         <span x-text="formatDate(row.date)"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                    <td>
                                                         <span x-text="row.fundName"></span>
                                                     </td>
-                                                    <td
-                                                        style="padding: 0.75rem; text-align: center; direction: ltr; font-weight: 600; color: #28a745;">
+                                                    <td class="text-center money-ltr fw-semibold c-green">
                                                         +₪<span x-text="Number(row.amount).toLocaleString()"></span>
                                                     </td>
-                                                    <td style="padding: 0.75rem; text-align: right;">
+                                                    <td>
                                                         <span x-text="row.details || '—'"></span>
                                                     </td>
                                                 </tr>
@@ -4508,13 +4471,13 @@
                 </div>
             </div>
             <div class="fullpage-table-content">
-                <div id="fullpageTableContainer" style="flex:1; overflow:auto;"></div>
+                <div class="flex-1 overflow-auto" id="fullpageTableContainer"></div>
             </div>
         </div>
     </div>
 
     <!-- ═══ BATCH INTELLISENSE POPUP — at body level to avoid overflow:hidden clipping ═══ -->
-    <div id="batchPopup" class="batch-popup" style="display:none; position:fixed; z-index:99999;">
+    <div id="batchPopup" class="batch-popup" hidden>
         <!-- populated by batchTaInput() via direct DOM manipulation -->
     </div>
 
@@ -6629,13 +6592,13 @@
                     let selectedFields = savedSession ? savedSession.fields : allCols.map(c => c.field);
 
                     const colCheckboxes = allCols.map(c =>
-                        `<label class="print-col-checkbox ${selectedFields.includes(c.field) ? 'selected' : ''}" data-field="${c.field}" style="cursor:pointer;margin:3px;">
-                            <input type="checkbox" style="display:none;" ${selectedFields.includes(c.field) ? 'checked' : ''}> ${c.title}
+                        `<label class="print-col-checkbox ${selectedFields.includes(c.field) ? 'selected' : ''} pointer m-1" data-field="${c.field}">
+                            <input class="d-none" type="checkbox" ${selectedFields.includes(c.field) ? 'checked' : ''}> ${c.title}
                         </label>`
                     ).join('');
 
                     const savedSessionsHtml = this.printSessions.length > 0
-                        ? `<div style="margin-top:12px;"><div class="small fw-bold mb-1" style="color:var(--text-secondary)"><i class="fas fa-print" style="margin-left:4px;"></i>הגדרות שמורות:</div>
+                        ? `<div class="mt-3"><div class="small fw-bold mb-1 c-sec"><i class="fas fa-print me-1"></i>הגדרות שמורות:</div>
                            <div class="print-sessions-row">${this.printSessions.map(s =>
                             `<span class="print-session-tag" data-session-key="${s.key}" title="${s.fields.join(', ')}">
                                    <i class="fas fa-print"></i>${s.label}
@@ -6644,16 +6607,16 @@
 
                     Swal.fire({
                         title: `<i class="fas fa-print me-2"></i>הדפסה: ${printTitle}`,
-                        html: `<div style="text-align:right">
-                            <div class="small fw-bold mb-2" style="color:var(--text-secondary);">בחר עמודות להדפסה:</div>
-                            <div id="printColsContainer" style="display:flex;flex-wrap:wrap;gap:4px;">${colCheckboxes}</div>
-                            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                        html: `<div class="text-start">
+                            <div class="small fw-bold mb-2 c-sec">בחר עמודות להדפסה:</div>
+                            <div class="d-flex flex-wrap gap-1" id="printColsContainer">${colCheckboxes}</div>
+                            <div class="d-flex flex-wrap gap-2 mt-3">
                                 <button id="printSelectAll" class="btn btn-sm btn-outline-primary">בחר הכל</button>
                                 <button id="printDeselectAll" class="btn btn-sm btn-outline-secondary">בטל הכל</button>
                             </div>
                             ${savedSessionsHtml}
-                            <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                                <input id="printSessionName" class="form-control form-control-sm" style="max-width:180px;" placeholder="שם להגדרה (לשמירה)">
+                            <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+                                <input id="printSessionName" class="form-control form-control-sm mw-field" placeholder="שם להגדרה (לשמירה)">
                                 <button id="printSaveSession" class="btn btn-sm btn-outline-success"><i class="fas fa-save me-1"></i>שמור הגדרה</button>
                             </div>
                         </div>`,
@@ -6724,9 +6687,9 @@
                     const cols = allCols.filter(c => selectedFields.includes(c.field));
                     const colW = cols.length > 0 ? Math.floor(100 / cols.length) : 20;
 
-                    const thead = `<tr>${cols.map(c => `<th style="width:${colW}%;padding:6px 8px;background:#2c5f7d;color:white;text-align:right;">${c.title}</th>`).join('')}</tr>`;
+                    const thead = `<tr>${cols.map(c => `<th>${c.title}</th>`).join('')}</tr>`;
                     const tbody = data.map(row =>
-                        `<tr>${cols.map(c => `<td style="padding:5px 8px;border-bottom:1px solid #dee2e6;text-align:right;">${row[c.field] !== undefined && row[c.field] !== null ? row[c.field] : ''}</td>`).join('')}</tr>`
+                        `<tr>${cols.map(c => `<td>${row[c.field] !== undefined && row[c.field] !== null ? row[c.field] : ''}</td>`).join('')}</tr>`
                     ).join('');
 
                     const html = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8">
@@ -6736,7 +6699,9 @@
                             h2 { font-size: 1.2rem; margin-bottom: 4px; }
                             .sub { font-size: 0.85rem; color: #666; margin-bottom: 14px; }
                             table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-                            th, td { word-wrap: break-word; }
+                            th, td { word-wrap: break-word; text-align: right; }
+                            th { width: ${colW}%; padding: 6px 8px; background: #2c5f7d; color: white; }
+                            td { padding: 5px 8px; border-bottom: 1px solid #dee2e6; }
                             @media print { body { padding: 0; } }
                         </style></head><body>
                         <h2>${printTitle}</h2>
@@ -6766,8 +6731,8 @@
                     const canShareFiles = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
                     await Swal.fire({
                         title: opts.title || 'מה לעשות עם ' + kind + '?',
-                        html: `<div style="font-size:2.2rem;margin-bottom:6px;"><i class="fas ${icon}"></i></div>
-                               <div style="direction:ltr;word-break:break-all;opacity:.8;font-size:.85rem;">${this.escapeHtml(filename)}</div>`,
+                        html: `<div class="fs-2 mb-2"><i class="fas ${icon}"></i></div>
+                               <div class="money-ltr text-break opacity-75 fs-sm">${this.escapeHtml(filename)}</div>`,
                         showConfirmButton: true,
                         showDenyButton: true,
                         showCancelButton: true,
@@ -7127,11 +7092,10 @@
                     Swal.fire({
                         title: 'שתף קישור',
                         html: `
-                            <div style="text-align:right">
-                                <input id="shareLinkInput" type="text" value="${link}"
-                                    style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;margin-bottom:10px;direction:ltr;">
+                            <div class="text-start">
+                                <input class="form-control mb-2" dir="ltr" id="shareLinkInput" type="text" value="${link}">
                                 
-                                <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+                                <div class="d-flex gap-2 justify-content-end flex-wrap">
                                     <button id="copyBtn" class="btn btn-primary btn-sm">
                                         📋 העתק קישור
                                     </button>
@@ -7551,7 +7515,7 @@
                         if (editCells.length) {
                             const editCell = editCells[0];
                             const cellEl = editCell.getElement();
-                            cellEl.innerHTML = '<span class="row-confirm-btn" title="אישור" style="cursor:pointer;color:#28a745;font-weight:bold;font-size:1.1rem;margin-left:4px;">✓</span><span class="row-cancel-btn" title="ביטול" style="cursor:pointer;color:#dc3545;font-weight:bold;font-size:1.1rem;">✕</span>';
+                            cellEl.innerHTML = '<span class="row-confirm-btn" title="אישור">✓</span><span class="row-cancel-btn" title="ביטול">✕</span>';
                             cellEl.querySelector('.row-confirm-btn').addEventListener('click', (e) => {
                                 e.stopPropagation();
                                 // Save all cell values to transactions
@@ -7695,7 +7659,7 @@
                             title: '', field: '_orphan', width: 36, headerSort: false, responsive: 0,
                             formatter: (cell) => {
                                 const row = cell.getRow().getData();
-                                return deletedFields.some(f => row[f] !== undefined && row[f] !== '' && row[f] !== 0) ? '<span style="cursor:pointer;font-size:1rem;" title="נתונים בעמודות שנמחקו">⚠️</span>' : '';
+                                return deletedFields.some(f => row[f] !== undefined && row[f] !== '' && row[f] !== 0) ? '<span class="pointer" title="נתונים בעמודות שנמחקו">⚠️</span>' : '';
                             },
                             cellClick: (e, cell) => {
                                 const row = cell.getRow().getData();
@@ -7714,7 +7678,7 @@
                                     if (val === undefined || val === '' || val === 0) return;
                                     const item = document.createElement('div');
                                     item.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
-                                    item.innerHTML = `<span style="font-size:0.75rem;color:var(--text-secondary);font-weight:600;">${fieldLabels[f] || f}</span><span style="color:var(--text-primary);">${val}</span>`;
+                                    item.innerHTML = `<span class="fs-xs c-sec fw-semibold">${fieldLabels[f] || f}</span><span class="c-txt">${val}</span>`;
                                     box.appendChild(item);
                                 });
                                 rowEl.insertAdjacentElement('afterend', box);
@@ -7734,8 +7698,8 @@
                             formatter: (cell) => {
                                 const type = cell.getRow().getData().transactionType;
                                 if (type === 'commitments')
-                                    return '<span title="עבור להתחייבות" style="cursor:pointer;color:#2c5f7d;font-size:0.9rem;font-weight:600;">חובה</span>';
-                                return '<span title="עבור לתשלום" style="cursor:pointer;color:#28a745;font-size:0.9rem;font-weight:600;">זיכוי</span>';
+                                    return '<span class="pointer c-pri fs-sm fw-semibold" title="עבור להתחייבות">חובה</span>';
+                                return '<span class="pointer c-green fs-sm fw-semibold" title="עבור לתשלום">זיכוי</span>';
                             },
                             cellClick: (e, cell) => {
                                 const data = cell.getRow().getData();
@@ -7919,13 +7883,13 @@
 
                     // בניית ה-HTML של הכותרת והעתק של הטבלה
                     pdfContainer.innerHTML = `
-                        ${isMemberMovementsPdf ? `<div style="position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: #fff; color: #222; text-align: center; direction: rtl; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; letter-spacing: 0.2px; word-spacing: 3px; padding: 6px 0; border-bottom: 1px solid #ccc;">${this.escapeHtml(pdfReportTitle)}</div>` : ''}
-                        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #2c5f7d; padding-bottom: 10px;">
-                            <h2 style="margin: 0; color: #2c5f7d; font-size: 22px; font-weight: bold;">${this.escapeHtml(synagogueName)}</h2>
-                            <h3 style="margin: 5px 0 0 0; color: #333; font-size: 18px;">${this.escapeHtml(pdfReportTitle)}</h3>
-                            <h3 style="margin: 5px 0 0 0; color: #333; font-size: 18px;">${this.escapeHtml(filename.replace(/_/g, ' '))}</h3>
-                            <div style="margin-top: 5px; font-size: 13px; color: #666;">--תאריך הפקה--</div>
-                            <div style="margin-top: 5px; font-size: 13px; color: #666;">${currentDate}</div>
+                        ${isMemberMovementsPdf ? `<div class="pdf-fixed">${this.escapeHtml(pdfReportTitle)}</div>` : ''}
+                        <div class="pdf-head">
+                            <h2 class="pdf-h2">${this.escapeHtml(synagogueName)}</h2>
+                            <h3 class="pdf-h3">${this.escapeHtml(pdfReportTitle)}</h3>
+                            <h3 class="pdf-h3">${this.escapeHtml(filename.replace(/_/g, ' '))}</h3>
+                            <div class="pdf-sub">--תאריך הפקה--</div>
+                            <div class="pdf-sub">${currentDate}</div>
                         </div>
                         <div>${element.outerHTML}</div>
                     `;
@@ -9009,16 +8973,16 @@
                     if (v === 0) return '₪0';
                     return (v > 0 ? '+' : '-') + '₪' + Math.abs(v).toLocaleString();
                 },
-                fundSignedColor(n) {
+                fundSignedClass(n) {
                     const v = Number(n) || 0;
-                    return v > 0 ? '#28a745' : v < 0 ? '#dc3545' : 'var(--primary-color)';
+                    return v > 0 ? 'c-green' : v < 0 ? 'text-danger' : 'c-pri';
                 },
 
                 // ═══ form "add to fund": common fields for add or edit (prefix = 'addition' | 'edit') ═══
                 fundMemberBlockHtml(prefix, hasMember, memberId) {
                     return `
-                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; margin-top: 1rem; cursor: pointer;">
-                            <input type="checkbox" id="${prefix}HasMember" ${hasMember ? 'checked' : ''} style="width: auto; margin: 0;">
+                        <label class="d-flex align-items-center gap-2 mb-2 mt-3 pointer">
+                            <input class="w-auto m-0" type="checkbox" id="${prefix}HasMember" ${hasMember ? 'checked' : ''}>
                             <span>שם היוזם:</span>
                         </label>
                         <select id="${prefix}MemberId" class="swal2-select fund-popup-input" ${hasMember ? '' : 'disabled'}>
@@ -9027,7 +8991,7 @@
                 },
                 fundDescBlockHtml(prefix, hasMember, desc) {
                     return `
-                        <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">תיאור<span id="${prefix}DescReq" style="color: #dc3545; ${hasMember ? 'display: none;' : ''}"> (חובה)</span>:</label>
+                        <label class="d-block mb-2 mt-3">תיאור<span id="${prefix}DescReq" class="text-danger"> (חובה)</span>:</label>
                         <textarea id="${prefix}Desc" class="swal2-textarea fund-popup-input" placeholder="למשל: יתרת פתיחה">${this.escapeHtml(desc || '')}</textarea>`;
                 },
                 wireFundMemberToggle(prefix) {
@@ -9062,12 +9026,12 @@
                     Swal.fire({
                         title: 'הוספה לקופה',
                         html: `
-                            <div style="text-align: right; margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem;">תאריך:</label>
+                            <div class="text-start mb-3">
+                                <label class="d-block mb-2">תאריך:</label>
                                 <input type="date" id="additionDate" class="swal2-input fund-popup-input" value="${this.getTodayDate()}">
                                 ${this.fundMemberBlockHtml('addition', true, '')}
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום (מינוס = יתרה שלילית):</label>
-                                <input type="number" id="additionAmount" class="swal2-input fund-popup-input" placeholder="0" style="direction: ltr;">
+                                <label class="d-block mb-2 mt-3">סכום (מינוס = יתרה שלילית):</label>
+                                <input dir="ltr" type="number" id="additionAmount" class="swal2-input fund-popup-input" placeholder="0">
                                 ${this.fundDescBlockHtml('addition', true, '')}
                             </div>
                         `,
@@ -9112,16 +9076,16 @@
                     Swal.fire({
                         title: 'ניצול כסף מהקופה',
                         html: `
-                            <div style="text-align: right; margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem;">תאריך:</label>
+                            <div class="text-start mb-3">
+                                <label class="d-block mb-2">תאריך:</label>
                                 <input type="date" id="reductionDate" class="swal2-input fund-popup-input" value="${this.getTodayDate()}">
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום לניצול:</label>
+                                <label class="d-block mb-2 mt-3">סכום לניצול:</label>
                                 <input type="number" id="reductionAmount" class="swal2-input fund-popup-input" placeholder="0">
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">מטרת תשלום:</label>
+                                <label class="d-block mb-2 mt-3">מטרת תשלום:</label>
                                 <select id="reductionPurpose" class="swal2-select fund-popup-input">
                                     ${this.getPurposeOptionsHtml()}
                                 </select>
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">פרטים:</label>
+                                <label class="d-block mb-2 mt-3">פרטים:</label>
                                 <textarea id="reductionDetails" class="swal2-textarea fund-popup-input" placeholder="פרטים נוספים (לא חובה)"></textarea>
                             </div>
                         `,
@@ -9188,16 +9152,16 @@
                         Swal.fire({
                             title: `עריכת ${typeLabel}`,
                             html: `
-                                <div style="text-align: right; margin-bottom: 1rem;">
-                                    <label style="display: block; margin-bottom: 0.5rem;">תאריך:</label>
+                                <div class="text-start mb-3">
+                                    <label class="d-block mb-2">תאריך:</label>
                                     <input type="date" id="editDate" class="swal2-input fund-popup-input" value="${historyItem.date}">
-                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום:</label>
+                                    <label class="d-block mb-2 mt-3">סכום:</label>
                                     <input type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}">
-                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">מטרת תשלום:</label>
+                                    <label class="d-block mb-2 mt-3">מטרת תשלום:</label>
                                     <select id="editPurpose" class="swal2-select fund-popup-input">
                                         ${this.getPurposeOptionsHtml(historyItem.purposeId)}
                                     </select>
-                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">פרטים:</label>
+                                    <label class="d-block mb-2 mt-3">פרטים:</label>
                                     <textarea id="editDetails" class="swal2-textarea fund-popup-input">${this.escapeHtml(historyItem.details || '')}</textarea>
                                 </div>
                             `,
@@ -9251,12 +9215,12 @@
                         Swal.fire({
                             title: `עריכת ${typeLabel}`,
                             html: `
-                                <div style="text-align: right; margin-bottom: 1rem;">
-                                    <label style="display: block; margin-bottom: 0.5rem;">תאריך:</label>
+                                <div class="text-start mb-3">
+                                    <label class="d-block mb-2">תאריך:</label>
                                     <input type="date" id="editDate" class="swal2-input fund-popup-input" value="${historyItem.date}">
                                     ${this.fundMemberBlockHtml('edit', hasMember, historyItem.memberId)}
-                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום (מינוס = יתרה שלילית):</label>
-                                    <input type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}" style="direction: ltr;">
+                                    <label class="d-block mb-2 mt-3">סכום (מינוס = יתרה שלילית):</label>
+                                    <input dir="ltr" type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}">
                                     ${this.fundDescBlockHtml('edit', hasMember, historyItem.desc)}
                                 </div>
                             `,
@@ -9294,12 +9258,12 @@
                         Swal.fire({
                             title: `עריכת ${typeLabel}`,
                             html: `
-                                <div style="text-align: right; margin-bottom: 1rem;">
-                                    <label style="display: block; margin-bottom: 0.5rem;">תאריך:</label>
+                                <div class="text-start mb-3">
+                                    <label class="d-block mb-2">תאריך:</label>
                                     <input type="date" id="editDate" class="swal2-input fund-popup-input" value="${historyItem.date}">
-                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">שם:</label>
+                                    <label class="d-block mb-2 mt-3">שם:</label>
                                     <input type="text" id="editName" class="swal2-input fund-popup-input" value="${this.escapeHtml(historyItem.memberName || '')}">
-                                    <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום (יופחת מהקופה):</label>
+                                    <label class="d-block mb-2 mt-3">סכום (יופחת מהקופה):</label>
                                     <input type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}">
                                 </div>
                             `,
@@ -9350,17 +9314,17 @@
 
                     // ═══ עריכת "התחייבות" ═══
                     const nameFieldHtml = `
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">שם:</label>
+                                <label class="d-block mb-2 mt-3">שם:</label>
                                 <input type="text" id="editName" class="swal2-input fund-popup-input" value="${this.escapeHtml(historyItem.memberName || '')}">`;
 
                     Swal.fire({
                         title: `עריכת ${typeLabel}`,
                         html: `
-                            <div style="text-align: right; margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem;">תאריך:</label>
+                            <div class="text-start mb-3">
+                                <label class="d-block mb-2">תאריך:</label>
                                 <input type="date" id="editDate" class="swal2-input fund-popup-input" value="${historyItem.date}">
                                 ${nameFieldHtml}
-                                <label style="display: block; margin-bottom: 0.5rem; margin-top: 1rem;">סכום:</label>
+                                <label class="d-block mb-2 mt-3">סכום:</label>
                                 <input type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}">
                             </div>
                         `,
