@@ -4837,7 +4837,6 @@
                 // תזכורת חיבור דרייב בדף הבית: זמן (ms) עד אליו התיבה מוסתרת (נשמר במכשיר זה בלבד)
                 driveBannerHiddenUntil: (() => { try { return Number(localStorage.getItem('synagogue_drive_banner_hidden_until')) || 0; } catch (e) { return 0; } })(),
                 googleDriveAccessToken: '',
-                googleDriveTokenClient: null,
                 googleDriveFiles: [],
                 googleDriveLoadingFiles: false,
                 googleDriveBackingUp: false,
@@ -8560,9 +8559,11 @@
                 async _ensureDriveCodeClient() {
                     const clientId = this._validDriveClientId();
                     await this._loadGoogleIdentityScript();
-                    if (!this.googleDriveTokenClient || this._driveClientIdUsed !== clientId) {
+                    // חשוב: הלקוח של גוגל נשמר ב-window ולא ב-state של Alpine. אחרת Alpine עוטף אותו ב-Proxy
+                    // וניסיון הקריאה מחלון ה-popup של accounts.google.com נחסם (SecurityError cross-origin)
+                    if (!window.__driveCodeClient || this._driveClientIdUsed !== clientId) {
                         this._driveClientIdUsed = clientId;
-                        this.googleDriveTokenClient = google.accounts.oauth2.initCodeClient({
+                        window.__driveCodeClient = google.accounts.oauth2.initCodeClient({
                             client_id: clientId,
                             scope: 'https://www.googleapis.com/auth/drive.file',
                             ux_mode: 'popup',
@@ -8578,7 +8579,7 @@
                             }
                         });
                     }
-                    return this.googleDriveTokenClient;
+                    return window.__driveCodeClient;
                 },
 
                 // פותח את חלון ההרשאה של גוגל (חייב לקרות מתוך לחיצה של המשתמש) ומחזיר authorization code
