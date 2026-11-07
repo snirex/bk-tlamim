@@ -6,7 +6,9 @@
     <!--
     * privacy policy
     * view information about the app on login page
-    * add google drive connection
+    * add google drive connection    
+        fix connection to google drive - 7.11.26:
+        https://claude.ai/chat/5f5cb123-d50d-412e-b1e8-5b01111f0b29
     * Google connection details
         https://claude.ai/chat/a99473b9-e524-4caa-a4e9-ea3d52f2436a
         https://gemini.google.com/app/e60de666d583fbf1?hl=he
@@ -3135,7 +3137,13 @@
                         <!-- חיבור לגוגל דרייב -->
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.googleDriveOpen = !ui.googleDriveOpen">
-                                <h6 class="mb-0 fw-bold">☁️ חיבור לגוגל דרייב (גיבוי אוטומטי)</h6>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2 c-google"></i>חיבור לגוגל דרייב</h6>                            
+                                    <span x-show="googleDriveConnected" class="badge bg-success">
+                                        מחובר <span x-show="googleDriveUserEmail" x-text="' — ' + googleDriveUserEmail"></span>
+                                    </span>
+                                </div>
+                            
                                 <i class="fas c-sec" :class="ui.googleDriveOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
                             <div class="section-body"
@@ -3158,10 +3166,11 @@
                                         </div>
                                         <div class="alert alert-info py-2 small mb-2"
                                             x-show="defaultGoogleClientId && !config.googleDrive?.connectedOnce">
-                                            לחץ על "התחבר לגוגל דרייב", בחר את חשבון הגוגל שלך ואשר את ההרשאה. זהו.
+                                            לחץ על "התחבר לגוגל דרייב", בחר את חשבון הגוגל שלך ואשר את ההרשאה.
+                                            <br/>
                                             האתר יקבל גישה <b>רק לקבצים שהוא עצמו יוצר</b> בדרייב שלך, ולא לשאר הקבצים.
-                                            אם גוגל מציגה הודעה שהאפליקציה "לא מאומתת": "Advanced" ← "Go to ...
-                                            (unsafe)".
+                                            <br/>
+                                            אם גוגל מציגה הודעה שהאפליקציה "לא מאומתת", אז לחץ: "Advanced" ← "Go to ... (unsafe)".
                                         </div>
                                         <details class="mb-2" :open="!defaultGoogleClientId"
                                             x-show="showAdvancedDriveSettings">
@@ -3212,9 +3221,6 @@
 
                                 <template x-if="googleDriveConnected">
                                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <span class="badge bg-success">מחובר</span>
-                                        <span x-show="googleDriveUserEmail" dir="ltr" class="small"
-                                            x-text="googleDriveUserEmail"></span>
                                         <a x-show="config.googleDrive.folderId" target="_blank"
                                             :href="'https://drive.google.com/drive/folders/' + config.googleDrive.folderId"
                                             class="btn btn-sm btn-outline-primary">
@@ -3492,7 +3498,15 @@
 
 
             <!-- ══════════════════════════ ייצוא / ייבוא ══════════════════════════ -->
-            <div x-show="view === 'importexport'" x-cloak>
+            <div x-show="view === 'importexport'" x-cloak
+            x-effect="if (googleDriveConnected) {
+                    ui.googleDriveBackupOpen = true;
+                    ui.backupOpen = false;
+                } else {
+                    ui.googleDriveBackupOpen = false;
+                    ui.backupOpen = true;
+                }
+            ">>
                 <div class="page-header">
                     <h1 class="page-title mb-0"><i class="fas fa-exchange-alt"></i>גיבוי ושחזור</h1>
                 </div>
@@ -3500,7 +3514,7 @@
                 <!-- גיבוי מלא -->
                 <div class="content-card mb-3">
                     <div class="section-header" @click="ui.backupOpen = !ui.backupOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-download-alt me-2 c-pri"></i>גיבוי מערכת מלא
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-cloud-download-alt me-2 c-pri"></i>גיבוי למחשב
                             <small class="fw-normal d-block d-sm-inline c-sec fs-xs" x-show="lastBackupTime">
                                 <span class="d-none d-sm-inline"> — </span>גיבוי אחרון: <span
                                     x-text="lastBackupTime"></span>
@@ -3555,6 +3569,7 @@
                                             :class="{ 'bg-main': idx % 2 === 0 }">
                                             <i class="fas fa-check-circle me-1 c-green"></i>
                                             <span x-text="item.time"></span>
+                                            <span x-show="item.filename" class="text-muted ms-2" x-text="item.filename"></span>
                                         </li>
                                     </template>
                                 </ul>
@@ -3566,10 +3581,17 @@
                 <!-- גיבוי לגוגל דרייב -->
                 <div class="content-card mb-3">
                     <div class="section-header" @click="ui.googleDriveBackupOpen = !ui.googleDriveBackupOpen">
-                        <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2 c-google"></i>גיבוי
-                            לגוגל דרייב</h6>
+                        <div class="d-flex align-items-center gap-2">
+                            <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2 c-google"></i>גיבוי לגוגל דרייב</h6>
+                    
+                            <span x-show="googleDriveConnected" class="badge bg-success">
+                                מחובר
+                                <span x-show="googleDriveUserEmail" x-text="' — ' + googleDriveUserEmail"></span>
+                            </span>
+                        </div>                    
                         <i class="fas c-sec" :class="ui.googleDriveBackupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
+
                     <div class="section-body section-visible"
                         :class="{ collapsed: !ui.googleDriveBackupOpen }">
                         <template x-if="!googleDriveConnected">
@@ -3602,14 +3624,19 @@
                         </template>
                         <template x-if="googleDriveConnected">
                             <div class="mt-2">
-                                <span class="badge bg-success">מחובר<span x-show="googleDriveUserEmail"
-                                        x-text="' — ' + googleDriveUserEmail"></span></span>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="googleDriveOverwriteExisting"
+                                        x-model="googleDriveOverwriteExisting"
+                                        @change="try { localStorage.setItem('synagogue_drive_overwrite', googleDriveOverwriteExisting ? '1' : '0') } catch (e) { }">
+                                    <label class="form-check-label small" for="googleDriveOverwriteExisting">
+                                        דרוס קובץ גיבוי קיים (במקום ליצור קובץ חדש)
+                                    </label>
+                                </div>
                                 <div class="d-flex gap-2 flex-wrap align-items-center mb-2">
                                     <button class="btn btn-primary btn-sm" @click="backupToGoogleDrive()"
                                         :disabled="googleDriveBackingUp">
                                         <span x-show="!googleDriveBackingUp"><i
-                                                class="fas fa-cloud-upload-alt me-1"></i>גבה
-                                            עכשיו לדרייב</span>
+                                                class="fas fa-cloud-upload-alt me-1"></i>גבה עכשיו לדרייב</span>
                                         <span x-show="googleDriveBackingUp"><i
                                                 class="fas fa-spinner fa-spin me-1"></i>מעלה...</span>
                                     </button>
@@ -3638,9 +3665,15 @@
                                                     <i class="fas fa-file-alt me-1 c-google"></i>
                                                     <span x-text="f.name"></span>
                                                     <span class="text-muted"
-                                                        x-text="' · ' + formatDriveFileDate(f.createdTime) + ' · ' + formatDriveFileSize(f.size)"></span>
+                                                        x-text="' · ' + formatDriveFileDate(f.modifiedTime || f.createdTime) + ' · ' + formatDriveFileSize(f.size)"></span>
                                                 </div>
                                                 <div class="d-flex gap-1">
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        @click="downloadGoogleDriveBackup(f.id, f.name)" title="הורדה"
+                                                        :disabled="googleDriveDownloadingId === f.id">
+                                                        <i class="fas"
+                                                            :class="googleDriveDownloadingId === f.id ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+                                                    </button>
                                                     <button class="btn btn-sm btn-outline-success"
                                                         @click="restoreFromGoogleDrive(f.id, f.name)" title="שחזר">
                                                         <i class="fas fa-undo"></i>
@@ -4729,7 +4762,7 @@
                 darkMode: localStorage.getItem('synagogue_dark_mode') === 'true',
                 ui: {
                     synagogueOpen: false,
-                    backupOpen: true,
+                    backupOpen: false,
                     debtorsCollapsed: true,
                     homeCollapsed: true,
 
@@ -4840,7 +4873,11 @@
                 googleDriveFiles: [],
                 googleDriveLoadingFiles: false,
                 googleDriveBackingUp: false,
+                googleDriveDownloadingId: '',
+                // דריסת קובץ הגיבוי הקיים בדרייב (ברירת מחדל: מסומן; הבחירה נשמרת במכשיר זה)
+                googleDriveOverwriteExisting: (() => { try { return localStorage.getItem('synagogue_drive_overwrite') !== '0'; } catch (e) { return true; } })(),
                 googleDriveUserEmail: '',
+                
                 _gisLoaded: false,
                 googleDriveNeedsClick: false,   // חיבור קיים בחשבון, אך במכשיר הזה נדרשת לחיצה אחת להפעלה
                 _driveTokenExpiry: 0,
@@ -6578,8 +6615,8 @@
                     if (!this.backupPreviewText) return;
                     const isJson = this.backupPreviewFilename.endsWith('.json');
                     const mime = isJson ? 'application/json' : 'text/plain';
-                    this._downloadFile(this.backupPreviewText, this.backupPreviewFilename, mime);
-                    if (isJson) this.recordBackupEvent();
+                    this._downloadFile(this.backupPreviewText, this.backupPreviewFilename, mime);                    
+                    if (isJson) this.recordBackupEvent(this.backupPreviewFilename);
                 },
 
                 // Print dialog with column selector
@@ -7986,8 +8023,8 @@
                             return { ...t, name: member ? member.name : '', nickname: member ? member.nickname : '' };
                         });
                         const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, paymentPurposes: this.paymentPurposes, exportDate: date };
-                        this._downloadFile(JSON.stringify(backup, null, 2), `${filename}.json`, 'application/json');
-                        this.recordBackupEvent();
+                        this._downloadFile(JSON.stringify(backup, null, 2), `${filename}.json`, 'application/json');                        
+                        this.recordBackupEvent(`${filename}.json`);
                     } else if (format === 'excel') {
                         const wb = XLSX.utils.book_new();
                         const membersWs = XLSX.utils.json_to_sheet(this.members);
@@ -8500,9 +8537,15 @@
                         }
                     });
                 },
-                recordBackupEvent() {
-                    this.backupHistory.unshift({ time: this._nowLabel() });
-                    if (this.backupHistory.length > 5) this.backupHistory = this.backupHistory.slice(0, 5);
+                recordBackupEvent(filename = '') {
+                    this.backupHistory.unshift({
+                        time: this._nowLabel(),
+                        filename: filename
+                    });
+
+                    if (this.backupHistory.length > 5)
+                        this.backupHistory = this.backupHistory.slice(0, 5);
+
                     this._saveBackupMeta();
                 },
                 recordRestoreEvent() {
@@ -8782,9 +8825,10 @@
                         }
                     };
                     if (!this.googleDriveAccessToken || Date.now() > this._driveTokenExpiry) await refresh();
+                    const { raw, ...fetchOptions } = options;
                     const doFetch = async () => fetch(url, {
-                        ...options,
-                        headers: { ...(options.headers || {}), Authorization: `Bearer ${this.googleDriveAccessToken}` }
+                        ...fetchOptions,
+                        headers: { ...(fetchOptions.headers || {}), Authorization: `Bearer ${this.googleDriveAccessToken}` }
                     });
                     let res = await doFetch();
                     if (res.status === 401) { await refresh(); res = await doFetch(); }
@@ -8794,6 +8838,7 @@
                         const err = new Error(msg); err.status = res.status;
                         throw err;
                     }
+                    if (raw) return res.blob();
                     const ct = res.headers.get('content-type') || '';
                     if (ct.includes('application/json')) return res.json();
                     return res.text();
@@ -8826,22 +8871,50 @@
                         const folderId = await this.ensureGoogleDriveFolder();
                         const date = new Date().toISOString().split('T')[0];
                         const time = new Date().toTimeString().slice(0, 5).replace(':', '-');
-                        const filename = `betkneset_backup_${date}_${time}.json`;
+                        const LATEST_NAME = 'betkneset_backup_latest.json';
+                        const overwrite = !!this.googleDriveOverwriteExisting;
+                        const filename = overwrite ? LATEST_NAME : `betkneset_backup_${date}_${time}.json`;
                         const content = this._buildBackupJsonString();
-                        const metadata = { name: filename, parents: [folderId], mimeType: 'application/json' };
-                        const boundary = '-------betkneset' + Date.now();
-                        const body =
-                            `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
-                            `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n` +
-                            `--${boundary}--`;
-                        await this._driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,createdTime,size', {
-                            method: 'POST',
-                            headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
-                            body
-                        });
+
+                        // במצב דריסה: מחפשים את קובץ ה"אחרון" בתיקיית הגיבויים (רק הוא נדרס, שאר הגיבויים נשארים)
+                        let existingId = null;
+                        if (overwrite) {
+                            const q = encodeURIComponent(`name='${LATEST_NAME}' and '${folderId}' in parents and trashed=false`);
+                            const found = await this._driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime desc&fields=files(id,name)&pageSize=1`);
+                            existingId = found?.files?.[0]?.id || null;
+                        }
+
+                        let replaced = false;
+                        if (existingId) {
+                            try {
+                                // החלפת התוכן של הקובץ הקיים (PATCH)
+                                await this._driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${existingId}?uploadType=media&fields=id,name,modifiedTime,size`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                                    body: content
+                                });
+                                replaced = true;
+                            } catch (e) {
+                                // הקובץ נמחק/אין הרשאה אליו -> ניפול ליצירת קובץ חדש
+                                if (e.status !== 404 && e.status !== 403) throw e;
+                            }
+                        }
+                        if (!replaced) {
+                            const metadata = { name: filename, parents: [folderId], mimeType: 'application/json' };
+                            const boundary = '-------betkneset' + Date.now();
+                            const body =
+                                `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+                                `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n` +
+                                `--${boundary}--`;
+                            await this._driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,createdTime,size', {
+                                method: 'POST',
+                                headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
+                                body
+                            });
+                        }
                         this.recordBackupEvent();
                         await this.listGoogleDriveBackups();
-                        Swal.fire({ icon: 'success', title: 'הגיבוי הועלה לגוגל דרייב!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+                        Swal.fire({ icon: 'success', title: replaced ? 'הגיבוי בדרייב עודכן (הקובץ הקיים הוחלף)!' : 'הגיבוי הועלה לגוגל דרייב!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
                     } catch (err) {
                         Swal.fire('שגיאה בגיבוי לדרייב', err.message || 'נסה שוב', 'error');
                     } finally {
@@ -8855,7 +8928,7 @@
                     try {
                         const listIn = async (folderId) => {
                             const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
-                            return this._driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=createdTime desc&fields=files(id,name,createdTime,size)&pageSize=100`);
+                            return this._driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime desc&fields=files(id,name,createdTime,modifiedTime,size)&pageSize=100`);
                         };
                         let folderId = await this.ensureGoogleDriveFolder();
                         let res;
@@ -8900,6 +8973,29 @@
                         Swal.fire({ icon: 'success', title: 'שחזור הושלם ונשמר בבסיס הנתונים!', text: `${(backup.members || []).length} מתפללים, ${(backup.transactions || []).length} תנועות`, timer: 3000 });
                     } catch (err) {
                         Swal.fire('שגיאה בשחזור', err.message || 'קובץ לא תקין', 'error');
+                    }
+                },
+
+                // הורדת קובץ גיבוי מהדרייב ישירות למכשיר (ללא מעבר לגוגל דרייב)
+                async downloadGoogleDriveBackup(fileId, fileName) {
+                    if (this.googleDriveDownloadingId) return;
+                    this.googleDriveDownloadingId = fileId;
+                    try {
+                        const blob = await this._driveFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { raw: true });
+                        const safeName = (fileName || 'betkneset_backup.json').replace(/[\\/:*?"<>|]/g, '_');
+                        const url = URL.createObjectURL(new Blob([blob], { type: 'application/json' }));
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = safeName;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        setTimeout(() => URL.revokeObjectURL(url), 10000);
+                        Swal.fire({ icon: 'success', title: 'הקובץ הורד', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+                    } catch (err) {
+                        Swal.fire('שגיאה בהורדה', err.message || 'נסה שוב', 'error');
+                    } finally {
+                        this.googleDriveDownloadingId = '';
                     }
                 },
 
