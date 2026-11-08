@@ -14,6 +14,7 @@
         https://gemini.google.com/app/e60de666d583fbf1?hl=he
     * addNewEntry - add toggle wether to jump to search mitpalel right after 'adding entry'
     * 21.10.26 - add function to log mitpalel login erros: logErrorToFirestore
+    * fix - don't show funds in report page
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2915,15 +2916,6 @@
                                                 <input type="checkbox" :value="m.memberUniqueId"
                                                     x-model="reportParams.selectedMembers" class="me-1">
                                                 <span x-text="m.name"></span>
-                                            </label>
-                                        </template>
-                                        <template
-                                            x-for="fund in funds.filter(f => !reportMemberSearch || f.name.toLowerCase().includes(reportMemberSearch.toLowerCase()))"
-                                            :key="'fund_' + fund.id">
-                                            <label class="btn btn-sm btn-outline-warning">
-                                                <input type="checkbox" :value="'fund_' + fund.id"
-                                                    x-model="reportParams.selectedMembers" class="me-1">
-                                                <span x-text="'🏦 ' + fund.name"></span>
                                             </label>
                                         </template>
                                     </div>
@@ -6927,33 +6919,6 @@
                         .join(' | ');
                 },
 
-                // הופך את היסטוריית כל הקופות לשורות בפורמט תנועה, לשימוש בדוחות ובסיכום
-                getFundReportRows() {
-                    const rows = [];
-                    this.funds.forEach(fund => {
-                        (fund.history || []).forEach(h => {
-                            const typeLabel = h.type === 'commitment' ? 'התחייבות'
-                                : h.type === 'payment' ? 'תשלום'
-                                    : h.type === 'addition' ? 'הוספה'
-                                        : h.type === 'reduction' ? 'הפחתה' : 'ריקון';
-                            rows.push({
-                                transactionId: 'fund_' + h.id,
-                                memberId: 'fund_' + fund.id,
-                                memberName: '🏦 ' + fund.name,
-                                transactionType: (h.type === 'commitment' || h.type === 'addition') ? 'commitments' : 'payments',
-                                date: h.date || '',
-                                purpose: h.type === 'reduction' ? (h.purposeName || typeLabel) : typeLabel,
-                                amount: Number(h.amount) || 0,
-                                typeLabel,
-                                details: h.type === 'reduction' ? (h.details || '')
-                                    : h.type === 'payment' ? [h.memberName, h.paymentMethod, h.reference ? `אסמכתא ${h.reference}` : ''].filter(Boolean).join(' | ')
-                                        : [h.desc, h.initiatedBy ? `בוצע ע"י: ${h.initiatedBy}` : ''].filter(Boolean).join(' | ')
-                            });
-                        });
-                    });
-                    return rows;
-                },
-
                 scrollToElement(targetId) {
                     this.$nextTick(() => {
                         const element = document.getElementById(targetId);
@@ -6971,24 +6936,15 @@
                     }
                     if (this.reportParams.fromDate) filtered = filtered.filter(t => (t.commitmentDate || t.paymentDate || '') >= this.reportParams.fromDate);
                     if (this.reportParams.toDate) filtered = filtered.filter(t => (t.commitmentDate || t.paymentDate || '') <= this.reportParams.toDate);
-                    if (this.reportParams.selectedMembers.length > 0) filtered = filtered.filter(t => this.reportParams.selectedMembers.includes(t.memberId));
+					
+                    // קופות אינן נכללות בדוחות: תנועת קופה היא תיעוד פנימי של אותו אירוע שכבר מופיע בשורת המתפלל
+                    const selectedReportMembers = this.reportParams.selectedMembers.filter(id => !String(id).startsWith('fund_'));
+                    if (selectedReportMembers.length > 0) filtered = filtered.filter(t => selectedReportMembers.includes(t.memberId));
 
                     let reportData = filtered.map(t => {
                         const member = this.members.find(m => m.memberUniqueId === t.memberId);
                         return { ...t, memberName: member ? member.name : 'לא ידוע', date: t.commitmentDate || t.paymentDate || '', amount: t.commitmentAmount || t.paymentAmount || 0, typeLabel: t.transactionType === 'commitments' ? 'התחייבות' : 'תשלום', details: this.getTransactionDetails(t) };
                     });
-
-                    // ═══ קופות: הוספת פעולות קופה לדוח, באותה לוגיקת הסינון ═══
-                    let fundRows = this.getFundReportRows();
-                    if (this.reportParams.purpose || this.reportParams.selectedPurposes.length > 0) {
-                        const purposes = this.reportParams.selectedPurposes.length > 0
-                            ? this.reportParams.selectedPurposes
-                            : this.reportParams.purpose.split(',').map(p => p.trim()).filter(p => p);
-                        fundRows = fundRows.filter(r => purposes.some(p => r.purpose && (this.reportParams.exactMatch ? r.purpose.toLowerCase() === p.toLowerCase() : r.purpose.toLowerCase().includes(p.toLowerCase()))));
-                    }
-                    if (this.reportParams.fromDate) fundRows = fundRows.filter(r => (r.date || '') >= this.reportParams.fromDate);
-                    if (this.reportParams.toDate) fundRows = fundRows.filter(r => (r.date || '') <= this.reportParams.toDate);
-                    if (this.reportParams.selectedMembers.length > 0) fundRows = fundRows.filter(r => this.reportParams.selectedMembers.includes(r.memberId));
 
                     // מיון: לפי תאריך, ובתוך אותו תאריך - לפי סדר ההזנה המדויק (transactionId מבוסס Date.now(),
                     // כלומר דיוק של מילישניות - עדין הרבה יותר מדקות/שניות)
@@ -6997,7 +6953,7 @@
                         const m = String(row.transactionId || '').match(/(\d+)/);
                         return m ? Number(m[1]) : 0;
                     };
-                    reportData = [...reportData, ...fundRows].sort((a, b) => {
+                    reportData = reportData.sort((a, b) => {
                         const dc = (a.date || '').localeCompare(b.date || '');
                         if (dc !== 0) return dc;
                         return getEntryTs(a) - getEntryTs(b);
