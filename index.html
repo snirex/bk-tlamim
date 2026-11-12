@@ -891,6 +891,7 @@
         }
 
         .batch-popup {
+            display: none;
             position: fixed;
             z-index: 99999;
             min-width: 200px;
@@ -4511,7 +4512,7 @@
     </div>
 
     <!-- ═══ BATCH INTELLISENSE POPUP — at body level to avoid overflow:hidden clipping ═══ -->
-    <div id="batchPopup" class="batch-popup" hidden>
+    <div id="batchPopup" class="batch-popup">
         <!-- populated by batchTaInput() via direct DOM manipulation -->
     </div>
 
@@ -9791,5 +9792,4 @@
         // ===== END DEMO MODE =====
     </script>
 </body>
-
 </html>
