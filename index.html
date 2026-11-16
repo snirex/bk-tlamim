@@ -3223,7 +3223,40 @@
                             </div>
                         </div>
 
-                        <!-- חיבור לגוגל דרייב -->
+                                                <!-- שינוי סיסמת מנהל -->
+                        <div class="content-card" x-show="!window.IS_DEMO">
+                            <div class="section-header" @click="ui.adminPwdOpen = !ui.adminPwdOpen">
+                                <h6 class="mb-0 fw-bold">🔑 שינוי סיסמת כניסה למנהל</h6>
+                                <i class="fas c-sec" :class="ui.adminPwdOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </div>
+                            <div class="section-body" :class="{ collapsed: !ui.adminPwdOpen }">
+                                <p class="small text-muted mt-2">
+                                    כדי לשנות את סיסמת הכניסה, הזן את הסיסמה הנוכחית ואת הסיסמה החדשה פעמיים.
+                                    הסיסמה החדשה חייבת להכיל לפחות 6 תווים.
+                                </p>
+                                <div class="row g-2 mt-1">
+                                    <div class="col-md-4">
+                                        <label class="small fw-bold mb-1">סיסמה נוכחית</label>
+                                        <input type="password" class="form-control" dir="ltr" autocomplete="current-password" x-model="adminPwd.current">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="small fw-bold mb-1">סיסמה חדשה</label>
+                                        <input type="password" class="form-control" dir="ltr" autocomplete="new-password" x-model="adminPwd.next">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="small fw-bold mb-1">אימות סיסמה חדשה</label>
+                                        <input type="password" class="form-control" dir="ltr" autocomplete="new-password" x-model="adminPwd.confirm" @keydown.enter="changeAdminPassword()">
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-primary" :disabled="adminPwdSaving" @click="changeAdminPassword()">
+                                        <i class="fas fa-key"></i> עדכן סיסמה
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+<!-- חיבור לגוגל דרייב -->
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.googleDriveOpen = !ui.googleDriveOpen">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -4749,6 +4782,8 @@
                 adminLinkStep: 'phone', // 'phone' | 'code'
                 adminLinkConfirmation: null,
                 adminLinkedPhone: '',
+                adminPwd: { current: '', next: '', confirm: '' },
+                adminPwdSaving: false,
 
                 // Navigation
                 view: 'home',
@@ -4853,6 +4888,7 @@
                     movOpen: false,
                     fieldsOpen: false,
                     adminPhoneOpen: false,
+                    adminPwdOpen: false,
                     googleDriveOpen: false,
                     homeSearchOpen: false,
                     homeAddOpen: false,
@@ -5874,7 +5910,57 @@
                     }
                 },
 
-                async unlinkAdminPhone() {
+                async changeAdminPassword() {
+                const { current, next, confirm } = this.adminPwd;
+                const user = window.auth && window.auth.currentUser;
+                if (!user || !user.email) {
+                    Swal.fire('שגיאה', 'יש להיות מחוברים כמנהל כדי לשנות סיסמה', 'error');
+                    return;
+                }
+                if (!current || !next || !confirm) {
+                    Swal.fire('שגיאה', 'נא למלא את כל השדות', 'error');
+                    return;
+                }
+                if (next.length < 6) {
+                    Swal.fire('שגיאה', 'הסיסמה החדשה חייבת להכיל לפחות 6 תווים', 'error');
+                    return;
+                }
+                if (next !== confirm) {
+                    Swal.fire('שגיאה', 'הסיסמאות החדשות אינן זהות', 'error');
+                    return;
+                }
+                if (next === current) {
+                    Swal.fire('שגיאה', 'הסיסמה החדשה חייבת להיות שונה מהנוכחית', 'error');
+                    return;
+                }
+                this.adminPwdSaving = true;
+                try {
+                    Swal.fire({ title: 'מעדכן סיסמה...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    // אימות מחדש עם הסיסמה הנוכחית (דרישה של Firebase לפני שינוי סיסמה)
+                    const cred = window.fsMethods.EmailAuthProvider.credential(user.email, current);
+                    await window.fsMethods.reauthenticateWithCredential(user, cred);
+                    await window.fsMethods.updatePassword(user, next);
+                    this.adminPwd = { current: '', next: '', confirm: '' };
+                    Swal.close();
+                    Swal.fire({ icon: 'success', title: 'הסיסמה עודכנה בהצלחה', timer: 1800, showConfirmButton: false });
+                } catch (err) {
+                    console.error('changeAdminPassword error:', err.code, err.message);
+                    Swal.close();
+                    const msgs = {
+                        'auth/invalid-credential': 'הסיסמה הנוכחית שגויה',
+                        'auth/wrong-password': 'הסיסמה הנוכחית שגויה',
+                        'auth/weak-password': 'הסיסמה החדשה חלשה מדי',
+                        'auth/requires-recent-login': 'נדרשת כניסה מחדש. התנתק והתחבר ונסה שוב',
+                        'auth/too-many-requests': 'יותר מדי ניסיונות. נסה שוב מאוחר יותר',
+                        'auth/network-request-failed': 'בעיית תקשורת. בדוק את החיבור לאינטרנט'
+                    };
+                    Swal.fire('שגיאה', msgs[err.code] || err.message || 'נסה שוב', 'error');
+                } finally {
+                    this.adminPwdSaving = false;
+                }
+            },
+
+async unlinkAdminPhone() {
                     const confirm = await Swal.fire({
                         title: 'לבטל את הקישור?',
                         text: 'לא תוכל יותר להיכנס עם קוד SMS למספר הזה',
@@ -9834,7 +9920,8 @@
         import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
         import {
             getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
-            signInWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider, linkWithCredential, unlink
+            signInWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider, linkWithCredential, unlink,
+            EmailAuthProvider, reauthenticateWithCredential, updatePassword
         } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-functions.js";
 
@@ -9865,7 +9952,8 @@
             window.functions = functions;
             window.fsMethods = {
                 doc, setDoc, getDoc, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut,
-                signInWithPhoneNumber, RecaptchaVerifier, httpsCallable, PhoneAuthProvider, linkWithCredential, unlink
+                signInWithPhoneNumber, RecaptchaVerifier, httpsCallable, PhoneAuthProvider, linkWithCredential, unlink,
+                EmailAuthProvider, reauthenticateWithCredential, updatePassword
             };
 
             console.log("snir - Firebase initialized successfully");
