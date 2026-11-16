@@ -1738,95 +1738,291 @@
             background: rgba(220, 53, 69, 0.14);
             color: #dc3545;
         }
-        /* ═══ endof CHANGELOG (מסך שינויים) ═══ */		
+
+        /* ═══ endof CHANGELOG (מסך שינויים) ═══ */
 
         /* ═══════════════════════════════════════════════════════════════
            SHARED CLASSES (replace the former inline style="" attributes)
            ═══════════════════════════════════════════════════════════════ */
 
         /* — text colour / background / font-size / misc utilities — */
-        .c-sec { color: var(--text-secondary) !important; }
-        .c-pri { color: var(--primary-color) !important; }
-        .c-acc { color: var(--accent-color) !important; }
-        .c-txt { color: var(--text-primary) !important; }
-        .c-green { color: #28a745 !important; }
-        .c-google { color: #4285F4 !important; }
-        .bg-main { background-color: var(--bg-main); }
-        .bg-pri { background-color: var(--primary-color) !important; }
-        .bg-green { background-color: #28a745 !important; }
-        .fs-xs { font-size: 0.75rem !important; }
-        .fs-sm { font-size: 0.85rem !important; }
-        .pointer { cursor: pointer; }
-        .flex-1 { flex: 1; min-width: 0; }
-        .mw-field { max-width: 260px; }
-        .border-top, .border-bottom { border-color: var(--border-color) !important; }
+        .c-sec {
+            color: var(--text-secondary) !important;
+        }
+
+        .c-pri {
+            color: var(--primary-color) !important;
+        }
+
+        .c-acc {
+            color: var(--accent-color) !important;
+        }
+
+        .c-txt {
+            color: var(--text-primary) !important;
+        }
+
+        .c-green {
+            color: #28a745 !important;
+        }
+
+        .c-google {
+            color: #4285F4 !important;
+        }
+
+        .bg-main {
+            background-color: var(--bg-main);
+        }
+
+        .bg-pri {
+            background-color: var(--primary-color) !important;
+        }
+
+        .bg-green {
+            background-color: #28a745 !important;
+        }
+
+        .fs-xs {
+            font-size: 0.75rem !important;
+        }
+
+        .fs-sm {
+            font-size: 0.85rem !important;
+        }
+
+        .pointer {
+            cursor: pointer;
+        }
+
+        .flex-1 {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mw-field {
+            max-width: 260px;
+        }
+
+        .border-top,
+        .border-bottom {
+            border-color: var(--border-color) !important;
+        }
 
         /* — form pieces — */
-        .lbl { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
-        .sec-title { margin-bottom: 1rem; color: var(--primary-color); font-weight: 600; }
-        .inp-lg { font-size: 1rem; padding: 0.75rem; }
-        .otp { letter-spacing: 6px; font-size: 1.4rem; }
-        .ta-v { min-height: 70px; resize: vertical; }
-        .btn-xs { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
-        .btn-compact { padding: 0.5rem 0.65rem; border-radius: 7px; }
+        .lbl {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .sec-title {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .inp-lg {
+            font-size: 1rem;
+            padding: 0.75rem;
+        }
+
+        .otp {
+            letter-spacing: 6px;
+            font-size: 1.4rem;
+        }
+
+        .ta-v {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .btn-xs {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-compact {
+            padding: 0.5rem 0.65rem;
+            border-radius: 7px;
+        }
+
         .alert-x {
-            position: absolute; left: 8px; bottom: 4px; padding: 0 4px;
-            background: none; border: none; line-height: 1;
-            font-size: 1.1rem; color: inherit; opacity: .6; cursor: pointer;
+            position: absolute;
+            left: 8px;
+            bottom: 4px;
+            padding: 0 4px;
+            background: none;
+            border: none;
+            line-height: 1;
+            font-size: 1.1rem;
+            color: inherit;
+            opacity: .6;
+            cursor: pointer;
         }
 
         /* — scroll boxes — */
-        .scroll-y { max-height: 260px; overflow-y: auto; }
-        .scroll-y.sm { max-height: 140px; }
-        .scroll-y.lg { max-height: 400px; }
-        .scroll-y.tall { max-height: 70vh; }
+        .scroll-y {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .scroll-y.sm {
+            max-height: 140px;
+        }
+
+        .scroll-y.lg {
+            max-height: 400px;
+        }
+
+        .scroll-y.tall {
+            max-height: 70vh;
+        }
 
         /* — funds screen — */
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-        .fund-box {
-            padding: 0.75rem; background: var(--bg-main);
-            border-radius: 8px; border: 1px solid var(--border-color);
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
         }
-        .ft { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .ft th, .ft td { padding: 0.75rem; text-align: right; }
-        .ft th { font-weight: 600; }
-        .ft thead tr { background: var(--bg-main); border-bottom: 2px solid var(--border-color); }
-        .ft tbody tr { border-bottom: 1px solid var(--border-color); }
+
+        .fund-box {
+            padding: 0.75rem;
+            background: var(--bg-main);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .ft {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .ft th,
+        .ft td {
+            padding: 0.75rem;
+            text-align: right;
+        }
+
+        .ft th {
+            font-weight: 600;
+        }
+
+        .ft thead tr {
+            background: var(--bg-main);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .ft tbody tr {
+            border-bottom: 1px solid var(--border-color);
+        }
 
         /* — header / login / layout — */
-        .logo-img { width: 32px; height: 32px; object-fit: cover; }
-        .logo-img-lg { width: 40px; height: 40px; border: 2px solid var(--border-color); }
-        .login-card.login-wide { max-width: 720px; width: 95%; }
-        .btn.login-tab-on { border-bottom: 2px solid var(--primary-color); }
-        .main-content.main-readonly { margin-right: 0; padding: 2rem; }
+        .logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+        }
+
+        .logo-img-lg {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--border-color);
+        }
+
+        .login-card.login-wide {
+            max-width: 720px;
+            width: 95%;
+        }
+
+        .btn.login-tab-on {
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .main-content.main-readonly {
+            margin-right: 0;
+            padding: 2rem;
+        }
+
         .sidebar-btn.active {
-            background: var(--primary-color); color: #fff; border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
         }
 
         /* — db log — */
-        .log-time { min-width: 145px; }
-        .log-type { min-width: 60px; }
-        .log-err { background: rgba(220, 53, 69, 0.07); }
+        .log-time {
+            min-width: 145px;
+        }
+
+        .log-type {
+            min-width: 60px;
+        }
+
+        .log-err {
+            background: rgba(220, 53, 69, 0.07);
+        }
 
         /* — table cell action marks (created from JS) — */
-        .row-confirm-btn, .row-cancel-btn {
-            cursor: pointer; font-weight: bold; font-size: 1.1rem;
+        .row-confirm-btn,
+        .row-cancel-btn {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
         }
-        .row-confirm-btn { color: #28a745; margin-left: 4px; }
-        .row-cancel-btn { color: #dc3545; }
+
+        .row-confirm-btn {
+            color: #28a745;
+            margin-left: 4px;
+        }
+
+        .row-cancel-btn {
+            color: #dc3545;
+        }
 
         /* — PDF export header (html2pdf) — */
         .pdf-fixed {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-            background: #fff; color: #222; text-align: center; direction: rtl;
-            font: bold 14px Arial, sans-serif; letter-spacing: 0.2px; word-spacing: 3px;
-            padding: 6px 0; border-bottom: 1px solid #ccc;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: #fff;
+            color: #222;
+            text-align: center;
+            direction: rtl;
+            font: bold 14px Arial, sans-serif;
+            letter-spacing: 0.2px;
+            word-spacing: 3px;
+            padding: 6px 0;
+            border-bottom: 1px solid #ccc;
         }
-        .pdf-head { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #2c5f7d; padding-bottom: 10px; }
-        .pdf-h2 { margin: 0; color: #2c5f7d; font-size: 22px; font-weight: bold; }
-        .pdf-h3 { margin: 5px 0 0; color: #333; font-size: 18px; }
-        .pdf-sub { margin-top: 5px; font-size: 13px; color: #666; }
 
+        .pdf-head {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #2c5f7d;
+            padding-bottom: 10px;
+        }
+
+        .pdf-h2 {
+            margin: 0;
+            color: #2c5f7d;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .pdf-h3 {
+            margin: 5px 0 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .pdf-sub {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #666;
+        }
     </style>
 
 </head>
@@ -1848,10 +2044,12 @@
                 <!-- ═══ לשוניות: מתפלל / מנהל ═══ -->
                 <div class="d-flex mb-3 border-bottom">
                     <button type="button" @click="loginTab = 'worshipper'; authStep = 'phone'"
-                        class="btn btn-sm flex-fill rounded-0" :class="loginTab === 'worshipper' ? 'fw-bold login-tab-on' : 'text-muted'">
+                        class="btn btn-sm flex-fill rounded-0"
+                        :class="loginTab === 'worshipper' ? 'fw-bold login-tab-on' : 'text-muted'">
                         <i class="fas fa-user"></i> כניסת מתפלל
                     </button>
-                    <button type="button" @click="loginTab = 'admin'" class="btn btn-sm flex-fill rounded-0" :class="loginTab === 'admin' ? 'fw-bold login-tab-on' : 'text-muted'">
+                    <button type="button" @click="loginTab = 'admin'" class="btn btn-sm flex-fill rounded-0"
+                        :class="loginTab === 'admin' ? 'fw-bold login-tab-on' : 'text-muted'">
                         <i class="fas fa-user-shield"></i> כניסת מנהל
                     </button>
                 </div>
@@ -1860,12 +2058,13 @@
                 <div x-show="loginTab === 'worshipper'">
                     <div x-show="authStep === 'phone'">
                         <p class="text-center text-muted small">הזן מספר טלפון נייד לקבלת קוד אימות ב-SMS</p>
-                        <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr" 
-							placeholder="050-0000000" autocomplete="tel" inputmode="tel" name="phone" 
-							@focus="$event.target.select()" id="worshipperPhoneInput" @keydown.enter="sendOtpCode()">
+                        <input type="tel" x-model="worshipperPhone" class="login-input text-center" dir="ltr"
+                            placeholder="050-0000000" autocomplete="tel" inputmode="tel" name="phone"
+                            @focus="$event.target.select()" id="worshipperPhoneInput" @keydown.enter="sendOtpCode()">
 
                         <div id="recaptcha-container"></div>
-                        <button @click="sendOtpCode()" class="btn-primary-custom w-100 justify-content-center mt-2 inp-lg">
+                        <button @click="sendOtpCode()"
+                            class="btn-primary-custom w-100 justify-content-center mt-2 inp-lg">
                             <i class="fas fa-paper-plane"></i> שלח קוד אימות
                         </button>
                     </div>
@@ -1874,9 +2073,9 @@
                         <p class="text-center text-muted small">הזן את הקוד בן 6 הספרות שנשלח למספר
                             <strong x-text="worshipperPhone" dir="ltr"></strong>
                         </p>
-                        <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold otp" placeholder="------" dir="ltr"
-                            autocomplete="one-time-code" inputmode="numeric" name="otp" @input="onOtpInput()"
-                            @keydown.enter="verifyOtpCode()">
+                        <input type="text" x-model="otpCode" maxlength="6" class="login-input text-center fw-bold otp"
+                            placeholder="------" dir="ltr" autocomplete="one-time-code" inputmode="numeric" name="otp"
+                            @input="onOtpInput()" @keydown.enter="verifyOtpCode()">
                         <button @click="verifyOtpCode()" class="btn-primary-custom w-100 justify-content-center inp-lg">
                             <i class="fas fa-check-circle"></i> אימות ואישור
                         </button>
@@ -1922,7 +2121,8 @@
             <!-- ═══ הסבר ציבורי על האפליקציה (אקורדיון מתקפל) ═══ -->
             <div class="login-card mt-3 p-3">
                 <!-- כותרת לחיצה לפתיחה/סגירה -->
-                <div @click="ui.aboutOpen = !ui.aboutOpen" class="d-flex justify-content-between align-items-center pointer user-select-none">
+                <div @click="ui.aboutOpen = !ui.aboutOpen"
+                    class="d-flex justify-content-between align-items-center pointer user-select-none">
                     <h2 class="h6 fw-bold mb-0 c-pri">
                         <i class="fas fa-info-circle me-1"></i> אודות המערכת
                     </h2>
@@ -1969,8 +2169,7 @@
                     </div>
                 </template>
                 <div class="text-center mb-3">
-                    <h3 class="fw-bold c-pri"
-                        x-text="config.synagogueName || 'ניהול בית הכנסת'"></h3>
+                    <h3 class="fw-bold c-pri" x-text="config.synagogueName || 'ניהול בית הכנסת'"></h3>
                     <h5 class="text-muted mb-0">
                         <i class="fas fa-user-circle me-1"></i>
                         <span x-text="worshipperMember?.name"></span>
@@ -2005,7 +2204,8 @@
                             <button @click="exportWorshipperToExcel()" class="btn btn-sm btn-success">
                                 <i class="fas fa-file-excel me-1"></i> Excel
                             </button>
-                            <button @click="screenshotTable('worshipperTableContainer', 'ריכוז_תנועות_' + (worshipperMember?.name || 'מתפלל'))"
+                            <button
+                                @click="screenshotTable('worshipperTableContainer', 'ריכוז_תנועות_' + (worshipperMember?.name || 'מתפלל'))"
                                 class="btn btn-sm btn-secondary" title="צלם תמונה של הטבלה המלאה">
                                 <i class="fas fa-camera me-1"></i> צילום
                             </button>
@@ -2051,18 +2251,19 @@
                             <span x-text="isAdminPreview ? 'חזרה לניהול' : 'יציאה'"></span>
                         </button>
 
-						<!-- ═══ תוספת: קרדיט ופרטים בתחתית מסך המתפלל ═══ -->
-						<footer class="pt-4 mt-3 border-top text-center text-muted small">
-						    <p class="mb-1">נבנה על ידי <strong class="text-primary">שניר אלגבסי</strong> © 2026</p>
-						    <p class="mb-2">Made by <strong class="text-primary">Snir Elgabsi</strong> © 2026</p>
-						    <div class="d-flex justify-content-center gap-2 small text-muted">
-						        <!--<a href="https://github.com/snirex" target="_blank" class="text-muted text-decoration-none">GitHub</a>-->
-						        <span>•</span>
-						        <a href="https://www.linkedin.com/in/snir-elgabsi" target="_blank" class="text-muted text-decoration-none">LinkedIn</a>
-						        <span>•</span>
-						        <a href="mailto:elsnir@gmail.com" class="text-muted text-decoration-none">צור קשר</a>
-						    </div>
-						</footer>						
+                        <!-- ═══ תוספת: קרדיט ופרטים בתחתית מסך המתפלל ═══ -->
+                        <footer class="pt-4 mt-3 border-top text-center text-muted small">
+                            <p class="mb-1">נבנה על ידי <strong class="text-primary">שניר אלגבסי</strong> © 2026</p>
+                            <p class="mb-2">Made by <strong class="text-primary">Snir Elgabsi</strong> © 2026</p>
+                            <div class="d-flex justify-content-center gap-2 small text-muted">
+                                <!--<a href="https://github.com/snirex" target="_blank" class="text-muted text-decoration-none">GitHub</a>-->
+                                <span>•</span>
+                                <a href="https://www.linkedin.com/in/snir-elgabsi" target="_blank"
+                                    class="text-muted text-decoration-none">LinkedIn</a>
+                                <span>•</span>
+                                <a href="mailto:elsnir@gmail.com" class="text-muted text-decoration-none">צור קשר</a>
+                            </div>
+                        </footer>
                     </div>
                 </template>
             </div>
@@ -2151,8 +2352,8 @@
                         @click="if(!quickAdd) { nm.name = memberSearch; memberSearch = ''; } quickAdd = !quickAdd; $nextTick(() => $refs.quickAddName?.focus());">
                         <i class="fas fa-user-plus"></i>
                     </button>
-                    <button class="btn-primary-custom btn-compact bg-green"
-                        @click="importFromContacts()" title="ייבא מאנשי קשר" x-show="contactPickerSupported">
+                    <button class="btn-primary-custom btn-compact bg-green" @click="importFromContacts()"
+                        title="ייבא מאנשי קשר" x-show="contactPickerSupported">
                         <i class="fas fa-address-book"></i>
                     </button>
                 </div>
@@ -2185,8 +2386,7 @@
                 <div class="sidebar-section-title d-flex align-items-center justify-content-between w-100">
                     <div class="d-flex align-items-center gap-1">
                         <i class="fas fa-users"></i> <span>רשימת מתפללים</span>
-                        <span class="badge rounded-pill bg-pri"
-                            x-text="members.length"></span>
+                        <span class="badge rounded-pill bg-pri" x-text="members.length"></span>
                     </div>
                     <button @click="refreshMembers()" class="btn btn-sm p-0 border-0 c-sec ms-auto" title="רענן נתונים">
                         <i class="fas fa-sync-alt" :class="isRefreshing ? 'fa-spin' : ''"></i>
@@ -2222,7 +2422,8 @@
                             </div>
                         </div>
                     </template>
-                    <div id="listOfWorshipper" x-show="filteredMembers.length === 0" class="p-3 text-center c-sec fs-sm">
+                    <div id="listOfWorshipper" x-show="filteredMembers.length === 0"
+                        class="p-3 text-center c-sec fs-sm">
                         אין מתפללים
                     </div>
                 </div>
@@ -2242,8 +2443,7 @@
                     <span class="keyboard-shortcut">Alt+R</span>
                 </button>
                 <button @click="navigate('summary'); mobileMenuOpen = false" class="sidebar-btn"
-                    data-tooltip="סיכום חובות"
-                    :class="{ active: view === 'summary' }">
+                    data-tooltip="סיכום חובות" :class="{ active: view === 'summary' }">
                     <i class="fas fa-chart-bar"></i> <span>סיכום חובות</span>
                     <span class="keyboard-shortcut">Alt+S</span>
                 </button>
@@ -2254,8 +2454,7 @@
                 </button>
 
                 <button @click="navigate('importexport'); mobileMenuOpen = false" class="sidebar-btn"
-                    data-tooltip="גיבוי/שחזור"
-                    :class="{ active: view === 'importexport' }">
+                    data-tooltip="גיבוי/שחזור" :class="{ active: view === 'importexport' }">
                     <i class="fas fa-exchange-alt"></i> <span>גיבוי ושחזור</span>
                     <span class="keyboard-shortcut">Alt+B</span>
                 </button>
@@ -2270,21 +2469,18 @@
                 </div>
 
                 <button @click="navigate('management'); mobileMenuOpen = false" class="sidebar-btn"
-                    data-tooltip="הגדרות"
-                    :class="{ active: view === 'management' }">
+                    data-tooltip="הגדרות" :class="{ active: view === 'management' }">
                     <i class="fas fa-cog"></i> <span>הגדרות</span>
                     <span class="keyboard-shortcut">Alt+G</span>
                 </button>
                 <button @click="navigate('dblog'); mobileMenuOpen = false" class="sidebar-btn"
-                    data-tooltip="יומן פעולות DB"
-                    :class="{ active: view === 'dblog' }">
+                    data-tooltip="יומן פעולות DB" :class="{ active: view === 'dblog' }">
                     <i class="fas fa-database"></i> <span>יומן נתונים</span>
                 </button>
                 <button @click="logout()" class="sidebar-btn mt-2 text-danger border-danger">
                     <i class="fas fa-sign-out-alt"></i> <span>יציאה</span>
                 </button>
-                <div class="sidebar-section-title fs-sm text-break"
-                    x-text="adminEmail || 'חיפוש מתפלל'">
+                <div class="sidebar-section-title fs-sm text-break" x-text="adminEmail || 'חיפוש מתפלל'">
                 </div>
                 <div class="sidebar-section-title fs-sm text-break">
                     <footer class="py-4 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
@@ -2309,10 +2505,9 @@
                         </div>
                         <div class="text-center mt-2 fs-sm">
                             <a href="#view=changelog" @click="mobileMenuOpen = false"
-                                class="text-muted text-decoration-none"
-                                :class="view === 'changelog' ? 'fw-bold' : ''">
+                                class="text-muted text-decoration-none" :class="view === 'changelog' ? 'fw-bold' : ''">
                                 <i class="fas fa-clipboard-list me-1"></i> היסטוריית שינויים
-                                <span dir="ltr" x-text="changelog.length ? 'v' + changelog[0].version : ''"></span>
+                                <span dir="ltr" x-text="latestVersion ? 'v' + latestVersion : ''"></span>
                             </a>
                         </div>
                     </footer>
@@ -2321,7 +2516,8 @@
         </aside>
 
         <!-- ═══ MAIN CONTENT ═══ -->
-        <main class="main-content" :class="[sidebarCollapsed && !readOnlyMode ? 'sidebar-collapsed' : '', readOnlyMode ? 'main-readonly' : '']">
+        <main class="main-content"
+            :class="[sidebarCollapsed && !readOnlyMode ? 'sidebar-collapsed' : '', readOnlyMode ? 'main-readonly' : '']">
 
             <!-- Readonly Banner -->
             <div x-show="readOnlyMode" class="readonly-banner">
@@ -2340,11 +2536,13 @@
                 </div>
 
                 <!-- תזכורת חיבור לגוגל דרייב -->
-                <template x-if="!window.IS_DEMO && isLoggedIn && !googleDriveConnected && Date.now() > driveBannerHiddenUntil">
+                <template
+                    x-if="!window.IS_DEMO && isLoggedIn && !googleDriveConnected && Date.now() > driveBannerHiddenUntil">
                     <div class="alert py-2 small mb-3 d-flex align-items-center gap-2 flex-wrap position-relative pb-4"
                         :class="config.googleDrive?.connectedOnce ? 'alert-info' : 'alert-warning'">
-                        <button class="alert-x" type="button" @click="dismissDriveBanner()" title="הסתר ל-30 יום" aria-label="הסתר ל-30 יום"
-                            onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.6">&times;</button>
+                        <button class="alert-x" type="button" @click="dismissDriveBanner()" title="הסתר ל-30 יום"
+                            aria-label="הסתר ל-30 יום" onmouseover="this.style.opacity=1"
+                            onmouseout="this.style.opacity=.6">&times;</button>
                         <span><i class="fab fa-google me-1"></i>
                             <span x-show="!dataLoaded" class="text-muted">בודק את חיבור הגיבוי לגוגל דרייב...</span>
                             <span x-show="dataLoaded && !config.googleDrive?.connectedOnce"><b>הגיבוי לגוגל דרייב עדיין
@@ -2355,7 +2553,8 @@
                                 <span x-show="config.googleDrive?.userEmail">(<span dir="ltr"
                                         x-text="config.googleDrive?.userEmail"></span>)</span>
                                 <span x-show="googleDriveConnecting"> — מתחבר במכשיר זה...</span>
-                                <span x-show="!googleDriveConnecting"> — נדרש חיבור מחדש חד-פעמי כדי שהחיבור יישאר קבוע.</span>
+                                <span x-show="!googleDriveConnecting"> — נדרש חיבור מחדש חד-פעמי כדי שהחיבור יישאר
+                                    קבוע.</span>
                             </span>
                         </span>
                         <template x-if="dataLoaded && config.googleDrive?.connectedOnce">
@@ -2392,8 +2591,7 @@
                         <h6 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2 c-pri"></i>הוסף התחייבות / תשלום</h6>
                         <i class="fas c-sec" :class="ui.homeAddOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="section-body"
-                        :class="{ collapsed: !ui.homeAddOpen }"
+                    <div class="section-body" :class="{ collapsed: !ui.homeAddOpen }"
                         x-init="$watch('ui.homeAddOpen', v => { if(v) $nextTick(() => _attachHomeEntryEnterNav()) })">
                         <div class="mt-3">
                             <div class="custom-tabs">
@@ -2470,8 +2668,7 @@
                         <h6 class="mb-0 fw-bold"><i class="fas fa-layer-group me-2 c-acc"></i>הוספה מרוכזת</h6>
                         <i class="fas c-sec" :class="ui.batchTxOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="section-body"
-                        :class="{ collapsed: !ui.batchTxOpen }">
+                    <div class="section-body" :class="{ collapsed: !ui.batchTxOpen }">
                         <div class="mt-3">
                             <div class="d-flex gap-2 mb-2">
                                 <button class="btn btn-sm"
@@ -2528,8 +2725,7 @@
                         </h6>
                         <i class="fas c-sec" :class="ui.debtorsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
                     </div>
-                    <div class="section-body section-visible"
-                        :class="{ collapsed: ui.debtorsCollapsed }">
+                    <div class="section-body section-visible" :class="{ collapsed: ui.debtorsCollapsed }">
                         <!-- טבלת מתפללים ביתרת חובה -->
                         <div class="table-toolbar no-print">
                             <button class="table-scroll-btn" @click="openFullPageTable('debtors')">
@@ -2570,12 +2766,10 @@
                     <!-- תנועות אחרונות -->
                     <div class="section-header no-print"
                         @click="ui.homeCollapsed = !ui.homeCollapsed; if (!ui.homeCollapsed) $nextTick(() => renderHomePage())">
-                        <h6 class="fw-bold mb-0 c-pri"><i
-                                class="fas fa-history me-1"></i> תנועות אחרונות</h6>
+                        <h6 class="fw-bold mb-0 c-pri"><i class="fas fa-history me-1"></i> תנועות אחרונות</h6>
                         <i class="fas c-sec" :class="ui.homeCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
                     </div>
-                    <div class="section-body section-visible"
-                        :class="{ collapsed: ui.homeCollapsed }">
+                    <div class="section-body section-visible" :class="{ collapsed: ui.homeCollapsed }">
                         <div class="table-toolbar no-print">
                             <button class="table-scroll-btn" @click="openFullPageTable('home')">
                                 <i class="fas fa-expand"></i> מסך מלא
@@ -2622,7 +2816,8 @@
 
                             <div x-show="selectedMember?.phone">
                                 <i class="fa fa-phone"></i>
-                                <a class="text-white text-decoration-none" :href="selectedMember ? formatWhatsappLink(selectedMember.phone) : '#'">
+                                <a class="text-white text-decoration-none"
+                                    :href="selectedMember ? formatWhatsappLink(selectedMember.phone) : '#'">
                                     <span class="ms-2" x-text="selectedMember?.phone"></span>
                                 </a>
                             </div>
@@ -2767,8 +2962,7 @@
                         <!-- memberUniqueId: read-only -->
                         <div class="col-md-6">
                             <label class="small fw-bold mb-1">מזהה ייחודי</label>
-                            <div class="form-control font-monospace"
-                                x-text="selectedMember?.memberUniqueId"></div>
+                            <div class="form-control font-monospace" x-text="selectedMember?.memberUniqueId"></div>
                         </div>
                         <!-- nickname: editable -->
                         <div class="col-md-6">
@@ -2849,8 +3043,8 @@
                                     class="btn position-absolute top-50 end-0 translate-middle-y border-0">&times;</button>
                             </div>
                             <div class="form-check form-switch mb-2">
-                                <input class="form-check-input pointer" type="checkbox" role="switch" id="reportExactMatch"
-                                    x-model="reportParams.exactMatch">
+                                <input class="form-check-input pointer" type="checkbox" role="switch"
+                                    id="reportExactMatch" x-model="reportParams.exactMatch">
                                 <label class="form-check-label small pointer" for="reportExactMatch">
                                     <span
                                         x-text="reportParams.exactMatch ? 'חיפוש לפי התאמה מדויקת' : 'חיפוש לפי הכלה (מכיל את הטקסט)'"></span>
@@ -2895,7 +3089,8 @@
                                 <div class="section-header"
                                     @click="ui.reportsParamsCollapsed = !ui.reportsParamsCollapsed">
                                     <h6 class="fw-bold mb-0 c-pri">
-                                        <i class="fas fa-users me-1"></i> בחר מתפללים <small class="fw-normal c-sec">(ריק = הכל)</small>
+                                        <i class="fas fa-users me-1"></i> בחר מתפללים <small
+                                            class="fw-normal c-sec">(ריק = הכל)</small>
                                     </h6>
                                     <i class="fas c-sec"
                                         :class="ui.reportsParamsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
@@ -2965,7 +3160,8 @@
                     <button @click="exportToExcel('reportTable', 'דוח')" class="btn btn-sm btn-success">
                         <i class="fas fa-file-excel me-1"></i> Excel
                     </button>
-                    <button @click="screenshotTable('reportTable', 'דוח')" class="btn btn-sm btn-secondary" title="צלם תמונה של הטבלה המלאה">
+                    <button @click="screenshotTable('reportTable', 'דוח')" class="btn btn-sm btn-secondary"
+                        title="צלם תמונה של הטבלה המלאה">
                         <i class="fas fa-camera me-1"></i> צילום
                     </button>
                     <button @click="window.print()" class="btn btn-sm btn-dark">
@@ -2979,8 +3175,7 @@
                         <ul class="dropdown-menu p-2">
                             <template x-for="cd in reportColumnDefs" :key="cd.field">
                                 <li>
-                                    <label class="dropdown-item d-flex align-items-center gap-2 pointer"
-                                        @click.stop>
+                                    <label class="dropdown-item d-flex align-items-center gap-2 pointer" @click.stop>
                                         <input type="checkbox" :checked="cd.visible !== false"
                                             @change="toggleReportColumn(cd.field)">
                                         <span x-text="cd.title"></span>
@@ -3020,7 +3215,8 @@
                     <button @click="exportToExcel('summaryTable', 'סיכום_חובות')" class="btn btn-sm btn-success">
                         <i class="fas fa-file-excel"></i> Excel
                     </button>
-                    <button @click="screenshotTable('summaryTable', 'סיכום_חובות')" class="btn btn-sm btn-secondary" title="צלם תמונה של הטבלה המלאה">
+                    <button @click="screenshotTable('summaryTable', 'סיכום_חובות')" class="btn btn-sm btn-secondary"
+                        title="צלם תמונה של הטבלה המלאה">
                         <i class="fas fa-camera"></i>
                     </button>
                     <button class="btn btn-sm btn-dark" onclick="window.print()">
@@ -3046,10 +3242,10 @@
                         <div class="content-card">
                             <div class="section-header" @click="ui.synagogueOpen = !ui.synagogueOpen">
                                 <h6 class="mb-0 fw-bold">🏛️ שם בית הכנסת ותמונה</h6>
-                                <i class="fas c-sec" :class="ui.synagogueOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                <i class="fas c-sec"
+                                    :class="ui.synagogueOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.synagogueOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.synagogueOpen }">
                                 <div class="row g-3 mt-1 align-items-center">
                                     <div class="col-md-6">
                                         <label class="small fw-bold mb-1">שם בית הכנסת</label>
@@ -3080,10 +3276,10 @@
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.adminPhoneOpen = !ui.adminPhoneOpen">
                                 <h6 class="mb-0 fw-bold">🔐 אפשרויות כניסה למנהל</h6>
-                                <i class="fas c-sec" :class="ui.adminPhoneOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                <i class="fas c-sec"
+                                    :class="ui.adminPhoneOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.adminPhoneOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.adminPhoneOpen }">
                                 <p class="small text-muted mt-2">
                                     קישור מספר טלפון לחשבון המנהל שלך מאפשר להיכנס גם דרך לשונית "מתפלל"
                                     במסך הכניסה, עם קוד SMS במקום סיסמה. זה חד-פעמי - אחרי הקישור, הזנת
@@ -3104,8 +3300,8 @@
                                     <div>
                                         <div x-show="adminLinkStep === 'phone'"
                                             class="d-flex gap-2 flex-wrap align-items-center">
-                                            <input type="tel" x-model="adminLinkPhone" class="form-control mw-field" dir="ltr" autocomplete="tel"
-                                                placeholder="050-0000000">
+                                            <input type="tel" x-model="adminLinkPhone" class="form-control mw-field"
+                                                dir="ltr" autocomplete="tel" placeholder="050-0000000">
                                             <button class="btn btn-sm btn-primary" @click="sendAdminPhoneLinkOtp()">
                                                 <i class="fas fa-paper-plane"></i> שלח קוד
                                             </button>
@@ -3114,8 +3310,8 @@
                                         <div x-show="adminLinkStep === 'code'"
                                             class="d-flex gap-2 flex-wrap align-items-center mt-2">
                                             <input type="text" x-model="adminLinkCode" maxlength="6"
-                                                class="form-control mw-field" dir="ltr"
-                                                autocomplete="one-time-code" inputmode="numeric" placeholder="------">
+                                                class="form-control mw-field" dir="ltr" autocomplete="one-time-code"
+                                                inputmode="numeric" placeholder="------">
                                             <button class="btn btn-sm btn-success" @click="confirmAdminPhoneLinkOtp()">
                                                 <i class="fas fa-check"></i> אישור קישור
                                             </button>
@@ -3131,16 +3327,18 @@
                         <div class="content-card" x-show="!window.IS_DEMO">
                             <div class="section-header" @click="ui.googleDriveOpen = !ui.googleDriveOpen">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2 c-google"></i>חיבור לגוגל דרייב</h6>                            
+                                    <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2 c-google"></i>חיבור לגוגל
+                                        דרייב</h6>
                                     <span x-show="googleDriveConnected" class="badge bg-success">
-                                        מחובר <span x-show="googleDriveUserEmail" x-text="' — ' + googleDriveUserEmail"></span>
+                                        מחובר <span x-show="googleDriveUserEmail"
+                                            x-text="' — ' + googleDriveUserEmail"></span>
                                     </span>
                                 </div>
-                            
-                                <i class="fas c-sec" :class="ui.googleDriveOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+
+                                <i class="fas c-sec"
+                                    :class="ui.googleDriveOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.googleDriveOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.googleDriveOpen }">
                                 <p class="small text-muted mt-2">
                                     חיבור זה מאפשר לגבות בלחיצה אחת ישירות לגוגל דרייב שלך, לצפות בכל הגיבויים
                                     שנעשו, לשחזר מהם או למחוק אותם — הכל מלשונית "גיבוי ושחזור".
@@ -3160,10 +3358,11 @@
                                         <div class="alert alert-info py-2 small mb-2"
                                             x-show="defaultGoogleClientId && !config.googleDrive?.connectedOnce">
                                             לחץ על "התחבר לגוגל דרייב", בחר את חשבון הגוגל שלך ואשר את ההרשאה.
-                                            <br/>
+                                            <br />
                                             האתר יקבל גישה <b>רק לקבצים שהוא עצמו יוצר</b> בדרייב שלך, ולא לשאר הקבצים.
-                                            <br/>
-                                            אם גוגל מציגה הודעה שהאפליקציה "לא מאומתת", אז לחץ: "Advanced" ← "Go to ... (unsafe)".
+                                            <br />
+                                            אם גוגל מציגה הודעה שהאפליקציה "לא מאומתת", אז לחץ: "Advanced" ← "Go to ...
+                                            (unsafe)".
                                         </div>
                                         <details class="mb-2" :open="!defaultGoogleClientId"
                                             x-show="showAdvancedDriveSettings">
@@ -3195,8 +3394,7 @@
                                                     class="fas fa-spinner fa-spin me-1"></i> מתחבר...</span>
                                         </button>
                                         <button class="btn btn-outline-danger ms-2" type="button"
-                                            x-show="config.googleDrive?.connectedOnce"
-                                            @click="disconnectGoogleDrive()">
+                                            x-show="config.googleDrive?.connectedOnce" @click="disconnectGoogleDrive()">
                                             <i class="fas fa-unlink me-1"></i> נתק / אפס חיבור
                                         </button>
                                         <div class="small text-muted mt-2" x-show="showAdvancedDriveSettings">מזהה
@@ -3233,8 +3431,7 @@
                                 <h6 class="mb-0 fw-bold">עמודות ריכוז תנועות</h6>
                                 <i class="fas c-sec" :class="ui.movOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.movOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.movOpen }">
                                 <div class="list-group mb-2 mt-3">
                                     <template x-for="(col, index) in config.movementColumns" :key="col.columnId">
                                         <div class="list-group-item d-flex gap-2 p-2 align-items-center">
@@ -3246,13 +3443,15 @@
                                                     :class="index === config.movementColumns.length - 1 ? 'invisible' : ''"><i
                                                         class="fas fa-chevron-down"></i></span>
                                             </div>
-                                            <label class="form-check form-check-inline m-0 text-nowrap" title="קובע אם העמודה תוצג למתפלל שמתחבר באמצעות SMS">
-                                                <input type="checkbox" class="form-check-input" :checked="col.showToWorshipper !== false"
+                                            <label class="form-check form-check-inline m-0 text-nowrap"
+                                                title="קובע אם העמודה תוצג למתפלל שמתחבר באמצעות SMS">
+                                                <input type="checkbox" class="form-check-input"
+                                                    :checked="col.showToWorshipper !== false"
                                                     @change="col.showToWorshipper = $event.target.checked; saveConfigData()">
                                                 <span class="form-check-label small">הצג למתפלל</span>
                                             </label>
                                             <input type="text" x-model="col.title" class="form-control form-control-sm"
-                                                @change="saveConfigData()">                                            
+                                                @change="saveConfigData()">
                                             <select x-model="col.type" class="form-select form-select-sm"
                                                 @change="saveConfigData()" :disabled="col.fixed">
                                                 <option value="text">טקסט</option>
@@ -3276,8 +3475,7 @@
                                 <h6 class="mb-0 fw-bold">עמודות התחייבויות</h6>
                                 <i class="fas c-sec" :class="ui.obOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.obOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.obOpen }">
                                 <div class="list-group mb-2 mt-3">
                                     <template x-for="(col, index) in config.commitmentColumns" :key="col.columnId">
                                         <div class="list-group-item p-2">
@@ -3323,8 +3521,7 @@
                                 <h6 class="mb-0 fw-bold">עמודות תשלומים</h6>
                                 <i class="fas c-sec" :class="ui.payOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.payOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.payOpen }">
                                 <div class="list-group mb-2 mt-3">
                                     <template x-for="(col, index) in config.paymentColumns" :key="col.columnId">
                                         <div class="list-group-item p-2">
@@ -3373,8 +3570,7 @@
                                 <h6 class="mb-0 fw-bold">הגדרת שדות מתפלל</h6>
                                 <i class="fas c-sec" :class="ui.fieldsOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.fieldsOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.fieldsOpen }">
                                 <div class="mt-3">
                                     <template x-for="(f, i) in config.memberFields" :key="f.fieldId">
                                         <div class="d-flex gap-2 mb-2 align-items-center">
@@ -3435,11 +3631,11 @@
                         <!-- Batch הוספת מתפללים -->
                         <div class="content-card mb-3">
                             <div class="section-header" @click="ui.batchAddOpen = !ui.batchAddOpen">
-                                <h6 class="mb-0 fw-bold"><i class="fas fa-file-import me-2 c-pri"></i>הוספת רשימת מתפללים</h6>
+                                <h6 class="mb-0 fw-bold"><i class="fas fa-file-import me-2 c-pri"></i>הוספת רשימת
+                                    מתפללים</h6>
                                 <i class="fas c-sec" :class="ui.batchAddOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                             </div>
-                            <div class="section-body"
-                                :class="{ collapsed: !ui.batchAddOpen }">
+                            <div class="section-body" :class="{ collapsed: !ui.batchAddOpen }">
                                 <div class="mt-3">
                                     <div class="alert alert-info py-2 small mb-3">שם מלא,כינוי,טלפון. (נקודה בין
                                         מתפללים)
@@ -3464,7 +3660,8 @@
                                     <template
                                         x-for="m in members.filter(m => !membersSearch || (m.name||'').includes(membersSearch) || (m.memberUniqueId||'').includes(membersSearch))"
                                         :key="m.memberUniqueId">
-                                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                                        <div
+                                            class="list-group-item d-flex justify-content-between align-items-center p-2">
                                             <div>
                                                 <div class="fw-medium fs-sm" x-text="m.name || m.nickname"></div>
                                                 <small class="c-sec"
@@ -3491,8 +3688,7 @@
 
 
             <!-- ══════════════════════════ ייצוא / ייבוא ══════════════════════════ -->
-            <div x-show="view === 'importexport'" x-cloak
-            x-effect="if (googleDriveConnected) {
+            <div x-show="view === 'importexport'" x-cloak x-effect="if (googleDriveConnected) {
                     ui.googleDriveBackupOpen = true;
                     ui.backupOpen = false;
                 } else {
@@ -3515,8 +3711,7 @@
                         </h6>
                         <i class="fas c-sec" :class="ui.backupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="section-body"
-                        :class="{ collapsed: !ui.backupOpen }">
+                    <div class="section-body" :class="{ collapsed: !ui.backupOpen }">
                         <div class="mt-3 d-flex gap-2 flex-wrap mb-3">
                             <button @click="previewBackup('json')" class="btn btn-outline-primary btn-sm"><i
                                     class="fas fa-file-code me-1"></i>גיבוי JSON</button>
@@ -3540,7 +3735,8 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea dir="ltr" x-model="backupPreviewText" class="form-control batch-textarea fs-sm" rows="10"></textarea>
+                            <textarea dir="ltr" x-model="backupPreviewText" class="form-control batch-textarea fs-sm"
+                                rows="10"></textarea>
                         </div>
                         <small class="text-muted d-block mt-2">גיבוי מלא כולל את כל המתפללים, ההתחייבויות, התשלומים,
                             הקופות וההגדרות</small>
@@ -3558,11 +3754,11 @@
                             <div class="scroll-y sm">
                                 <ul class="list-unstyled mb-0 small">
                                     <template x-for="(item, idx) in backupHistory" :key="idx">
-                                        <li class="py-1 px-2"
-                                            :class="{ 'bg-main': idx % 2 === 0 }">
+                                        <li class="py-1 px-2" :class="{ 'bg-main': idx % 2 === 0 }">
                                             <i class="fas fa-check-circle me-1 c-green"></i>
                                             <span x-text="item.time"></span>
-                                            <span x-show="item.filename" class="text-muted ms-2" x-text="item.filename"></span>
+                                            <span x-show="item.filename" class="text-muted ms-2"
+                                                x-text="item.filename"></span>
                                         </li>
                                     </template>
                                 </ul>
@@ -3576,17 +3772,17 @@
                     <div class="section-header" @click="ui.googleDriveBackupOpen = !ui.googleDriveBackupOpen">
                         <div class="d-flex align-items-center gap-2">
                             <h6 class="mb-0 fw-bold"><i class="fab fa-google me-2 c-google"></i>גיבוי לגוגל דרייב</h6>
-                    
+
                             <span x-show="googleDriveConnected" class="badge bg-success">
                                 מחובר
                                 <span x-show="googleDriveUserEmail" x-text="' — ' + googleDriveUserEmail"></span>
                             </span>
-                        </div>                    
-                        <i class="fas c-sec" :class="ui.googleDriveBackupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </div>
+                        <i class="fas c-sec"
+                            :class="ui.googleDriveBackupOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
 
-                    <div class="section-body section-visible"
-                        :class="{ collapsed: !ui.googleDriveBackupOpen }">
+                    <div class="section-body section-visible" :class="{ collapsed: !ui.googleDriveBackupOpen }">
                         <template x-if="!googleDriveConnected">
                             <div
                                 class="alert alert-secondary py-2 small mt-2 mb-0 d-flex align-items-center gap-2 flex-wrap">
@@ -3622,7 +3818,8 @@
                                         x-model="googleDriveOverwriteExisting"
                                         @change="try { localStorage.setItem('synagogue_drive_overwrite', googleDriveOverwriteExisting ? '1' : '0') } catch (e) { }">
                                     <label class="form-check-label small" for="googleDriveOverwriteExisting">
-                                        דרוס קובץ גיבוי קיים (במקום ליצור קובץ חדש) - שם הקובץ: betkneset_backup_latest.json
+                                        דרוס קובץ גיבוי קיים (במקום ליצור קובץ חדש) - שם הקובץ:
+                                        betkneset_backup_latest.json
                                     </label>
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap align-items-center mb-2">
@@ -3696,15 +3893,15 @@
                         </h6>
                         <i class="fas c-sec" :class="ui.restoreOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="section-body"
-                        :class="{ collapsed: !ui.restoreOpen }">
+                    <div class="section-body" :class="{ collapsed: !ui.restoreOpen }">
                         <div class="mt-3">
                             <div class="alert alert-warning py-2 small"><i
                                     class="fas fa-exclamation-triangle me-1"></i>שחזור יחליף מיידית בבסיס הנתונים את
                                 <strong>כל הנתונים הקיימים</strong>. פעולה זו בלתי הפיכה!
                             </div>
                             <div class="d-flex gap-2 flex-wrap align-items-center">
-                                <input type="file" id="restoreFileInput" class="form-control form-control-sm mw-field" accept=".json,.xlsx,.xls,.txt,.csv">
+                                <input type="file" id="restoreFileInput" class="form-control form-control-sm mw-field"
+                                    accept=".json,.xlsx,.xls,.txt,.csv">
                                 <button @click="restoreFullBackup()" class="btn btn-danger btn-sm"><i
                                         class="fas fa-undo me-1"></i>שחזר מקובץ</button>
                             </div>
@@ -3723,8 +3920,7 @@
                                 <div class="scroll-y sm">
                                     <ul class="list-unstyled mb-0 small">
                                         <template x-for="(item, idx) in restoreHistory" :key="idx">
-                                            <li class="py-1 px-2"
-                                                :class="{ 'bg-main': idx % 2 === 0 }">
+                                            <li class="py-1 px-2" :class="{ 'bg-main': idx % 2 === 0 }">
                                                 <i class="fas fa-undo me-1 text-danger"></i>
                                                 <span x-text="item.time"></span>
                                             </li>
@@ -3742,8 +3938,7 @@
                         <h6 class="mb-0 fw-bold"><i class="fas fa-filter me-2 c-acc"></i>ייצוא מסונן</h6>
                         <i class="fas c-sec" :class="ui.filteredExportOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="section-body"
-                        :class="{ collapsed: !ui.filteredExportOpen }">
+                    <div class="section-body" :class="{ collapsed: !ui.filteredExportOpen }">
                         <div class="mt-3 row g-3">
                             <div class="col-md-6">
                                 <label class="small fw-bold mb-1">סוג תנועה</label>
@@ -3789,8 +3984,7 @@
                             נתונים</h6>
                         <i class="fas c-sec" :class="ui.importOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="section-body"
-                        :class="{ collapsed: !ui.importOpen }">
+                    <div class="section-body" :class="{ collapsed: !ui.importOpen }">
                         <div class="mt-3">
                             <div class="custom-tabs">
                                 <button class="custom-tab" :class="ieImportTab==='json' ? 'active' : ''"
@@ -3860,11 +4054,10 @@
                     <template x-if="dbLog.length > 0">
                         <div class="scroll-y tall fs-sm">
                             <template x-for="(entry, i) in dbLog" :key="i">
-                                <div class="border-bottom d-flex gap-3 align-items-start px-3 py-2" :class="{ 'log-err': entry.status === 'error' }">
-                                    <span class="c-sec text-nowrap log-time"
-                                        x-text="entry.time"></span>
-                                    <span
-                                        :class="entry.status === 'error' ? 'text-danger' : 'c-pri'" class="log-type"
+                                <div class="border-bottom d-flex gap-3 align-items-start px-3 py-2"
+                                    :class="{ 'log-err': entry.status === 'error' }">
+                                    <span class="c-sec text-nowrap log-time" x-text="entry.time"></span>
+                                    <span :class="entry.status === 'error' ? 'text-danger' : 'c-pri'" class="log-type"
                                         x-text="entry.status === 'error' ? '❌ שגיאה' : '✅ הצלחה'"></span>
                                     <span class="c-txt" x-text="entry.msg"></span>
                                 </div>
@@ -3875,7 +4068,7 @@
             </div>
 
             <!-- ══════════════════════════ שינויים (Changelog) ══════════════════════════ -->
-            <div x-show="view === 'changelog'" x-cloak>
+            <div x-show="view === 'changelog'" x-cloak x-effect="if (view === 'changelog') loadChangelog()">
                 <div class="page-header">
                     <h1 class="page-title mb-0"><i class="fas fa-clipboard-list"></i> שינויים ועדכוני גרסה</h1>
                 </div>
@@ -3949,7 +4142,7 @@
                                                     </div>
                                                     <div class="fs-sm c-sec mt-1">
                                                         יתרה: <span class="money-ltr d-inline-block fw-semibold"
-                                                        :class="fundSignedClass(fund.balance)"
+                                                            :class="fundSignedClass(fund.balance)"
                                                             x-text="fundSignedText(fund.balance)"></span>
                                                     </div>
                                                 </div>
@@ -3980,10 +4173,10 @@
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="lbl">הערות:</label>
-                                                    <textarea x-model="newFundNotes" class="search-input ta-v"></textarea>
+                                                    <textarea x-model="newFundNotes"
+                                                        class="search-input ta-v"></textarea>
                                                 </div>
-                                                <button class="btn btn-primary btn-sm w-100"
-                                                    @click="addFund()">
+                                                <button class="btn btn-primary btn-sm w-100" @click="addFund()">
                                                     <i class="fas fa-plus"></i> הוסף קופה
                                                 </button>
                                             </div>
@@ -4012,17 +4205,18 @@
                                     <div class="d-flex flex-column gap-2">
                                         <template x-for="purpose in paymentPurposes" :key="purpose.id">
                                             <div class="fund-box d-flex align-items-center justify-content-between">
-                                                <div class="flex-1 pointer"
-                                                    @click="selectPurpose(purpose.id)">
+                                                <div class="flex-1 pointer" @click="selectPurpose(purpose.id)">
                                                     <div class="fw-semibold">
                                                         <span x-text="purpose.name"></span>
                                                     </div>
                                                     <div class="fs-sm c-sec mt-1">
-                                                        התקבל בסה"כ: <span class="money-ltr d-inline-block c-pri fw-semibold">₪<span
+                                                        התקבל בסה"כ: <span
+                                                            class="money-ltr d-inline-block c-pri fw-semibold">₪<span
                                                                 x-text="Number(getPurposeCumulative(purpose.id, purpose.startDate, getTodayDate())).toLocaleString()"></span></span>
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-sm btn-danger me-2" @click="deletePurpose(purpose.id)">
+                                                <button class="btn btn-sm btn-danger me-2"
+                                                    @click="deletePurpose(purpose.id)">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
@@ -4054,10 +4248,10 @@
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="lbl">הערות:</label>
-                                                    <textarea x-model="newPurposeNotes" class="search-input ta-v"></textarea>
+                                                    <textarea x-model="newPurposeNotes"
+                                                        class="search-input ta-v"></textarea>
                                                 </div>
-                                                <button class="btn btn-primary btn-sm w-100"
-                                                    @click="addPurpose()">
+                                                <button class="btn btn-primary btn-sm w-100" @click="addPurpose()">
                                                     <i class="fas fa-plus"></i> הוסף מטרת תשלום
                                                 </button>
                                             </div>
@@ -4090,7 +4284,8 @@
                                                 קופה:</label>
                                             <input type="text" x-model="fundEditingName" class="search-input mb-2">
                                             <label class="lbl c-sec">הערות:</label>
-                                            <textarea x-model="fundEditingNotes" class="search-input ta-v mb-2"></textarea>
+                                            <textarea x-model="fundEditingNotes"
+                                                class="search-input ta-v mb-2"></textarea>
                                             <span class="fs-sm c-sec mb-2">
                                                 נוצרה ב:</span>
                                             <span class="fs-sm fw-semibold c-pri">
@@ -4122,8 +4317,7 @@
                                 <div class="fund-box text-center p-3">
                                     <div class="fs-sm c-sec mb-2">
                                         יתרה בקופה</div>
-                                    <div class="fs-4 fw-bold money-ltr"
-                                        :class="fundSignedClass(selectedFund.balance)"
+                                    <div class="fs-4 fw-bold money-ltr" :class="fundSignedClass(selectedFund.balance)"
                                         x-text="fundSignedText(selectedFund.balance)">
                                     </div>
                                 </div>
@@ -4361,9 +4555,11 @@
                                             <input type="text" x-model="purposeEditingName" class="search-input mb-2">
                                             <label class="lbl c-sec">תאריך
                                                 התחלה:</label>
-                                            <input type="date" x-model="purposeEditingStartDate" class="search-input mb-2">
+                                            <input type="date" x-model="purposeEditingStartDate"
+                                                class="search-input mb-2">
                                             <label class="lbl c-sec">הערות:</label>
-                                            <textarea x-model="purposeEditingNotes" class="search-input ta-v mb-2"></textarea>
+                                            <textarea x-model="purposeEditingNotes"
+                                                class="search-input ta-v mb-2"></textarea>
                                             <div class="d-flex gap-2 mt-3">
                                                 <button class="btn btn-sm btn-success" @click="saveEditPurpose()">
                                                     <i class="fas fa-check"></i> שמור
@@ -4693,45 +4889,31 @@
                 highlightedRowId: null,
                 dbLog: JSON.parse(localStorage.getItem('synagogue_dblog')) || [],
 
-                // ═══ רשימת שינויים (נכתבת ידנית על ידי המפתח בלבד) ═══
-                // להוספת גרסה חדשה: מוסיפים אובייקט חדש בראש המערך (מיד אחרי הסוגריים המרובעים הפותחים).
-                // הפריט הראשון תמיד מוצג למעלה ומסומן כ"גרסה אחרונה".
-                // type של כל נקודה: 'new' (חדש) | 'improve' (שיפור) | 'fix' (תיקון)
-                // הערכים הנוכחיים הם דוגמאות - להחליף בשינויים האמיתיים.
-                changelog: [
-                    {
-                        version: '1.0.3', date: '2026-11-9', title: 'כניסת מתפלל נוחה יותר',
-                        points: [
-                            { type: 'fix', text: 'דוחות - הסרת שורות כפולות: היו מוצגות: שורה תשלום + שורה קופה. כעת רק שורת תשלום' },
-                            { type: 'update', text: 'הזנת כינוי מתפלל בשורת הכתובת, קביעת כינוי באנגלית בלבד' },
-                        ]
-                    },
-                    {
-                        version: '1.0.2', date: '2026-10-27', title: 'כניסת מתפלל נוחה יותר',
-                        points: [
-                            { type: 'new', text: 'מסך "שינויים" חדש עם היסטוריית גרסאות' },
-                            { type: 'new', text: 'מספר הטלפון של המתפלל נטען אוטומטית בכניסה חוזרת' },
-                            { type: 'new', text: 'קוד ה-SMS מוזן אוטומטית ונשלח לאימות' }
-                        ]
-                    },
-                    {
-                        version: '1.0.1', date: '2026-10-15', title: 'טבלאות וייצוא',
-                        points: [
-                            { type: 'new', text: 'בחירה בין שמירה לשיתוף בייצוא PNG / PDF / Excel' },
-                            { type: 'improve', text: 'צילום טבלה ללא עמודות כפתורים וללא פס העימוד התחתון' },
-                            { type: 'fix', text: 'תשלום לקופה מופיע כעת בעמוד הקופה ומעדכן את היתרה' },
-                            { type: 'new', text: 'התחייבות לקופה מופיעה כעת בעמוד הקופה ומעדכן את היתרה' }
-                        ]
-                    },
-                    {
-                        version: '1.0.0', date: '2026-05-01', title: 'גרסה ראשונה',
-                        points: [
-                            { type: 'new', text: 'ניהול מתפללים, התחייבויות ותשלומים' },
-                            { type: 'new', text: 'דוחות וסיכום חובות' },
-                            { type: 'new', text: 'גיבוי ושחזור' }
-                        ]
+                // Changelog is loaded from changelog.json (only when the changelog view opens).
+                changelog: [],
+                // Latest version is loaded from version.json at startup (sidebar label only).
+                latestVersion: '',
+                async loadChangelog() {
+                    try {
+                        const res = await fetch('./changelog.json', { cache: 'no-cache' });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const data = await res.json();
+                        this.changelog = Array.isArray(data) ? data : [];
+                    } catch (err) {
+                        console.error('Failed to load changelog.json', err);
+                        this.changelog = [];
                     }
-                ],
+                },
+                async loadLatestVersion() {
+                    try {
+                        const res = await fetch('./version.json', { cache: 'no-cache' });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const data = await res.json();
+                        this.latestVersion = data.version || '';
+                    } catch (err) {
+                        console.error('Failed to load version.json', err);
+                    }
+                },
                 changelogTypeLabel(type) {
                     return ({ new: 'חדש', improve: 'שיפור', fix: 'תיקון' })[type] || 'שינוי';
                 },
@@ -4877,7 +5059,7 @@
                 // דריסת קובץ הגיבוי הקיים בדרייב (ברירת מחדל: מסומן; הבחירה נשמרת במכשיר זה)
                 googleDriveOverwriteExisting: (() => { try { return localStorage.getItem('synagogue_drive_overwrite') !== '0'; } catch (e) { return true; } })(),
                 googleDriveUserEmail: '',
-                
+
                 _gisLoaded: false,
                 googleDriveNeedsClick: false,   // חיבור קיים בחשבון, אך במכשיר הזה נדרשת לחיצה אחת להפעלה
                 _driveTokenExpiry: 0,
@@ -4985,6 +5167,7 @@
 
                     this.isLoggedIn = !!localStorage.getItem('authUser');
                     this.appReady = true;
+                    this.loadLatestVersion();
 
                     // page fade in
                     setTimeout(() => {
@@ -5007,8 +5190,8 @@
                         // טעינה אוטומטית של המספר שבו המתפלל התחבר בפעם הקודמת (נשמר רק במכשיר שלו)
                         try {
                             const savedPhone = localStorage.getItem('lastWorshipperPhone');
-                            if (savedPhone && !this.worshipperPhone) 
-								this.worshipperPhone = savedPhone;
+                            if (savedPhone && !this.worshipperPhone)
+                                this.worshipperPhone = savedPhone;
                         } catch (e) { }
                     }
 
@@ -5436,7 +5619,7 @@
                     if (!cleaned.startsWith('972')) cleaned = '972' + cleaned;
                     return '+' + cleaned;
                 },
-                
+
                 // פונקציה לשמירת לוג שגיאות אוטומטי ב-Firestore
                 // פונקציית תיעוד אוטומטית ושקטה של שגיאות ב-Firestore
                 logErrorToFirestore(actionType, errorObj, extraData = {}) {
@@ -5708,10 +5891,10 @@
                     this.matchedWorshippers = [];
                     this.stopWebOtp();
                     this._lastAutoOtp = '';
-                    try { this.worshipperPhone = localStorage.getItem('lastWorshipperPhone') || ''; } 
-					catch (e) { 
-						this.worshipperPhone = ''; 
-					}
+                    try { this.worshipperPhone = localStorage.getItem('lastWorshipperPhone') || ''; }
+                    catch (e) {
+                        this.worshipperPhone = '';
+                    }
                     this.otpCode = '';
                     this.authStep = 'phone';
                     window.location.hash = '';
@@ -6615,7 +6798,7 @@
                     if (!this.backupPreviewText) return;
                     const isJson = this.backupPreviewFilename.endsWith('.json');
                     const mime = isJson ? 'application/json' : 'text/plain';
-                    this._downloadFile(this.backupPreviewText, this.backupPreviewFilename, mime);                    
+                    this._downloadFile(this.backupPreviewText, this.backupPreviewFilename, mime);
                     if (isJson) this.recordBackupEvent(this.backupPreviewFilename);
                 },
 
@@ -6944,7 +7127,7 @@
                     }
                     if (this.reportParams.fromDate) filtered = filtered.filter(t => (t.commitmentDate || t.paymentDate || '') >= this.reportParams.fromDate);
                     if (this.reportParams.toDate) filtered = filtered.filter(t => (t.commitmentDate || t.paymentDate || '') <= this.reportParams.toDate);
-					
+
                     // קופות אינן נכללות בדוחות: תנועת קופה היא תיעוד פנימי של אותו אירוע שכבר מופיע בשורת המתפלל
                     const selectedReportMembers = this.reportParams.selectedMembers.filter(id => !String(id).startsWith('fund_'));
                     if (selectedReportMembers.length > 0) filtered = filtered.filter(t => selectedReportMembers.includes(t.memberId));
@@ -7840,7 +8023,7 @@
                     }
                     await this.deliverFile(captured, fullName, { icon: 'fa-file-excel', kindLabel: 'קובץ ה-Excel' });
                 },
-                
+
                 async exportWorshipperToExcel() {
                     if (!this.worshipperTransactions || this.worshipperTransactions.length === 0) {
                         Swal.fire('שגיאה', 'אין נתונים לייצוא', 'error');
@@ -7987,7 +8170,7 @@
                             return { ...t, name: member ? member.name : '', nickname: member ? member.nickname : '' };
                         });
                         const backup = { members: this.members, transactions: txsWithNames, config: this.config, funds: this.funds, paymentPurposes: this.paymentPurposes, exportDate: date };
-                        this._downloadFile(JSON.stringify(backup, null, 2), `${filename}.json`, 'application/json');                        
+                        this._downloadFile(JSON.stringify(backup, null, 2), `${filename}.json`, 'application/json');
                         this.recordBackupEvent(`${filename}.json`);
                     } else if (format === 'excel') {
                         const wb = XLSX.utils.book_new();
@@ -9792,4 +9975,5 @@
         // ===== END DEMO MODE =====
     </script>
 </body>
+
 </html>
