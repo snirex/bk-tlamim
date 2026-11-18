@@ -5683,6 +5683,11 @@
                     if (window.auth)
                         await window.auth.signOut();
                     this.isLoggedIn = false;
+                    // on exit, close menu and show homepage
+                    this.mobileMenuOpen = false;
+                    this.view = 'home';
+                    this.selectedMember = null;
+                    this.editingMember = null;
                     window.location.hash = '';
                     localStorage.removeItem('authUser');
 
