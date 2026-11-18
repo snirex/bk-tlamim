@@ -5424,6 +5424,9 @@
                     const n = this.normalizeNickname(nick);
                     return this.members.some(m => m.memberUniqueId !== exceptId && this.normalizeNickname(m.nickname) === n);
                 },
+                memberRouteKey(m) {
+                    return this.normalizeNickname(m.nickname) || m.memberUniqueId;
+                },
                 findMemberByNickname(nick) {
                     const n = this.normalizeNickname(nick);
                     if (!n) return null;
@@ -5457,8 +5460,8 @@
                     const params = new URLSearchParams(hash);
                     if (params.get('view')) this.view = params.get('view');
                     if (params.get('member')) {
-                        const memberId = params.get('member');
-                        this.selectedMember = this.members.find(m => m.memberUniqueId == memberId);
+                        const key = params.get('member');
+                        this.selectedMember = this.findMemberByNickname(key) || this.members.find(m => m.memberUniqueId == key);
                     }
                     if (params.get('tab')) this.activeTab = params.get('tab');
                     if (params.get('highlight')) this.highlightedRowId = params.get('highlight');
@@ -5469,7 +5472,7 @@
                     let params = new URLSearchParams();
                     if (this.view !== 'home') params.set('view', this.view);
                     if (this.selectedMember && this.view === 'account') {
-                        params.set('member', this.selectedMember.memberUniqueId);
+                        params.set('member', this.memberRouteKey(this.selectedMember));
                         params.set('tab', this.activeTab);
                     }
                     window.location.hash = params.toString();
@@ -5526,7 +5529,7 @@
                     this.highlightedRowId = transactionId;
                     let params = new URLSearchParams();
                     params.set('view', 'account');
-                    params.set('member', memberId);
+                    params.set('member', this.memberRouteKey(member));
                     params.set('tab', this.activeTab);
                     params.set('highlight', transactionId);
                     window.location.hash = params.toString();
