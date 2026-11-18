@@ -5403,7 +5403,8 @@
                 },
 
 
-                getTodayDate() {return new Date().toISOString().split('T')[0];},
+                getTodayDate() {return this.toLocalDate(new Date());},
+                toLocalDate(d) {const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}`;},
                 escapeHtml(str) {
                     return String(str)
                         .replace(/&/g, '&amp;')
@@ -5683,7 +5684,7 @@
                     if (window.auth)
                         await window.auth.signOut();
                     this.isLoggedIn = false;
-                    // on exit, close menu and show homepage
+                    //on exit, close menu and show homepage
                     this.mobileMenuOpen = false;
                     this.view = 'home';
                     this.selectedMember = null;
@@ -7223,9 +7224,9 @@
                 setDefaultReportDates() {
                     const today = new Date();
                     const ma = new Date(today);
-                    ma.setMonth(ma.getMonth() - 6);
-                    this.reportParams.toDate = today.toISOString().split('T')[0];
-                    this.reportParams.fromDate = ma.toISOString().split('T')[0];
+                    ma.setMonth(ma.getMonth() - 1);
+                    this.reportParams.toDate = this.toLocalDate(today);
+                    this.reportParams.fromDate = this.toLocalDate(ma);
                 },
 
                 togglePurpose(purpose) {
@@ -8142,7 +8143,7 @@
                 // Export functions
                 async exportToExcel(tableId, filename) {
                     if (!this.currentTable) {Swal.fire('שגיאה', 'אין טבלה לייצוא', 'error'); return;}
-                    const fullName = `${filename}_${this.selectedMember.name}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    const fullName = `${filename}_${this.selectedMember.name}_${this.getTodayDate()}.xlsx`;
                     const table = this.currentTable;
                     // תפיסת קובץ ה-Excel ש-Tabulator מייצר (במקום הורדה אוטומטית)
                     // ב-Tabulator 5 האפשרות downloadReady הוצאה משימוש; downloadEncoder מחליפה אותה (החזרת false מבטלת את ההורדה האוטומטית)
@@ -8186,7 +8187,7 @@
                     const wb = XLSX.utils.book_new();
                     const ws = XLSX.utils.json_to_sheet(rows);
                     XLSX.utils.book_append_sheet(wb, ws, "ריכוז תנועות");
-                    const filename = `ריכוז_תנועות_${this.worshipperMember?.name || 'מתפלל'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    const filename = `ריכוז_תנועות_${this.worshipperMember?.name || 'מתפלל'}_${this.getTodayDate()}.xlsx`;
                     const xlsxBytes = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
                     const xlsxBlob = new Blob([xlsxBytes], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
                     await this.deliverFile(xlsxBlob, filename, {icon: 'fa-file-excel', kindLabel: 'קובץ ה-Excel'});
@@ -8255,7 +8256,7 @@
 
                     const options = {
                         margin: [10, 10, 10, 10],
-                        filename: `${filename}_${new Date().toISOString().split('T')[0]}.pdf`,
+                        filename: `${filename}_${this.getTodayDate()}.pdf`,
                         image: {type: 'jpeg', quality: 0.98},
                         html2canvas: {
                             scale: 2,
@@ -8291,7 +8292,7 @@
 
                     const options = {
                         margin: 10,
-                        filename: `${filename}_${new Date().toISOString().split('T')[0]}.pdf`,
+                        filename: `${filename}_${this.getTodayDate()}.pdf`,
                         image: {type: 'jpeg', quality: 0.98},
                         html2canvas: {scale: 2, useCORS: true}, // scale 2 שומר על חדות הטקסט
                         jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
@@ -8302,7 +8303,7 @@
                 },
 
                 exportFullBackup(format) {
-                    const date = new Date().toISOString().split('T')[0];
+                    const date = this.getTodayDate();
                     const filename = 'betkneset_backup_' + date;
                     console.log(filename);
                     if (format === 'json') {
@@ -8330,7 +8331,7 @@
 
                 exportFiltered(format) {
                     const txs = this._getFilteredTransactions();
-                    const date = new Date().toISOString().split('T')[0];
+                    const date = this.getTodayDate();
                     if (format === 'json') {
                         const txsWithNames = txs.map(t => {
                             const member = this.members.find(m => m.memberUniqueId === t.memberId);
@@ -8851,7 +8852,7 @@
                 // ═══════════════════════ Google Drive Backup Integration ═══════════════════════
                 // בונה את תוכן הגיבוי (JSON) כמחרוזת - בשימוש גם לייצוא רגיל וגם לגיבוי לדרייב
                 _buildBackupJsonString() {
-                    const date = new Date().toISOString().split('T')[0];
+                    const date = this.getTodayDate();
                     const txsWithNames = this.transactions.map(t => {
                         const member = this.members.find(m => m.memberUniqueId === t.memberId);
                         return {...t, name: member ? member.name : '', nickname: member ? member.nickname : ''};
@@ -9157,7 +9158,7 @@
                     this.googleDriveBackingUp = true;
                     try {
                         const folderId = await this.ensureGoogleDriveFolder();
-                        const date = new Date().toISOString().split('T')[0];
+                        const date = this.getTodayDate();
                         const time = new Date().toTimeString().slice(0, 5).replace(':', '-');
                         const LATEST_NAME = 'betkneset_backup_latest.json';
                         const overwrite = !!this.googleDriveOverwriteExisting;
