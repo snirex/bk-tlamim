@@ -538,6 +538,16 @@
             gap: 0.75rem;
         }
 
+        /* ═══ PAGE HEADER — title on top, action button below, aligned right (RTL start) ═══ */
+        .page-header.page-header-stacked {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+        .page-header.page-header-stacked .page-title {
+            margin-bottom: 0.5rem;
+        }
+
         /* ═══ STATS GRID ═══ */
         .stats-grid {
             display: grid;
@@ -1892,6 +1902,41 @@
             border: 1px solid var(--border-color);
         }
 
+        /* ═══ טבלאות קופה: מיון + קיפול ═══ */
+        .fund-table-wrap {
+            overflow-x: auto;
+            overflow-y: hidden;
+            transition: max-height 0.35s ease;
+        }
+
+        .fund-table-wrap tbody tr {
+            transition: visibility 0.35s;
+        }
+
+        .fund-table-wrap tbody tr.fund-row-hidden {
+            visibility: hidden;
+        }
+
+        .fund-table-wrap th.fund-sortable {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .fund-table-wrap th.fund-sortable:hover {
+            color: var(--primary-color);
+        }
+
+        .fund-table-wrap th.fund-sortable i {
+            opacity: 0.35;
+            font-size: 0.8em;
+        }
+
+        .fund-table-wrap th.fund-sortable.is-sorted i {
+            opacity: 1;
+            color: var(--primary-color);
+        }
+
         .ft {
             width: 100%;
             border-collapse: collapse;
@@ -2968,8 +3013,7 @@
                         <div class="col-md-6">
                             <label class="small fw-bold mb-1">כינוי (אנגלית וספרות, ללא רווחים)</label>
                             <input type="text" :value="selectedMember?.nickname || ''"
-                                @change="saveAccountNickname($event)"
-                                class="form-control" placeholder="כינוי...">
+                                @change="saveAccountNickname($event)" class="form-control" placeholder="כינוי...">
                         </div>
                         <template x-for="field in config.memberFields.filter(f => f.key !== 'memberUniqueId')"
                             :key="field.fieldId">
@@ -4143,7 +4187,7 @@
                  ═══════════════════════════════════════════════════════════════ -->
 
             <div x-show="view === 'funds'" x-cloak class="content-card">
-                <div class="page-header">
+                <div class="page-header page-header-stacked">
                     <div class="page-title">
                         <i class="fas fa-piggy-bank"></i> <span
                             x-text="selectedFund ? 'ניהול קופה' : (selectedPurpose ? 'ניהול מטרת תשלום' : 'ניהול קופות ומטרות תשלום')"></span>
@@ -4384,126 +4428,99 @@
                             <h5 class="sec-title">
                                 <i class="fas fa-arrow-circle-down c-green"></i> כסף נכנס
                             </h5>
-                            <template x-if="getFundIncomingHistory().length === 0">
+                            <template x-if="getFundRows('incoming').length === 0">
                                 <div class="text-center p-4 c-sec">
                                     אין פעולות של כסף נכנס בקופה זו.
                                 </div>
                             </template>
-                            <template x-if="getFundIncomingHistory().length > 0">
-                                <div class="overflow-x-auto">
-                                    <table class="ft">
-                                        <thead>
-                                            <tr>
-                                                <th>תאריך
-                                                </th>
-                                                <th>שם
-                                                </th>
-                                                <th class="text-center">סכום
-                                                </th>
-                                                <th>סוג
-                                                    פעולה</th>
-                                                <th class="text-center">
-                                                    פעולות</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <template x-for="history in getFundIncomingHistory()" :key="history.id">
+                            <template x-if="getFundRows('incoming').length > 0">
+                                <div>
+                                    <div class="d-flex justify-content-center mb-2" x-show="getFundRows('incoming').length > fundPreviewRows">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" @click="toggleFundTable('incoming')">
+                                            <i class="fas" :class="fundTables.incoming.expanded ? 'fa-compress-alt' : 'fa-expand-alt'"></i>
+                                            <span x-text="fundTables.incoming.expanded
+                                                        ? 'צמצם טבלה'
+                                                        : 'הצג עוד ' + (getFundRows('incoming').length - fundPreviewRows) + ' רשומות'">
+                                            </span>
+                                        </button>
+                                    </div>
+
+                                    <div class="fund-table-wrap" id="fund-wrap-incoming" x-init="watchFundTable('incoming', $el)">
+                                        <table class="ft">
+                                            <thead>
                                                 <tr>
-                                                    <td>
-                                                        <span x-text="formatDate(history.date)"></span>
-                                                    </td>
-                                                    <td>
-                                                        <span x-text="history.memberName || 'ללא יוזם'"></span>
-                                                        <div class="fs-sm c-sec" x-show="history.desc"
-                                                            x-text="history.desc"></div>
-                                                    </td>
-                                                    <td class="text-center money-ltr fw-semibold"
-                                                        :class="fundSignedClass(history.amount)"
-                                                        x-text="fundSignedText(history.amount)">
-                                                    </td>
-                                                    <td class="fw-semibold c-green">
-                                                        <span x-show="history.type === 'commitment'">התחייבות</span>
-                                                        <span x-show="history.type === 'addition'">הוספה</span>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <div class="d-flex gap-1 justify-content-center">
-                                                            <button class="btn btn-xs btn-info"
-                                                                @click="editFundOperation(history.id)">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            <button class="btn btn-xs btn-danger"
-                                                                @click="deleteFundOperation(history.id)">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                                    <th class="fund-sortable" :class="fundSortActive('incoming', 'date') ? 'is-sorted' : ''" @click="sortFundTable('incoming', 'date')">תאריך <i class="fas" :class="fundSortIcon('incoming', 'date')"></i></th>
+                                                    <th class="fund-sortable" :class="fundSortActive('incoming', 'name') ? 'is-sorted' : ''" @click="sortFundTable('incoming', 'name')">שם <i class="fas" :class="fundSortIcon('incoming', 'name')"></i></th>
+                                                    <th class="fund-sortable text-center" :class="fundSortActive('incoming', 'amount') ? 'is-sorted' : ''" @click="sortFundTable('incoming', 'amount')">סכום <i class="fas" :class="fundSortIcon('incoming', 'amount')"></i></th>
+                                                    <th class="fund-sortable" :class="fundSortActive('incoming', 'type') ? 'is-sorted' : ''" @click="sortFundTable('incoming', 'type')">סוג פעולה <i class="fas" :class="fundSortIcon('incoming', 'type')"></i></th>
+                                                    <th class="text-center">פעולות</th>
                                                 </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <template x-for="(history, idx) in getFundRows('incoming')" :key="history.id">
+                                                    <tr :class="fundRowClass('incoming', idx)">
+                                                        <td><span x-text="formatDate(history.date)"></span></td>
+                                                        <td><span x-text="history.memberName || 'ללא יוזם'"></span><div class="fs-sm c-sec" x-show="history.desc" x-text="history.desc"></div></td>
+                                                        <td :class="fundSignedClass(history.amount)" class="text-center money-ltr fw-semibold"><span x-text="fundSignedText(history.amount)"></span></td>
+                                                        <td class="fw-semibold c-green"><span x-show="history.type === 'commitment'">התחייבות</span><span x-show="history.type === 'addition'">הוספה</span></td>
+                                                        <td class="text-center"><div class="d-flex gap-1 justify-content-center">
+                                                            <button class="btn btn-xs btn-info" @click="editFundOperation(history.id)"><i class="fas fa-edit"></i></button>
+                                                            <button class="btn btn-xs btn-danger" @click="deleteFundOperation(history.id)"><i class="fas fa-trash"></i></button>
+                                                        </div></td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </template>
                         </div>
 
-                        <!-- תיבה: תשלומים לקופה (מינוס) -->
+                        <!-- תיבה: תשלומים לקופה -->
                         <div class="content-card">
                             <h5 class="sec-title">
                                 <i class="fas fa-hand-holding-usd text-danger"></i> תשלומים לקופה
                             </h5>
-                            <template x-if="getFundPaymentsHistory().length === 0">
+                            <template x-if="getFundRows('payments').length === 0">
                                 <div class="text-center p-4 c-sec">
                                     אין תשלומים לקופה זו.
                                 </div>
                             </template>
-                            <template x-if="getFundPaymentsHistory().length > 0">
-                                <div class="overflow-x-auto">
-                                    <table class="ft">
-                                        <thead>
-                                            <tr>
-                                                <th>תאריך
-                                                </th>
-                                                <th>שם
-                                                </th>
-                                                <th class="text-center">סכום
-                                                </th>
-                                                <th>
-                                                    פרטי תשלום</th>
-                                                <th class="text-center">
-                                                    פעולות</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <template x-for="history in getFundPaymentsHistory()" :key="history.id">
+                            <template x-if="getFundRows('payments').length > 0">
+                                <div>
+                                    <div class="d-flex justify-content-center mb-2" x-show="getFundRows('payments').length > fundPreviewRows">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" @click="toggleFundTable('payments')">
+                                            <i class="fas" :class="fundTables.payments.expanded ? 'fa-compress-alt' : 'fa-expand-alt'"></i>
+                                            <span x-text="fundTables.payments.expanded ? 'צמצם טבלה' : 'הצג עוד ' + (getFundRows('payments').length) + ' רשומות'"></span>
+                                        </button>
+                                    </div>
+                                    <div class="fund-table-wrap" id="fund-wrap-payments" x-init="watchFundTable('payments', $el)">
+                                        <table class="ft">
+                                            <thead>
                                                 <tr>
-                                                    <td>
-                                                        <span x-text="formatDate(history.date)"></span>
-                                                    </td>
-                                                    <td>
-                                                        <span x-text="history.memberName || '—'"></span>
-                                                    </td>
-                                                    <td class="text-center money-ltr fw-semibold text-danger">
-                                                        −₪<span x-text="Number(history.amount).toLocaleString()"></span>
-                                                    </td>
-                                                    <td>
-                                                        <span
-                                                            x-text="[history.paymentMethod, history.reference ? ('אסמכתא ' + history.reference) : ''].filter(Boolean).join(' | ') || '—'"></span>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <div class="d-flex gap-1 justify-content-center">
-                                                            <button class="btn btn-xs btn-info"
-                                                                @click="editFundOperation(history.id)">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            <button class="btn btn-xs btn-danger"
-                                                                @click="deleteFundOperation(history.id)">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                                    <th class="fund-sortable" :class="fundSortActive('payments', 'date') ? 'is-sorted' : ''" @click="sortFundTable('payments', 'date')">תאריך <i class="fas" :class="fundSortIcon('payments', 'date')"></i></th>
+                                                    <th class="fund-sortable" :class="fundSortActive('payments', 'name') ? 'is-sorted' : ''" @click="sortFundTable('payments', 'name')">שם <i class="fas" :class="fundSortIcon('payments', 'name')"></i></th>
+                                                    <th class="fund-sortable text-center" :class="fundSortActive('payments', 'amount') ? 'is-sorted' : ''" @click="sortFundTable('payments', 'amount')">סכום <i class="fas" :class="fundSortIcon('payments', 'amount')"></i></th>
+                                                    <th class="fund-sortable" :class="fundSortActive('payments', 'details') ? 'is-sorted' : ''" @click="sortFundTable('payments', 'details')">פרטי תשלום <i class="fas" :class="fundSortIcon('payments', 'details')"></i></th>
+                                                    <th class="text-center">פעולות</th>
                                                 </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <template x-for="(history, idx) in getFundRows('payments')" :key="history.id">
+                                                    <tr :class="fundRowClass('payments', idx)">
+                                                        <td><span x-text="formatDate(history.date)"></span></td>
+                                                        <td><span x-text="history.memberName || '—'"></span></td>
+                                                        <td class="text-center money-ltr fw-semibold text-danger">−₪<span x-text="Number(history.amount).toLocaleString()"></span></td>
+                                                        <td><span x-text="[history.paymentMethod, history.reference ? ('אסמכתא ' + history.reference) : ''].filter(Boolean).join(' | ') || '—'"></span></td>
+                                                        <td class="text-center"><div class="d-flex gap-1 justify-content-center">
+                                                            <button class="btn btn-xs btn-info" @click="editFundOperation(history.id)"><i class="fas fa-edit"></i></button>
+                                                            <button class="btn btn-xs btn-danger" @click="deleteFundOperation(history.id)"><i class="fas fa-trash"></i></button>
+                                                        </div></td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -4513,66 +4530,54 @@
                             <h5 class="sec-title">
                                 <i class="fas fa-arrow-circle-up text-danger"></i> ניצול כסף מהקופה
                             </h5>
-                            <template x-if="getFundUsageHistory().length === 0">
+                            <template x-if="getFundRows('usage').length === 0">
                                 <div class="text-center p-4 c-sec">
                                     אין פעולות ניצול בקופה זו.
                                 </div>
                             </template>
-                            <template x-if="getFundUsageHistory().length > 0">
-                                <div class="overflow-x-auto">
-                                    <table class="ft">
-                                        <thead>
-                                            <tr>
-                                                <th>תאריך
-                                                </th>
-                                                <th class="text-center">סכום
-                                                </th>
-                                                <th>
-                                                    מטרת תשלום</th>
-                                                <th>
-                                                    פרטים</th>
-                                                <th class="text-center">
-                                                    פעולות</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <template x-for="history in getFundUsageHistory()" :key="history.id">
+                            <template x-if="getFundRows('usage').length > 0">
+                                <div>
+                                    <div class="d-flex justify-content-center mb-2" x-show="getFundRows('usage').length > fundPreviewRows">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" @click="toggleFundTable('usage')">
+                                            <i class="fas" :class="fundTables.usage.expanded ? 'fa-compress-alt' : 'fa-expand-alt'"></i>
+                                            <span x-text="fundTables.usage.expanded ? 'צמצם טבלה' : 'הצג עוד ' + (getFundRows('usage').length) + ' רשומות'"></span>                                            
+                                        </button>
+                                    </div>
+                                    <div class="fund-table-wrap" id="fund-wrap-usage" x-init="watchFundTable('usage', $el)">
+                                        <table class="ft">
+                                            <thead>
                                                 <tr>
-                                                    <td>
-                                                        <span x-text="formatDate(history.date)"></span>
-                                                    </td>
-                                                    <td class="text-center money-ltr fw-semibold text-danger">
-                                                        −₪<span x-text="Number(history.amount).toLocaleString()"></span>
-                                                    </td>
-                                                    <td>
-                                                        <span x-text="history.purposeName || '—'"></span>
-                                                    </td>
-                                                    <td>
-                                                        <span x-text="history.details || '—'"></span>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <div class="d-flex gap-1 justify-content-center">
-                                                            <button class="btn btn-xs btn-info"
-                                                                @click="editFundOperation(history.id)">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            <button class="btn btn-xs btn-danger"
-                                                                @click="deleteFundOperation(history.id)">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                                    <th class="fund-sortable" :class="fundSortActive('usage', 'date') ? 'is-sorted' : ''" @click="sortFundTable('usage', 'date')">תאריך <i class="fas" :class="fundSortIcon('usage', 'date')"></i></th>
+                                                    <th class="fund-sortable text-center" :class="fundSortActive('usage', 'amount') ? 'is-sorted' : ''" @click="sortFundTable('usage', 'amount')">סכום <i class="fas" :class="fundSortIcon('usage', 'amount')"></i></th>
+                                                    <th class="fund-sortable" :class="fundSortActive('usage', 'purpose') ? 'is-sorted' : ''" @click="sortFundTable('usage', 'purpose')">מטרת תשלום <i class="fas" :class="fundSortIcon('usage', 'purpose')"></i></th>
+                                                    <th class="fund-sortable" :class="fundSortActive('usage', 'details') ? 'is-sorted' : ''" @click="sortFundTable('usage', 'details')">פרטים <i class="fas" :class="fundSortIcon('usage', 'details')"></i></th>
+                                                    <th class="text-center">פעולות</th>
                                                 </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <template x-for="(history, idx) in getFundRows('usage')" :key="history.id">
+                                                    <tr :class="fundRowClass('usage', idx)">
+                                                        <td><span x-text="formatDate(history.date)"></span></td>
+                                                        <td class="text-center money-ltr fw-semibold text-danger">−₪<span x-text="Number(history.amount).toLocaleString()"></span></td>
+                                                        <td><span x-text="history.purposeName || '—'"></span></td>
+                                                        <td><span x-text="history.details || '—'"></span></td>
+                                                        <td class="text-center"><div class="d-flex gap-1 justify-content-center">
+                                                            <button class="btn btn-xs btn-info" @click="editFundOperation(history.id)"><i class="fas fa-edit"></i></button>
+                                                            <button class="btn btn-xs btn-danger" @click="deleteFundOperation(history.id)"><i class="fas fa-trash"></i></button>
+                                                        </div></td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </template>
                         </div>
+
                     </div>
                 </template>
 
-                <!-- הצגת דף פרטי מטרת תשלום כשיש בחירה -->
+                                <!-- הצגת דף פרטי מטרת תשלום כשיש בחירה -->
                 <template x-if="selectedPurpose">
                     <div>
                         <!-- תיבה: פרטי מטרת תשלום -->
@@ -9593,6 +9598,138 @@
                     });
                 },
 
+                // ═══ טבלאות קופה: מיון וקיפול ═══
+                fundPreviewRows: 5,
+                fundTables: {
+                    incoming: {expanded: false, sortKey: 'date', sortDir: 'desc'},
+                    payments: {expanded: false, sortKey: 'date', sortDir: 'desc'},
+                    usage: {expanded: false, sortKey: 'date', sortDir: 'desc'}
+                },
+                fundSortAccessors: {
+                    incoming: {
+                        date: h => h.date || '',
+                        name: h => h.memberName || '',
+                        amount: h => Number(h.amount) || 0,
+                        type: h => h.type || ''
+                    },
+                    payments: {
+                        date: h => h.date || '',
+                        name: h => h.memberName || '',
+                        amount: h => Number(h.amount) || 0,
+                        details: h => [h.paymentMethod, h.reference].filter(Boolean).join(' ')
+                    },
+                    usage: {
+                        date: h => h.date || '',
+                        amount: h => Number(h.amount) || 0,
+                        purpose: h => h.purposeName || '',
+                        details: h => h.details || ''
+                    }
+                },
+
+                getFundRows(key) {
+                    const base = key === 'incoming' ? this.getFundIncomingHistory()
+                        : key === 'payments' ? this.getFundPaymentsHistory()
+                            : this.getFundUsageHistory();
+                    const st = this.fundTables[key];
+                    const get = st.sortKey && this.fundSortAccessors[key][st.sortKey];
+                    if (!get) return base;
+                    const dir = st.sortDir === 'asc' ? 1 : -1;
+                    return [...base].sort((a, b) => {
+                        const va = get(a), vb = get(b);
+                        if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+                        return String(va).localeCompare(String(vb), 'he', {numeric: true}) * dir;
+                    });
+                },
+
+                sortFundTable(key, field) {
+                    const st = this.fundTables[key];
+                    if (st.sortKey === field) {
+                        st.sortDir = st.sortDir === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        st.sortKey = field;
+                        st.sortDir = 'asc';
+                    }
+                    this.$nextTick(() => this.fitFundTable(key, false));
+                },
+
+                fundSortActive(key, field) {
+                    return this.fundTables[key].sortKey === field;
+                },
+
+                fundSortIcon(key, field) {
+                    const st = this.fundTables[key];
+                    if (st.sortKey !== field) return 'fa-sort';
+                    return st.sortDir === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+                },
+
+                fundRowClass(key, idx) {
+                    return (!this.fundTables[key].expanded && idx >= this.fundPreviewRows) ? 'fund-row-hidden' : '';
+                },
+
+                toggleFundTable(key) {
+                    const st = this.fundTables[key];
+                    st.expanded = !st.expanded;
+                    this.$nextTick(() => this.fitFundTable(key, true));
+                },
+
+                // מגביל את גובה מעטפת הטבלה: מקופל = שורות המקסימום, פרוס = ללא הגבלה. כשנדרש - עם אנימציה.
+                fitFundTable(key, animate) {
+                    const el = document.getElementById('fund-wrap-' + key);
+                    const table = el && el.querySelector('table');
+                    if (!el || !table) return;
+                    const st = this.fundTables[key];
+                    const rows = table.tBodies[0] ? table.tBodies[0].rows : [];
+                    const hasMore = rows.length > this.fundPreviewRows;
+                    const tableTop = table.getBoundingClientRect().top;
+                    const fullH = table.getBoundingClientRect().height;
+                    const collapsedH = hasMore
+                        ? rows[this.fundPreviewRows].getBoundingClientRect().top - tableTop
+                        : fullH;
+                    const restValue = (!hasMore || st.expanded) ? 'none' : collapsedH + 'px';
+
+                    if (!animate || !hasMore) {
+                        el.style.transition = 'none';
+                        el.style.maxHeight = restValue;
+                        void el.offsetHeight;
+                        el.style.transition = '';
+                        return;
+                    }
+
+                    const from = el.getBoundingClientRect().height;
+                    const to = st.expanded ? fullH : collapsedH;
+                    el._fundAnimating = true;
+                    el.style.transition = 'none';
+                    el.style.maxHeight = from + 'px';
+                    void el.offsetHeight;
+                    el.style.transition = '';
+                    el.style.maxHeight = to + 'px';
+
+                    let finished = false;
+                    const finish = () => {
+                        if (finished) return;
+                        finished = true;
+                        el.removeEventListener('transitionend', onEnd);
+                        el._fundAnimating = false;
+                        el.style.maxHeight = restValue;
+                    };
+                    const onEnd = (e) => {
+                        if (e.target === el && e.propertyName === 'max-height') finish();
+                    };
+                    el.addEventListener('transitionend', onEnd);
+                    setTimeout(finish, 500); // גיבוי אם אין מעבר (למשל גובה זהה)
+                },
+
+                // מחשב מחדש את הגובה כששינוי בתוכן הטבלה (הוספה/מחיקה/מיון)
+                watchFundTable(key, el) {
+                    const table = el.querySelector('table');
+                    if (!table || el._fundRO) return;
+                    el._fundRO = new ResizeObserver(() => {
+                        if (!el._fundAnimating) this.fitFundTable(key, false);
+                    });
+                    el._fundRO.observe(table);
+                    this.fitFundTable(key, false);
+                },
+
                 editFundOperation(historyId) {
                     const historyItem = this.selectedFund.history.find(h => h.id === historyId);
                     if (!historyItem) return;
@@ -9708,18 +9845,34 @@
                         return;
                     }
 
-                    // ═══ עריכת "תשלום" של מתפלל לקופה (נכנס כמינוס ליתרה) ═══
+                    // ═══ עריכת "תשלום" של מתפלל לקופה (נכנס כמינוס ליתרה) — שם המתפלל נעול ═══
                     if (historyItem.type === 'payment') {
+                        const methodOptions = ['מזומן', 'העברה', 'צ׳ק', 'אשראי'];
+                        const currentMethod = historyItem.paymentMethod || '';
+                        const methodList = (currentMethod && !methodOptions.includes(currentMethod))
+                            ? [currentMethod, ...methodOptions]
+                            : methodOptions;
+                        const methodOptionsHtml = methodList.map(m =>
+                            `<option value="${this.escapeHtml(m)}" ${m === currentMethod ? 'selected' : ''}>${this.escapeHtml(m)}</option>`
+                        ).join('');
+
                         Swal.fire({
                             title: `עריכת ${typeLabel}`,
                             html: `
                                 <div class="text-start mb-3">
                                     <label class="d-block mb-2">תאריך:</label>
                                     <input type="date" id="editDate" class="swal2-input fund-popup-input" value="${historyItem.date}">
-                                    <label class="d-block mb-2 mt-3">שם:</label>
-                                    <input type="text" id="editName" class="swal2-input fund-popup-input" value="${this.escapeHtml(historyItem.memberName || '')}">
+                                    <label class="d-block mb-2 mt-3">שם המתפלל (לא ניתן לשינוי):</label>
+                                    <input type="text" class="swal2-input fund-popup-input" value="${this.escapeHtml(historyItem.memberName || '')}" disabled>
                                     <label class="d-block mb-2 mt-3">סכום (יופחת מהקופה):</label>
                                     <input type="number" id="editAmount" class="swal2-input fund-popup-input" value="${historyItem.amount}">
+                                    <label class="d-block mb-2 mt-3">אופן תשלום:</label>
+                                    <select id="editPaymentMethod" class="swal2-select fund-popup-input">
+                                        <option value="">— ללא —</option>
+                                        ${methodOptionsHtml}
+                                    </select>
+                                    <label class="d-block mb-2 mt-3">אסמכתא:</label>
+                                    <input type="text" id="editReference" class="swal2-input fund-popup-input" value="${this.escapeHtml(historyItem.reference || '')}">
                                 </div>
                             `,
                             showCancelButton: true,
@@ -9727,31 +9880,34 @@
                             cancelButtonText: 'ביטול',
                             preConfirm: () => {
                                 const date = document.getElementById('editDate').value;
-                                const name = document.getElementById('editName').value.trim();
                                 const amount = Number(document.getElementById('editAmount').value);
+                                const paymentMethod = document.getElementById('editPaymentMethod').value;
+                                const reference = document.getElementById('editReference').value.trim();
                                 if (!date) {Swal.showValidationMessage('נא להזין תאריך'); return false;}
-                                if (!name) {Swal.showValidationMessage('נא להזין שם'); return false;}
                                 if (!isFinite(amount) || amount === 0) {Swal.showValidationMessage('נא להזין סכום תקין'); return false;}
-                                return {date, name, amount};
+                                return {date, amount, paymentMethod, reference};
                             }
                         }).then((result) => {
                             if (!result.isConfirmed) return;
-                            const {date, name, amount} = result.value;
+                            const {date, amount, paymentMethod, reference} = result.value;
                             const balanceDiff = amount - (Number(historyItem.amount) || 0);
 
                             historyItem.date = date;
-                            historyItem.memberName = name;
                             historyItem.amount = amount;
+                            historyItem.paymentMethod = paymentMethod;
+                            historyItem.reference = reference;
 
                             // תשלום מקטין את היתרה
                             this.selectedFund.balance = (Number(this.selectedFund.balance) || 0) - balanceDiff;
 
-                            // עדכון גם בתנועת התשלום של המתפלל
+                            // עדכון גם בתנועת התשלום של המתפלל (שם המתפלל לא משתנה)
                             if (historyItem.transactionId) {
                                 const transaction = this.transactions.find(t => String(t.transactionId) === String(historyItem.transactionId));
                                 if (transaction) {
                                     transaction.paymentAmount = amount;
                                     transaction.paymentDate = date;
+                                    transaction.paymentMethod = paymentMethod;
+                                    transaction.reference = reference;
                                     this.saveTransactionsData();
                                     this.renderTable();
                                 }
